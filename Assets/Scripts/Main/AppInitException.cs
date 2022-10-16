@@ -2,6 +2,9 @@ using System;
 
 namespace Main {
     public class AppInitException : Exception {
-        public override string Message => "App failed to initialize";
+        private readonly string msg;
+        public override string Message => $"App failed to initialize: {msg}";
+
+        public AppInitException(string msg) { this.msg = msg; }
     }
 }
