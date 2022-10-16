@@ -5,10 +5,10 @@ namespace Util {
     [Serializable]
     public class ScriptableVar<T> {
         [SerializeField] private bool useConstant;
-        [SerializeField] private RuntimeVar<T> runtimeValue;
-        [SerializeField] private T constantValue;
+        [SerializeField] private RuntimeVar<T> variable;
+        [SerializeField] private T constant;
 
-        public T Value => useConstant ? constantValue : runtimeValue.Value;
+        public T Value => useConstant ? constant : variable.Value;
     }
 }
 
