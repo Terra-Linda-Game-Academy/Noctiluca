@@ -1,9 +1,8 @@
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Main {
     public class App {
-        public static GamemodeManager GamemodeManager { get; private set; }
+        public static GameModeManager GameModeManager { get; private set; }
         public static SaveManager SaveManager { get; private set; }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -13,9 +12,9 @@ namespace Main {
             if (app is null) throw new AppInitException("App prefab not found in Resources folder");
             Object.DontDestroyOnLoad(app);
 
-            GamemodeManager = app.GetComponent<GamemodeManager>();
-            if (GamemodeManager is null) 
-                throw new AppInitException("App prefab missing required GamemodeManager component");
+            GameModeManager = app.GetComponent<GameModeManager>();
+            if (GameModeManager is null) 
+                throw new AppInitException("App prefab missing required GameModeManager component");
             
             SaveManager = app.GetComponent<SaveManager>();
             if (SaveManager is null) 
