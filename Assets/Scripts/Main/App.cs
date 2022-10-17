@@ -20,6 +20,19 @@ namespace Main {
             if (SaveManager is null) 
                 throw new AppInitException("App prefab missing required SaveManager component");
         }
+
+        private static bool paused = false;
+        public static bool Paused {
+            get => paused;
+            set {
+                paused = value;
+                if (paused) {
+                    Time.timeScale = 0;
+                } else {
+                    Time.timeScale = 1;
+                }
+            }
+        }
     }
 }
 
