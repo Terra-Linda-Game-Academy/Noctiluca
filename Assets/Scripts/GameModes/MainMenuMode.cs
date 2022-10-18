@@ -1,4 +1,4 @@
-namespace Main.Modes {
+namespace GameModes {
     public class MainMenuMode {
         
     }

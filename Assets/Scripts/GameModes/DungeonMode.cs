@@ -2,7 +2,7 @@ using System.Collections;
 using Levels;
 using UnityEngine;
 
-namespace Main.Modes {
+namespace GameModes {
     public class DungeonGameMode : GameMode {
         [SerializeField] private LevelStack levels;
         

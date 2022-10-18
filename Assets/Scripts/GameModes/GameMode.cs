@@ -1,6 +1,7 @@
 using System.Collections;
+using Main;
 
-namespace Main {
+namespace GameModes {
     public abstract class GameMode {
         public GameModeState State { get; protected set; } = GameModeState.Ended;
 
