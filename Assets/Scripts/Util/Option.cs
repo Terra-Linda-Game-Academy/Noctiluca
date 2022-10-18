@@ -13,23 +13,15 @@ namespace Util {
                 if (enabled) return value;
                 throw new NoneReferenceException(typeof(T));
             }
+            set {
+                enabled = true;
+                this.value = value;
+            }
         }
 
         public static Option<T> None() => new Option<T>(){ enabled = false };
         public static Option<T> Some(T value) => new Option<T>(){ enabled = true, value = value };
 
-        public Option<U> Map<U>(Func<T, U> fn) {
-            if (enabled) return Option<U>.Some(fn.Invoke(value));
-            return Option<U>.None();
-        }
-
-        public Option<U> FlatMap<U>(Func<T, Option<U>> fn) {
-            if (!enabled) return Option<U>.None();
-            return fn.Invoke(value);
-        }
-
-        public void MapInPlace(Func<T, T> fn) {
-            if (enabled) value = fn.Invoke(value);
-        }
+        public void Empty() => enabled = false;
     }
 }
