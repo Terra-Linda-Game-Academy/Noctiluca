@@ -1,5 +1,7 @@
+using UnityEngine;
+
 namespace Main {
-    public class InputManager {
+    public class InputManager : MonoBehaviour {
         
     }
 }
