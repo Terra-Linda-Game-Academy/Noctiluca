@@ -96,3 +96,7 @@ crashlytics-build.properties
 **/.idea/**/*.iml
 **/.idea/**/contentModel.xml
 **/.idea/**/modules.xml
+
+# test scenes folder isn't committed
+Assets/Scenes/TestScenes
+Assets/Scenes/TestScenes.meta
