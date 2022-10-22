@@ -8,5 +8,7 @@ namespace GameModes {
         
         protected override IEnumerator _OnStart() { throw new System.NotImplementedException(); }
         protected override IEnumerator _OnEnd() { throw new System.NotImplementedException(); }
+
+        protected override IEnumerator _OnStarted() { throw new System.NotImplementedException(); }
     }
 }
