@@ -10,3 +10,4 @@ echo "git should be at %gitpath%"
 %gitpath% config core.hooksPath .githooks
 
 echo "Git Hooks installed :)"
+pause
