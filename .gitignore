@@ -98,6 +98,6 @@ crashlytics-build.properties
 **/.idea/**/modules.xml
 
 # test scenes folder isn't committed
-Assets/Scenes/TestScenes/**
+Assets/Scenes/TestScenes
 !Assets/Scenes/TestScenes/readme.md
 !Assets/Scenes/TestScenes/readme.md.meta
