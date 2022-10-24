@@ -1,12 +1,13 @@
 using System.Collections;
-using GameModes;
+using Gamemodes;
 using UnityEngine;
 
 namespace Main {
     public class GameModeManager : MonoBehaviour {
         private bool isSwitchingMode;
-        private GameMode currentMode;
-        public IEnumerator SwitchMode(GameMode mode) {
+        private Gamemode currentMode;
+        
+        public IEnumerator SwitchMode(Gamemode mode) {
             yield return new WaitUntil(() => !isSwitchingMode);
             if (currentMode == mode) yield break;
 
