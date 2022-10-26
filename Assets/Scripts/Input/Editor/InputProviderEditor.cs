@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Input.ConcreteInputProviders;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using PopupWindow = UnityEditor.PopupWindow;
@@ -27,8 +29,23 @@ namespace Input.Editor {
 			_middlewareListContainer = root.Q<VisualElement>("middleware-list-container");
 
 			SerializedProperty middlewares = serializedObject.FindProperty("middlewares");
-			
-			//Button debugButton = root.Q<Button>("debug-button");
+
+			for (int i = 0; i < middlewares.arraySize; i++) {
+				SerializedProperty middleware = middlewares.GetArrayElementAtIndex(i);
+				Debug.Log(middleware.propertyType);
+				PropertyField middlewareField = new PropertyField(middleware) { style = { flexGrow = 1 } }; 
+				middlewareField.Bind(middleware.serializedObject);
+				Debug.Log(middlewareField.binding);
+				_middlewareListContainer.Add(middlewareField);
+			}
+
+			Button debugButton = root.Q<Button>("debug-button");
+			debugButton.clicked += () => { ((PlayerInputProvider) target).DebugPrint(); };
+
+			Button debugAddButton = root.Q<Button>("debug-add-button");
+			debugAddButton.clicked += () => {
+				                          ((PlayerInputProvider) target).middlewares.Add(new PlayerInputMiddleware());
+			                          };
 
 			/*switch (target) {
 				case InputProvider<PlayerInputData> provider:
