@@ -3,7 +3,7 @@ using Gamemodes;
 using UnityEngine;
 
 namespace Main {
-    public class GameModeManager : MonoBehaviour {
+    public class GamemodeManager : MonoBehaviour {
         private bool isSwitchingMode;
         private Gamemode currentMode;
         

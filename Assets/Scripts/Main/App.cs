@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Main {
     public class App {
-        public static GameModeManager GameModeManager { get; private set; }
+        public static GamemodeManager GamemodeManager { get; private set; }
         public static SaveManager SaveManager { get; private set; }
         public static InputManager InputManager { get; private set; }
 
@@ -26,8 +26,8 @@ namespace Main {
             if (app is null) throw new AppInitException("App prefab not found in Resources folder");
             Object.DontDestroyOnLoad(app);
 
-            GameModeManager = app.GetComponent<GameModeManager>();
-            if (GameModeManager is null) 
+            GamemodeManager = app.GetComponent<GamemodeManager>();
+            if (GamemodeManager is null) 
                 throw new AppInitException("App prefab missing required GameModeManager component");
             
             SaveManager = app.GetComponent<SaveManager>();

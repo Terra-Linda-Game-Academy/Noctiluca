@@ -8,7 +8,7 @@ namespace Gamemodes {
         [SerializeField] private Gamemode target;
 
         public void SwitchMode() {
-            IEnumerator action = App.GameModeManager.SwitchMode(target);
+            IEnumerator action = App.GamemodeManager.SwitchMode(target);
             StartCoroutine(action);
         }
     }
