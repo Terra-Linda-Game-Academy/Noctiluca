@@ -28,15 +28,6 @@ namespace Input.Editor {
 			middlewaresField.Bind(serializedObject);
 			_middlewareListContainer.Add(middlewaresField);
 
-			/*for (int i = 0; i < middlewares.arraySize; i++) {
-				SerializedProperty middleware = middlewares.GetArrayElementAtIndex(i);
-				//Debug.Log(middleware.propertyType);
-				PropertyField middlewareField = new PropertyField(middleware) {style = {flexGrow = 1}};
-				middlewareField.Bind(middleware.serializedObject);
-				//Debug.Log(middlewareField.binding);
-				_middlewareListContainer.Add(middlewareField);
-			}*/
-
 			Type targetObjType = serializedObject.targetObject.GetType();
 
 			if (targetObjType == typeof(PlayerInputProvider)) {
@@ -51,31 +42,6 @@ namespace Input.Editor {
 				                          ((PlayerInputProvider) target).middlewares.Add(
 					                          new PlayerInputSystemMiddleware());
 			                          };
-
-			/*switch (target) {
-				case InputProvider<PlayerInputData> provider:
-					provider.middlewares ??= new List<InputMiddleware<PlayerInputData>>();
-
-					_types = TypeCache.GetTypesDerivedFrom<InputMiddleware<PlayerInputData>>();
-
-					debugButton.clicked += provider.DebugPrint;
-
-					ListView middlewareList = new ListView(provider.middlewares, 100f, 
-					                                () => {
-						                                       VisualElement newVE = new VisualElement();
-						                                       _middlewareVE.CloneTree(newVE);
-						                                       return newVE;
-															},
-													 (e, i) => {
-						                                       InputMiddleware<PlayerInputData> item =
-							                                       provider.middlewares[i];
-
-						                                       VisualElement body = e.Q<VisualElement>("body");
-						                                       body.Add(item.Body());
-					                                       });
-					_middlewareListContainer.Add(middlewareList);
-					break;
-			}*/
 
 			Button addMiddlewareButton = root.Q<Button>("add-middleware-button");
 			addMiddlewareButton.clicked += () => {
@@ -96,17 +62,6 @@ namespace Input.Editor {
 			_middlewares.arraySize++;
 			_middlewares.GetArrayElementAtIndex(_middlewares.arraySize - 1).managedReferenceValue = newMiddleware;
 			serializedObject.ApplyModifiedProperties();
-			
-			/*switch (target) {
-				case InputProvider<PlayerInputData> provider:
-					InputMiddleware<PlayerInputData> newMiddleware =
-						(InputMiddleware<PlayerInputData>) Activator.CreateInstance(pickedType);
-
-					//provider.middlewares.Add(newMiddleware);
-
-					_middlewareListContainer.MarkDirtyRepaint();
-					break;
-			}*/
 		}
 	}
 
