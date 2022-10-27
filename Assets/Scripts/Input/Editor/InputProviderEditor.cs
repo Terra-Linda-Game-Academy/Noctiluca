@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 using PopupWindow = UnityEditor.PopupWindow;
 
 namespace Input.Editor {
-	[CustomEditor(typeof(InputProvider), true)]
+	[CustomEditor(typeof(InputProvider<>), true)]
 	public class InputProviderEditor : UnityEditor.Editor {
 		private TypeCache.TypeCollection _types;
 
