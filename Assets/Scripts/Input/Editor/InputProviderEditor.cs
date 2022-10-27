@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Input.ConcreteInputProviders;
 using UnityEditor;
@@ -9,13 +8,12 @@ using UnityEngine.UIElements;
 using PopupWindow = UnityEditor.PopupWindow;
 
 namespace Input.Editor {
-	[CustomEditor(typeof(InputProvider<>), true)]
+	[CustomEditor(typeof(InputProvider), true)]
 	public class InputProviderEditor : UnityEditor.Editor {
 		private TypeCache.TypeCollection _types;
 
-		private VisualElement _middlewareListContainer;
-
-		private VisualTreeAsset _middlewareVE;
+		private SerializedProperty _middlewares;
+		private VisualElement      _middlewareListContainer;
 
 		public override VisualElement CreateInspectorGUI() {
 			VisualElement root = new VisualElement();
@@ -23,20 +21,26 @@ namespace Input.Editor {
 			VisualTreeAsset tree =
 				AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Scripts/Input/Editor/InputProviderEditor.uxml");
 			tree.CloneTree(root);
-
-			_middlewareVE =
-				AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Scripts/Input/Editor/Middleware.uxml");
 			_middlewareListContainer = root.Q<VisualElement>("middleware-list-container");
 
-			SerializedProperty middlewares = serializedObject.FindProperty("middlewares");
+			_middlewares = serializedObject.FindProperty("middlewares");
+			PropertyField middlewaresField = new PropertyField(_middlewares) {style = {flexGrow = 1}};
+			middlewaresField.Bind(serializedObject);
+			_middlewareListContainer.Add(middlewaresField);
 
-			for (int i = 0; i < middlewares.arraySize; i++) {
+			/*for (int i = 0; i < middlewares.arraySize; i++) {
 				SerializedProperty middleware = middlewares.GetArrayElementAtIndex(i);
-				Debug.Log(middleware.propertyType);
-				PropertyField middlewareField = new PropertyField(middleware) { style = { flexGrow = 1 } }; 
+				//Debug.Log(middleware.propertyType);
+				PropertyField middlewareField = new PropertyField(middleware) {style = {flexGrow = 1}};
 				middlewareField.Bind(middleware.serializedObject);
-				Debug.Log(middlewareField.binding);
+				//Debug.Log(middlewareField.binding);
 				_middlewareListContainer.Add(middlewareField);
+			}*/
+
+			Type targetObjType = serializedObject.targetObject.GetType();
+
+			if (targetObjType == typeof(PlayerInputProvider)) {
+				_types = TypeCache.GetTypesDerivedFrom<PlayerInputMiddleware>();
 			}
 
 			Button debugButton = root.Q<Button>("debug-button");
@@ -44,7 +48,8 @@ namespace Input.Editor {
 
 			Button debugAddButton = root.Q<Button>("debug-add-button");
 			debugAddButton.clicked += () => {
-				                          ((PlayerInputProvider) target).middlewares.Add(new PlayerInputMiddleware());
+				                          ((PlayerInputProvider) target).middlewares.Add(
+					                          new PlayerInputSystemMiddleware());
 			                          };
 
 			/*switch (target) {
@@ -86,16 +91,22 @@ namespace Input.Editor {
 		private void AddInputProvider(int index) {
 			Type pickedType = _types[index];
 
-			switch (target) {
+			var newMiddleware = Activator.CreateInstance(pickedType);
+			
+			_middlewares.arraySize++;
+			_middlewares.GetArrayElementAtIndex(_middlewares.arraySize - 1).managedReferenceValue = newMiddleware;
+			serializedObject.ApplyModifiedProperties();
+			
+			/*switch (target) {
 				case InputProvider<PlayerInputData> provider:
 					InputMiddleware<PlayerInputData> newMiddleware =
 						(InputMiddleware<PlayerInputData>) Activator.CreateInstance(pickedType);
 
-					provider.middlewares.Add(newMiddleware);
+					//provider.middlewares.Add(newMiddleware);
 
 					_middlewareListContainer.MarkDirtyRepaint();
 					break;
-			}
+			}*/
 		}
 	}
 
