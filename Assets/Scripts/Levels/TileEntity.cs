@@ -10,6 +10,5 @@ namespace Levels {
         public TileDirection Rot => rot;
         public Vector3Int Size => size;
         
-        public 
     }
 }
