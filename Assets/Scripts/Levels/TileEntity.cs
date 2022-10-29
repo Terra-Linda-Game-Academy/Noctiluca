@@ -3,30 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Levels {
-    public abstract class TileEntity<T> : BaseTileEntity where T : MonoBehaviour {
-        public abstract string Name { get; }
+    public abstract class TileEntity<C, E> : BaseTileEntity 
+    where C : TileEntityController<C, E> // C for "Controller"
+    where E : TileEntity<C, E> { // E for "tileEntity" (this object)
+        private Dictionary<Guid, C> instances;
+        protected C this[Guid roomId] => instances[roomId];
         
-        public abstract Vector3Int Size { get; }
-        
+        protected abstract void Init(C component);
 
-        [SerializeField] private Vector3Int pos;
-        public Vector3Int Pos => pos;
-        
-
-        private Dictionary<Guid, T> instances;
-
-        protected T GetInstance(Guid roomId) => instances[roomId];
-
-        public void TileInit(GameObject obj, Guid roomId) {
-            T component = obj.AddComponent<T>();
-            instances[roomId] = component;
-            TileEntityInit(component);
-            TileEntityHelper helper = obj.GetComponent<TileEntityHelper>();
-            if (helper is not null) {
-                helper.BaseObj = this;
-            }
+        public override void Init(GameObject obj, Guid roomId) {
+            C controller = obj.AddComponent<C>();
+            instances.Add(roomId, controller);
+            controller.Init((E) this, roomId);
+            Init(controller);
         }
 
-        public abstract void TileEntityInit(T component);
+        public void RemoveInstance(Guid roomId) => instances.Remove(roomId);
     }
 }

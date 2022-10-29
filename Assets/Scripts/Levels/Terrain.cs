@@ -1,7 +1,7 @@
 using UnityEngine;
 
 namespace Levels {
-    [CreateAssetMenu(fileName = "FILENAME", menuName = "MENUNAME", order = 0)]
+    [CreateAssetMenu(fileName = "Terrain", menuName = "Levels/Terrain", order = 2)]
     public class Terrain : ScriptableObject {
         
     }
