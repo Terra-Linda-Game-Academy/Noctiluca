@@ -21,7 +21,7 @@ public class DebugController : MonoBehaviour
     public static DebugCommand TEST;
     public static DebugCommand HELP;
 
-    public static List<object> commandList;
+    public static List<object> commandList = new List<object>();
 
     public List<string> commandHistory = new List<string>();
     private int commandHistoryIndex = -1;
@@ -29,38 +29,16 @@ public class DebugController : MonoBehaviour
 
     public List<string> consoleLog = new List<string>();
 
-    public List<ParameterConverter> paramConverters = new List<ParameterConverter>();
-
-    
-
-
-    //private GameObject portalCamera;
-    //private GameObject portalScreen;
-
-    //example of how to create console command
-
-    [ConsoleCommand("wow","ok")]
+    [ConsoleCommand("test","ok")]
     public string TestFunction(string s, int i, string x) {
-        Debug.Log("Now: ");
-        Debug.Log("IT WOrked!"+i);
-        return s + i + x;// <----- That is what it will print to in game console
+        return s + i + x;
     }
-
-    
 
     public void OnToggleDebug()
     {
         showConsole = !showConsole;
-        //SetButtonsActive(!showConsole);
         commandHistoryIndex = -1;
     }
-
-    // private void SetButtonsActive(bool active)
-    // {
-    //     Button[] components = GameObject.FindObjectsOfType<Button>();
-    //     for (int i = 0; i < components.Length; i++)
-    //         components[i].enabled = active;
-    // }
 
     public void OnReturn()
     {
@@ -98,13 +76,11 @@ public class DebugController : MonoBehaviour
                 if(parameterType == typeof(int)) {
                     objects.Add(int.Parse(arugments[argumentIndex]));
                     argumentIndex++;
-                    //Debug.Log("added int: " + int.Parse(arugments[argumentIndex]));
                 } else if(parameterType == typeof(string)) {
                     string argument = arugments[argumentIndex];
                     if(argument.StartsWith('"')) {
                         string total = argument.Substring(1);
                         if(total.EndsWith('"')) {
-                            //Debug.Log("added string: " + total);
                             objects.Add(total);
                             break;
                         }
@@ -113,19 +89,16 @@ public class DebugController : MonoBehaviour
                             total += " " + arugments[argumentIndex];
                             argumentIndex++;
                         }
-                        //Debug.Log("added string: " + total);
                         total=total.Substring(0,total.Length-1);
                         objects.Add(total);
                         
                     } else {
-                        //Debug.Log("added string: " + arugments[argumentIndex]);
                         objects.Add(arugments[argumentIndex]);
                         argumentIndex++;
                     }
                 }else if(parameterType == typeof(Vector3)) {
                     objects.Add(new Vector3(float.Parse(arugments[argumentIndex]),float.Parse(arugments[argumentIndex+1]),float.Parse(arugments[argumentIndex+2])));
                     argumentIndex+=3;
-                    //Debug.Log("added vector: ");
                 }
                 else {
                     objects.Add(null);
@@ -140,64 +113,9 @@ public class DebugController : MonoBehaviour
 
     public void Awake()
     {
-        
-
-        QUIT = new DebugCommand("quit", "quits", "quit", () =>
-        {
-            Application.Quit();
-        });
-
-        TEST = new DebugCommand("test", "Runs a test function", "test", () =>
-        {
-            //Test code here
-            AddToConsoleLog("Finished Test Function");
-        });
-
-        PING = new DebugCommand("ping", "Gets your ping to the server.", "ping", () =>
-        {
-            AddToConsoleLog("pong");
-        });
-
-        //Example
-        RANDOM_NUMBER = new DebugCommand<int>("random_number", "Prints a random number up to your input", "random_number <max>", (max) =>
-        {
-            AddToConsoleLog("You got: " + UnityEngine.Random.Range(0,max));
-        });
-
-
-        HELP = new DebugCommand("help", "Displays a list of a the commands", "help", () =>
-        {
-            for (int i = 0; i < commandList.Count; i++)
-            {
-
-                DebugCommandBase command = commandList[i] as DebugCommandBase;
-
-                string line = $"{command.commandFormat} - {command.commandDescription}";
-
-                AddToConsoleLog(line, false);
-
-            }
-            AddToConsoleLog("---", false);
-        });
-
-        commandList = new List<object>()
-        {
-            QUIT,
-            PING,
-            RANDOM_NUMBER,
-            TEST,
-            HELP,
-        };
-
-
         long startTime = DateTime.Now.Millisecond;
 
-        //Adds the Attributed Commands
-        //Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-
         Assembly assembly =  Assembly.GetExecutingAssembly();
-
-        //foreach(Assembly assembly in assemblies) {
 
         System.Type[] types = assembly.GetTypes();
 
@@ -215,30 +133,23 @@ public class DebugController : MonoBehaviour
                             MethodInfo methodInfo = (MethodInfo) member;
                             ParameterInfo[] parameterInfo = methodInfo.GetParameters();
                             Type classType = member.DeclaringType;
-                            Debug.Log("tryin to run 0" + attribute.id);
+
                             //take parameter types, use function to convert string into those type and pass it through
                             commandList.Add(new DebugCommand<string[]>(attribute.id, attribute.description, GenerateFormat(attribute.id, parameterInfo), (x) => {
-                                Debug.Log("tryin to run 1");
                                 List<string> arguments = new List<string>(x);
                                 arguments.RemoveAt(0);
-                                Debug.Log("tryin to run 2");
                                 object[] parameters = ParametersFromString(arguments.ToArray(), parameterInfo);
-                                Debug.Log("parameters: " + parameters.Length);
-                                AddToConsoleLog(methodInfo.Invoke(GameObject.FindObjectOfType(classType),parameters)+"");}));
-                            // if(parameterInfo.Length==1) {
-                            //     Type parameterType = parameterInfo[0].ParameterType;
-                            //     if(parameterType == typeof(int))
-                            //         commandList.Add(new DebugCommand<int>(attribute.id, attribute.description, GenerateFormat(attribute.id, parameterInfo), (x) => {AddToConsoleLog(methodInfo.Invoke(GameObject.FindObjectOfType(classType), new object[1]{x})+"");}));
-                            // } else {
-                            //     commandList.Add(new DebugCommand(attribute.id, attribute.description, GenerateFormat(attribute.id, parameterInfo), () => {AddToConsoleLog(methodInfo.Invoke(GameObject.FindObjectOfType(classType),null)+"");}));
-                            // }
+                                object script = GameObject.FindObjectOfType(classType);
+                                if (script == null)
+                                {
+                                    script = Activator.CreateInstance(type, null);
+                                }
+                                AddToConsoleLog(methodInfo.Invoke(script, parameters)+"");}));
                         }
                         
                     } 
                 }
             }
-            //}
-
         }
         Debug.Log("Took: " + (DateTime.Now.Millisecond - startTime)+" milliseconds");
     }
@@ -324,18 +235,8 @@ public class DebugController : MonoBehaviour
 
         }
 
-        // if (GUI.Button(new Rect(Screen.width - 200f, y + 5f, 125f, 20f), "Enter"))
-        // {
-        //   OnReturn();
-        //}
-
         Event e = Event.current;
         if (!e.isKey) return;
-
-        //if (e.keyCode == KeyCode.T || e.keyCode == KeyCode.BackQuote)
-        //{
-        //    OnToggleDebug();
-        //}
 
         if (e.keyCode == KeyCode.Return)
         {
@@ -514,17 +415,5 @@ public class ConsoleCommand : System.Attribute {
         this.id=id;
         this.description=description;
         }
-}
-
-
-
-
-public class ParameterConverter {
-    public Type type;
-    public Action<string> convert;
-    public ParameterConverter(Type type, Action<string> convert) {
-        this.type = type;
-        this.convert = convert;
-    }
 }
 
