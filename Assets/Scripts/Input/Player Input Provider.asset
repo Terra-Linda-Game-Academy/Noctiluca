@@ -12,17 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbc799b4c7d64ee6b5fefdb4bd79e67e, type: 3}
   m_Name: Player Input Provider
   m_EditorClassIdentifier: 
-  middlewares:
-  - rid: 4086486200451858432
-  - rid: 4086486200451858433
+  _middlewares: []
   references:
     version: 2
-    RefIds:
-    - rid: 4086486200451858432
-      type: {class: PlayerInputSystemMiddleware, ns: Input, asm: Assembly-CSharp}
-      data:
-        testFloat: 4.23
-    - rid: 4086486200451858433
-      type: {class: PlayerInputSystemMiddleware, ns: Input, asm: Assembly-CSharp}
-      data:
-        testFloat: -1.26
+    RefIds: []

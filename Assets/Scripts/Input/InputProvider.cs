@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Input {
 	public class InputProvider<T> : ScriptableObject where T : new() {
-		private List<InputMiddleware<T>> _middlewares;
+		[SerializeReference] private List<object> _middlewares = new();
 
 		private T _inputStruct;
 
@@ -16,9 +16,22 @@ namespace Input {
 
 			return _inputStruct;
 		}
-		
-		public virtual void ClearBaseObjects() {
-			Debug.LogWarning("Ran base InputProvider ClearBaseObjects() method, this should never appear.");
+
+		private void OnValidate() { ClearBaseObjects(); }
+
+		private void ClearBaseObjects() {
+			List<object> toBeDeleted = new List<object>();
+
+			foreach (object middleware in _middlewares) {
+				if (middleware == null) {
+					toBeDeleted.Add(middleware);
+					Debug.LogWarning("Please add middlewares with the dedicated \"Add Middleware\" button.");
+				}
+			}
+
+			foreach (object delete in toBeDeleted) {
+				_middlewares.Remove(delete);
+			}
 		}
 	}
 }

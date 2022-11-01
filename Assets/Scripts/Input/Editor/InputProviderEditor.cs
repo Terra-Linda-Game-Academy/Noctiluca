@@ -23,7 +23,7 @@ namespace Input.Editor {
 			tree.CloneTree(root);
 			_middlewareListContainer = root.Q<VisualElement>("middleware-list-container");
 
-			_middlewares = serializedObject.FindProperty("middlewares");
+			_middlewares = serializedObject.FindProperty("_middlewares");
 			PropertyField middlewaresField = new PropertyField(_middlewares) {style = {flexGrow = 1}};
 			middlewaresField.Bind(serializedObject);
 			_middlewareListContainer.Add(middlewaresField);
@@ -33,15 +33,6 @@ namespace Input.Editor {
 			if (targetObjType == typeof(PlayerInputProvider)) {
 				_types = TypeCache.GetTypesDerivedFrom<PlayerInputMiddleware>();
 			}
-
-			Button debugButton = root.Q<Button>("debug-button");
-			debugButton.clicked += () => { ((PlayerInputProvider) target).DebugPrint(); };
-
-			Button debugAddButton = root.Q<Button>("debug-add-button");
-			debugAddButton.clicked += () => {
-				                          ((PlayerInputProvider) target).middlewares.Add(
-					                          new PlayerInputSystemMiddleware());
-			                          };
 
 			Button addMiddlewareButton = root.Q<Button>("add-middleware-button");
 			addMiddlewareButton.clicked += () => {
