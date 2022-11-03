@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public abstract class ItemStack : ScriptableObject
+[System.Serializable]
+public class ItemStack
 {
-    public string itemName;
-    public Texture2D thumbnail;
-    private int count;
+    public Item item;
+    public int count;
 
 }
 

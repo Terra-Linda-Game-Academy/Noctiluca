@@ -59,7 +59,8 @@ public static class ParameterConversionExtensions
 public class ConsoleArgument {
     public int lastIndexUsed;
     public object value;
-    public ConsoleArgument(object value, int lastIndexUsed) {
+    public ConsoleArgument(object value, int lastIndexUsed)
+    {
         this.lastIndexUsed = lastIndexUsed;
         this.value = value;
     }
@@ -74,14 +75,20 @@ public interface CustomConsoleParameter
 
 //ex
 public class Person : CustomConsoleParameter {
-    public static string ConsoleFormat {get {return "<name[string] age[int] quote[string]>";}}
+    public static string ConsoleFormat {get {return "name[string] age[int] quote[string]";}}
     public static ConsoleArgument ConsoleConvert(string[] args) {
-        
-        return new ConsoleArgument(new Person(args[0], int.Parse(args[1]), args[2]), 3);
+        int index = 0;
+        ConsoleArgument personName = BaseConsoleParameters.ConsoleConvertString(args[2..args.Length]);
+        index += personName.lastIndexUsed;
+        return new ConsoleArgument(new Person(args[0], int.Parse(args[1]), (string)personName.value), 2+index);
     }
-
+    public string name; 
+    public int age; 
+    public string quote;
     public Person(string name, int age, string quote) {
-        Debug.Log(name+age+quote);
+        this.name = name;
+        this.age = age;
+        this.quote = quote;
     }
 }
 

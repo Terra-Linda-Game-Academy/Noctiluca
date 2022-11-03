@@ -5,18 +5,18 @@ using System;
 
 public static class BaseConsoleParameters {
 
-    [BaseConsoleParameter(typeof(Vector3))]
+    [BaseConsoleParameter(typeof(Vector3), "x(int) y(int) x(int)")]
     public static ConsoleArgument ConsoleConvertVector3(string[] args) {
         //                                         used 3 args  |                    |                    |   so 3
         return new ConsoleArgument(new Vector3(float.Parse(args[0]),float.Parse(args[1]),float.Parse(args[2])), 3);
     }
 
-    [BaseConsoleParameter(typeof(int))]
+    [BaseConsoleParameter(typeof(int), "int")]
     public static ConsoleArgument ConsoleConvertInt(string[] args) {
         return new ConsoleArgument(int.Parse(args[0]), 1);
     }
 
-    [BaseConsoleParameter(typeof(string))]
+    [BaseConsoleParameter(typeof(string), "string")]
     public static ConsoleArgument ConsoleConvertString(string[] args) {
         string content = string.Join(" ", args);
         string output = "";
@@ -53,7 +53,9 @@ public static class BaseConsoleParameters {
 [AttributeUsage(AttributeTargets.Method)]
 public class BaseConsoleParameter : System.Attribute {
     public Type type;
-    public BaseConsoleParameter(Type type) {
+    public string format;
+    public BaseConsoleParameter(Type type, string format) {
         this.type = type;
+        this.format = format;
     }
 }

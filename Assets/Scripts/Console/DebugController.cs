@@ -15,12 +15,6 @@ public class DebugController : MonoBehaviour
 
     string input = "";
 
-    public static DebugCommand QUIT;
-    public static DebugCommand<int> RANDOM_NUMBER;
-    public static DebugCommand PING;
-    public static DebugCommand TEST;
-    public static DebugCommand HELP;
-
     public static List<object> commandList = new List<object>();
 
     public List<string> commandHistory = new List<string>();
@@ -29,7 +23,7 @@ public class DebugController : MonoBehaviour
 
     public List<string> consoleLog = new List<string>();
 
-    public static Dictionary<Type,MethodInfo> baseConsoleParameters = new Dictionary<Type,MethodInfo>();
+    public static Dictionary<Type,(MethodInfo, string)> baseConsoleParameters = new Dictionary<Type,(MethodInfo, string)>();
     //public static List<BaseConsoleParameter> baseConsoleParameters = new List<BaseConsoleParameter>();
 
     [ConsoleCommand("test","ok")]
@@ -62,22 +56,51 @@ public class DebugController : MonoBehaviour
         string output = commandName;
         
         foreach(ParameterInfo pi in parameterInfo) {
-            output += " <"+ pi.ParameterType.Name + ">";
+            Type parameterType = pi.ParameterType;
+            string format = parameterType.Name;
+            try
+            {
+                if (typeof(CustomConsoleParameter).IsAssignableFrom(parameterType))
+                {
+                    format = (string)parameterType.GetField("ConsoleFormat", BindingFlags.Public | BindingFlags.Static).GetValue(null);
+                }
+                else if (baseConsoleParameters.ContainsKey(parameterType))
+                {
+                    format = baseConsoleParameters[parameterType].Item2;
+                }
+            } catch (Exception ex) { Debug.LogError(ex); }
+            
+
+            output += " <"+ format + ">";
         }
 
         return output;
     }
 
     [ConsoleCommand("person", "creates person")]
-    public string PersonF(Person person) {
-        return "yay";
+    public string PersonF(Person person, int num) {
+        return "There are "+num+""+person.name+"s";
+    }
+
+    public static ConsoleArgument StringToArgument(string[] arguments, Type parameterType)
+    {
+        ConsoleArgument ca = null;
+        if (typeof(CustomConsoleParameter).IsAssignableFrom(parameterType))
+        {
+            ca = (ConsoleArgument)parameterType.GetMethod("ConsoleConvert").Invoke(null, new object[] { arguments });
+        }
+        else if (baseConsoleParameters.ContainsKey(parameterType))
+        {
+            ca = (ConsoleArgument)baseConsoleParameters[parameterType].Item1.Invoke(null, new object[] { arguments });
+        }
+        return ca;
     }
     
-    public object[] ParametersFromString(string[] arugments, ParameterInfo[] parameterInfo) {
+    public object[] ParametersFromString(string[] arguments, ParameterInfo[] parameterInfo) {
         List<object> objects = new List<object>();
-        Debug.Log("Arguments " + arugments.Length);
+        Debug.Log("Arguments " + arguments.Length);
         try {
-            if(arugments.Length == 0) {
+            if(arguments.Length == 0) {
                 foreach(ParameterInfo pi in parameterInfo) {
                     objects.Add(null);
                 }
@@ -87,24 +110,20 @@ public class DebugController : MonoBehaviour
             int argumentIndex = 0;
             foreach(ParameterInfo pi in parameterInfo) {
                 Type parameterType = pi.ParameterType;
-
-                if(typeof(CustomConsoleParameter).IsAssignableFrom(parameterType)) {
-                    Debug.Log("Trying" + string.Join(" ", arugments[argumentIndex..arugments.Length]));
-                    ConsoleArgument ca = (ConsoleArgument)parameterType.GetMethod("ConsoleConvert").Invoke(null,new object[]{arugments[argumentIndex..arugments.Length]});
-                    argumentIndex+=ca.lastIndexUsed;
-                    objects.Add(ca.value);
-                } else if(baseConsoleParameters.ContainsKey(parameterType)) {
-                    ConsoleArgument ca = (ConsoleArgument)baseConsoleParameters[parameterType].Invoke(null,new object[]{arugments[argumentIndex..arugments.Length]});
-                    argumentIndex+=ca.lastIndexUsed;
-                    objects.Add(ca.value);
+                Debug.Log("Current Index " + argumentIndex);
+                ConsoleArgument consoleArgument = StringToArgument(arguments[argumentIndex..arguments.Length], parameterType);
+                if(consoleArgument != null)
+                {
+                    argumentIndex += consoleArgument.lastIndexUsed;
+                    objects.Add(consoleArgument.value);
                 } else {
                     objects.Add(null);
                 }
                 // }else if(parameterType == typeof(int)) {
-                //     objects.Add(int.Parse(arugments[argumentIndex]));
+                //     objects.Add(int.Parse(arguments[argumentIndex]));
                 //     argumentIndex++;
                 // } else if(parameterType == typeof(string)) {
-                //     string argument = arugments[argumentIndex];
+                //     string argument = arguments[argumentIndex];
                 //     if(argument.StartsWith('"')) {
                 //         string total = argument.Substring(1);
                 //         if(total.EndsWith('"')) {
@@ -113,19 +132,19 @@ public class DebugController : MonoBehaviour
                 //         }
                 //         argumentIndex++;
                 //         while (!(total.EndsWith('"'))) {
-                //             total += " " + arugments[argumentIndex];
+                //             total += " " + arguments[argumentIndex];
                 //             argumentIndex++;
                 //         }
                 //         total=total.Substring(0,total.Length-1);
                 //         objects.Add(total);
                         
                 //     } else {
-                //         objects.Add(arugments[argumentIndex]);
+                //         objects.Add(arguments[argumentIndex]);
                 //         argumentIndex++;
                 //     }
                     
                 // }else if(parameterType == typeof(Vector3)) {
-                //     objects.Add(new Vector3(float.Parse(arugments[argumentIndex]),float.Parse(arugments[argumentIndex+1]),float.Parse(arugments[argumentIndex+2])));
+                //     objects.Add(new Vector3(float.Parse(arguments[argumentIndex]),float.Parse(arguments[argumentIndex+1]),float.Parse(arguments[argumentIndex+2])));
                 //     argumentIndex+=3;
                 // }
                 //  else {
@@ -187,7 +206,7 @@ public class DebugController : MonoBehaviour
         foreach(MethodInfo methodInfo in typeof(BaseConsoleParameters).GetMethods()) {
             BaseConsoleParameter baseConsoleParameter = methodInfo.GetCustomAttribute<BaseConsoleParameter>();
             if(baseConsoleParameter != null) {
-                baseConsoleParameters.Add(baseConsoleParameter.type, methodInfo);
+                baseConsoleParameters.Add(baseConsoleParameter.type, (methodInfo, baseConsoleParameter.format));
             }
         }
         Debug.Log("Took: " + (DateTime.Now.Millisecond - startTime)+" milliseconds");
