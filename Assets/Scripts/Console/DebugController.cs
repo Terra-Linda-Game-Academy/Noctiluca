@@ -29,6 +29,9 @@ public class DebugController : MonoBehaviour
 
     public List<string> consoleLog = new List<string>();
 
+    public static Dictionary<Type,MethodInfo> baseConsoleParameters = new Dictionary<Type,MethodInfo>();
+    //public static List<BaseConsoleParameter> baseConsoleParameters = new List<BaseConsoleParameter>();
+
     [ConsoleCommand("test","ok")]
     public string TestFunction(string s, int i, string x) {
         return s + i + x;
@@ -59,54 +62,80 @@ public class DebugController : MonoBehaviour
         string output = commandName;
         
         foreach(ParameterInfo pi in parameterInfo) {
-            output += " <"+pi.ParameterType.Name + ">";
+            output += " <"+ pi.ParameterType.Name + ">";
         }
 
         return output;
     }
+
+    [ConsoleCommand("person", "creates person")]
+    public string PersonF(Person person) {
+        return "yay";
+    }
     
     public object[] ParametersFromString(string[] arugments, ParameterInfo[] parameterInfo) {
         List<object> objects = new List<object>();
+        Debug.Log("Arguments " + arugments.Length);
         try {
-            
-            
+            if(arugments.Length == 0) {
+                foreach(ParameterInfo pi in parameterInfo) {
+                    objects.Add(null);
+                }
+                return objects.ToArray();
+            }
+
             int argumentIndex = 0;
             foreach(ParameterInfo pi in parameterInfo) {
                 Type parameterType = pi.ParameterType;
-                if(parameterType == typeof(int)) {
-                    objects.Add(int.Parse(arugments[argumentIndex]));
-                    argumentIndex++;
-                } else if(parameterType == typeof(string)) {
-                    string argument = arugments[argumentIndex];
-                    if(argument.StartsWith('"')) {
-                        string total = argument.Substring(1);
-                        if(total.EndsWith('"')) {
-                            objects.Add(total);
-                            break;
-                        }
-                        argumentIndex++;
-                        while (!(total.EndsWith('"'))) {
-                            total += " " + arugments[argumentIndex];
-                            argumentIndex++;
-                        }
-                        total=total.Substring(0,total.Length-1);
-                        objects.Add(total);
-                        
-                    } else {
-                        objects.Add(arugments[argumentIndex]);
-                        argumentIndex++;
-                    }
-                }else if(parameterType == typeof(Vector3)) {
-                    objects.Add(new Vector3(float.Parse(arugments[argumentIndex]),float.Parse(arugments[argumentIndex+1]),float.Parse(arugments[argumentIndex+2])));
-                    argumentIndex+=3;
-                }
-                else {
+
+                if(typeof(CustomConsoleParameter).IsAssignableFrom(parameterType)) {
+                    Debug.Log("Trying" + string.Join(" ", arugments[argumentIndex..arugments.Length]));
+                    ConsoleArgument ca = (ConsoleArgument)parameterType.GetMethod("ConsoleConvert").Invoke(null,new object[]{arugments[argumentIndex..arugments.Length]});
+                    argumentIndex+=ca.lastIndexUsed;
+                    objects.Add(ca.value);
+                } else if(baseConsoleParameters.ContainsKey(parameterType)) {
+                    ConsoleArgument ca = (ConsoleArgument)baseConsoleParameters[parameterType].Invoke(null,new object[]{arugments[argumentIndex..arugments.Length]});
+                    argumentIndex+=ca.lastIndexUsed;
+                    objects.Add(ca.value);
+                } else {
                     objects.Add(null);
                 }
+                // }else if(parameterType == typeof(int)) {
+                //     objects.Add(int.Parse(arugments[argumentIndex]));
+                //     argumentIndex++;
+                // } else if(parameterType == typeof(string)) {
+                //     string argument = arugments[argumentIndex];
+                //     if(argument.StartsWith('"')) {
+                //         string total = argument.Substring(1);
+                //         if(total.EndsWith('"')) {
+                //             objects.Add(total);
+                //             break;
+                //         }
+                //         argumentIndex++;
+                //         while (!(total.EndsWith('"'))) {
+                //             total += " " + arugments[argumentIndex];
+                //             argumentIndex++;
+                //         }
+                //         total=total.Substring(0,total.Length-1);
+                //         objects.Add(total);
+                        
+                //     } else {
+                //         objects.Add(arugments[argumentIndex]);
+                //         argumentIndex++;
+                //     }
+                    
+                // }else if(parameterType == typeof(Vector3)) {
+                //     objects.Add(new Vector3(float.Parse(arugments[argumentIndex]),float.Parse(arugments[argumentIndex+1]),float.Parse(arugments[argumentIndex+2])));
+                //     argumentIndex+=3;
+                // }
+                //  else {
+
+                // }
             }
         } catch(Exception e) {
             Debug.Log(e.Message);
         }
+        
         return objects.ToArray();
     }
 
@@ -121,7 +150,7 @@ public class DebugController : MonoBehaviour
 
         foreach(Type type in types) {
 
-            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+            BindingFlags flags = BindingFlags.Public | BindingFlags.Static| BindingFlags.NonPublic | BindingFlags.Instance;
             MemberInfo[] members = type.GetMembers(flags);
 
             foreach (MemberInfo member in members) {
@@ -139,16 +168,26 @@ public class DebugController : MonoBehaviour
                                 List<string> arguments = new List<string>(x);
                                 arguments.RemoveAt(0);
                                 object[] parameters = ParametersFromString(arguments.ToArray(), parameterInfo);
-                                object script = GameObject.FindObjectOfType(classType);
-                                if (script == null)
+                                object script = null;
+                                try{if(classType.IsSubclassOf(typeof(UnityEngine.Object))) script = GameObject.FindObjectOfType(classType);} catch(Exception e) {}
+                                if (script == null && !methodInfo.IsStatic)
                                 {
                                     script = Activator.CreateInstance(type, null);
+                                } else if(methodInfo.IsStatic) {
+                                    script = null;
                                 }
                                 AddToConsoleLog(methodInfo.Invoke(script, parameters)+"");}));
                         }
                         
-                    } 
+                    }
                 }
+            }
+        }
+
+        foreach(MethodInfo methodInfo in typeof(BaseConsoleParameters).GetMethods()) {
+            BaseConsoleParameter baseConsoleParameter = methodInfo.GetCustomAttribute<BaseConsoleParameter>();
+            if(baseConsoleParameter != null) {
+                baseConsoleParameters.Add(baseConsoleParameter.type, methodInfo);
             }
         }
         Debug.Log("Took: " + (DateTime.Now.Millisecond - startTime)+" milliseconds");
@@ -158,10 +197,17 @@ public class DebugController : MonoBehaviour
 
 
 
-    private void AddToConsoleLog(string line, bool timestamp = true, bool fromUser = false)
+    private void AddToConsoleLog(string log, bool timestamp = true, bool fromUser = false)
     {
-        consoleLog.Add("(" + (fromUser ? "U" : "C") + ") " + (timestamp ? ($"[{System.DateTime.Now.ToLongTimeString()}] ") : "") + line);
-        scroll.y = 20 * (consoleLog.Count - 1);
+        string[] lines = log.Split(
+            new string[] { "\r\n", "\r", "\n" },
+            StringSplitOptions.None
+        );
+        foreach(string line in lines) {
+            if(line =="") continue;
+            consoleLog.Add("(" + (fromUser ? "U" : "C") + ") " + (timestamp ? ($"[{System.DateTime.Now.ToLongTimeString()}] ") : "") + line);
+            scroll.y = 20 * (consoleLog.Count - 1);
+        }
     }
 
     private void AddToConsoleHistory(string line)

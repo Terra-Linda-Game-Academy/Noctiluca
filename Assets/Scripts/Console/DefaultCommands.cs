@@ -6,20 +6,39 @@ public class DefaultCommands
 {
     
     [ConsoleCommand("help", "gets list of all commands")]
-    public string Help(string input)
+    public static string Help(string input)
     {
+        Debug.Log("Input: "+ input);
         string output = "";
-        for (int i = 0; i < DebugController.commandList.Count; i++)
-        {
+        if(input == "" || input == null) {
+            for (int i = 0; i < DebugController.commandList.Count; i++)
+            {
 
-            DebugCommandBase command = DebugController.commandList[i] as DebugCommandBase;
+                DebugCommandBase command = DebugController.commandList[i] as DebugCommandBase;
 
-            string line = $"{command.commandFormat} - {command.commandDescription}";
+                string line = $"{command.commandFormat} - {command.commandDescription}";
 
-            output += line + "\n";
+                Debug.Log(line);
 
+                output += line + "\n";
+
+            }
+        } else {
+       
+            for (int i = 0; i < DebugController.commandList.Count; i++)
+            {
+
+                DebugCommandBase command = DebugController.commandList[i] as DebugCommandBase;
+
+                if(command.commandId==input) {
+                    string line = $"{command.commandFormat} - {command.commandDescription}";
+                    output += line;
+                    break;
+                }
+
+            }
         }
-        output += "---";
+        
         return output;
     }
 
