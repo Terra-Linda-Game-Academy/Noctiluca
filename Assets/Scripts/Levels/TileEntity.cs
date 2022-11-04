@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Levels {
-    public abstract class TileEntity<C, E> : BaseTileEntity 
-    where C : TileEntityController<C, E> // C for "Controller"
-    where E : TileEntity<C, E> { // E for "tileEntity" (this object)
+    public abstract class TileEntity<E, C> : BaseTileEntity 
+    where E : TileEntity<E, C> // C for "Controller"
+    where C : TileEntityController<E, C> { // E for "Entity" (this object)
         private Dictionary<Guid, C> instances;
         protected C this[Guid roomId] => instances[roomId];
         

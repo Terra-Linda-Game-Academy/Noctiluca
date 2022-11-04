@@ -2,17 +2,15 @@ using System;
 using UnityEngine;
 
 namespace Levels {
-    public abstract class TileEntityController<C, E> : MonoBehaviour 
-    where C : TileEntityController<C, E> 
-    where E : TileEntity<C, E> {
+    public abstract class TileEntityController<E, C> : MonoBehaviour 
+    where E : TileEntity<E, C> 
+    where C : TileEntityController<E, C> {
         private E entity;
         private Guid roomId;
         private bool initted;
 
         protected E Entity => entity;
         protected Guid RoomId => roomId;
-
-        public Vector3Int Pos => entity.Pos;
 
         public void Init(E entity, Guid roomId) {
             if (!initted) {
@@ -24,6 +22,6 @@ namespace Levels {
             }
         }
 
-        private void OnDestroy() => entity.RemoveInstance(roomId); 
+        private void OnDestroy() => entity.RemoveInstance(roomId);
     }
 }
