@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Levels {
     public class BoundedTileEntity<E, C> : TileEntity<E, C>
     where E : BoundedTileEntity<E, C>
-    where C : BoundedTileEntityController<E, C> {
+    where C : TileEntityController<E, C> {
         public override string Name { get; }
 
         public override Vector3Int Position => bounds.min;
