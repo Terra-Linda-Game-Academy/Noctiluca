@@ -16,6 +16,17 @@ public static class BaseConsoleParameters {
         return new ConsoleArgument(int.Parse(args[0]), 1);
     }
 
+    [BaseConsoleParameter(typeof(float), "float")]
+    public static ConsoleArgument ConsoleConvertFloat(string[] args) {
+        return new ConsoleArgument(float.Parse(args[0]), 1);
+    }
+
+    [BaseConsoleParameter(typeof(bool), "bool")]
+    public static ConsoleArgument ConsoleConvertBool(string[] args) {
+        return new ConsoleArgument(bool.Parse(args[0]), 1);
+    }
+
+
     [BaseConsoleParameter(typeof(string), "string")]
     public static ConsoleArgument ConsoleConvertString(string[] args) {
         string content = string.Join(" ", args);
@@ -34,6 +45,9 @@ public static class BaseConsoleParameters {
 
         return new ConsoleArgument(output, index);
     }
+
+
+
     // }
 }
 

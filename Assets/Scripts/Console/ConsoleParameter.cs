@@ -75,7 +75,7 @@ public interface CustomConsoleParameter
 
 //ex
 public class Person : CustomConsoleParameter {
-    public static string ConsoleFormat {get {return "name[string] age[int] quote[string]";}}
+    public static string ConsoleFormat = "name[string] age[int] quote[string]";
     public static ConsoleArgument ConsoleConvert(string[] args) {
         int index = 0;
         ConsoleArgument personName = BaseConsoleParameters.ConsoleConvertString(args[2..args.Length]);

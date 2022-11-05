@@ -167,6 +167,13 @@ public class DebugController : MonoBehaviour
 
         System.Type[] types = assembly.GetTypes();
 
+        foreach(MethodInfo methodInfo in typeof(BaseConsoleParameters).GetMethods()) {
+            BaseConsoleParameter baseConsoleParameter = methodInfo.GetCustomAttribute<BaseConsoleParameter>();
+            if(baseConsoleParameter != null) {
+                baseConsoleParameters.Add(baseConsoleParameter.type, (methodInfo, baseConsoleParameter.format));
+            }
+        }
+
         foreach(Type type in types) {
 
             BindingFlags flags = BindingFlags.Public | BindingFlags.Static| BindingFlags.NonPublic | BindingFlags.Instance;
@@ -203,12 +210,6 @@ public class DebugController : MonoBehaviour
             }
         }
 
-        foreach(MethodInfo methodInfo in typeof(BaseConsoleParameters).GetMethods()) {
-            BaseConsoleParameter baseConsoleParameter = methodInfo.GetCustomAttribute<BaseConsoleParameter>();
-            if(baseConsoleParameter != null) {
-                baseConsoleParameters.Add(baseConsoleParameter.type, (methodInfo, baseConsoleParameter.format));
-            }
-        }
         Debug.Log("Took: " + (DateTime.Now.Millisecond - startTime)+" milliseconds");
     }
 
@@ -283,17 +284,29 @@ public class DebugController : MonoBehaviour
         GUI.backgroundColor = new Color(0, 0, 0, 0);
         input = GUI.TextField(new Rect(10f, y + 5f, Screen.width - 20f, 20f), input);
 
+        
+        
+
         y += 30;
 
         if (input != "")
         {
-            string[] suggestions = GetCommandSuggestions(input);
+            string[] suggestions = GetCommandSuggestions(input.Split(" ")[0]);
+
+            //suggestion
+            // GUI.contentColor = new Color(50, 50, 50, 50);
+            // GUI.TextField(new Rect(10f, y - 25f, Screen.width - 20f, 20f), suggestions[0]);
 
             foreach (string suggestion in suggestions)
             {
-                GUI.Box(new Rect(0, y, Screen.width, 20), "");
+                // GUI.Box(new Rect(0, y, Screen.width, 20), "");
+                // GUI.backgroundColor = new Color(0, 0, 0, 0);
+                // GUI.TextArea(new Rect(0, y, Screen.width, 20), suggestion);
+                GUI.contentColor = new Color(255, 255, 255, 255);
                 GUI.backgroundColor = new Color(0, 0, 0, 0);
-                GUI.TextArea(new Rect(0, y, Screen.width, 20), suggestion);
+                if (GUI.Button(new Rect(0, y, Screen.width, 20), new GUIContent(suggestion))) {
+                 input = suggestion.Split(" ")[0];
+                }
                 y += 20;
             }
 
@@ -368,7 +381,7 @@ public class DebugController : MonoBehaviour
         {
             DebugCommandBase commandBase = commandList[i] as DebugCommandBase;
 
-            if (input.Contains(commandBase.commandId))
+            if (input.StartsWith(commandBase.commandId))
             {
                 if (commandList[i] as DebugCommand != null)
                 {
