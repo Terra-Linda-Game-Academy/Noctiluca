@@ -46,6 +46,14 @@ public static class BaseConsoleParameters {
         return new ConsoleArgument(output, index);
     }
 
+    [BaseConsoleParameter(typeof(Color), "color")]
+    public static ConsoleArgument ConsoleConvertColor(string[] args)
+    {
+        Color color = (Color)typeof(Color).GetProperty(args[0].ToLowerInvariant()).GetValue(null, null);
+
+        return new ConsoleArgument(color, 1);
+    }
+
 
 
     // }
