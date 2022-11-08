@@ -6,8 +6,4 @@ using UnityEngine;
 public class PotionObject : DefaultObject
 {
     public string potionColor;
-    public void Awake()
-    {
-        type = ItemType.Potion;
-    }
 }
