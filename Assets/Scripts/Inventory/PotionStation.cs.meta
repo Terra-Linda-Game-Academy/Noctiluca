@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 6e78f450a995cf84e823a85cc597b348
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - recipePoolScriptableObject: {fileID: 11400000, guid: 1bebe4767743d024faed768266eb2b6b,
+      type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
