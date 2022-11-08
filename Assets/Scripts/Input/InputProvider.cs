@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Input {
-	public class InputProvider<T> : ScriptableObject where T : new() {
+	public class InputProvider<T> : ScriptableObject where T : struct {
 		[SerializeReference] private List<object> _middlewares = new();
 
 		private T _inputStruct;
