@@ -8,7 +8,7 @@ using UnityEngine.Serialization;
 public class InventoryObject : ScriptableObject
 {
     public List<InventorySlot> Container = new List<InventorySlot>();
-    public void AddItem(ItemObject _item, int _ammount)
+    public void AddItem(Item _item, int _ammount)
     {
         bool hasItem = false;
         for (int i = 0; i < Container.Count; i++)
@@ -31,10 +31,10 @@ public class InventoryObject : ScriptableObject
 [System.Serializable]
 public class InventorySlot
 {
-    public ItemObject item;
+    public Item item;
     public int capacity;
     public int ammount;
-    public InventorySlot(ItemObject _item, int _ammount)
+    public InventorySlot(Item _item, int _ammount)
     {
         item = _item;
         ammount = _ammount;

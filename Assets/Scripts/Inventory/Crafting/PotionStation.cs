@@ -7,9 +7,9 @@ public class PotionStation : MonoBehaviour
     //Replace with type fluid. Will be null(?) if empty
     protected Fluid currentFluid;
     public RecipePool recipePoolScriptableObject;
-    public IEnumerator AddIngredient(Item item, Fluid fluid)
+    public IEnumerator AddIngredient(Fluid fluid, Item item)
     {
-        Fluid newFluid = recipePoolScriptableObject.Search(item, fluid);
+        Fluid newFluid = recipePoolScriptableObject.Search(fluid, item);
         yield return LerpFluids(currentFluid, newFluid);
         //Lerp Cauldron Material (Art Team Stuff) <- (not me)
 
@@ -17,7 +17,7 @@ public class PotionStation : MonoBehaviour
     }
     void Drain()
     {
-        currentFluid = recipePoolScriptableObject.air;
+        //set currentFluid to air
     }
     void Retrieve()
     {
@@ -39,31 +39,4 @@ public class PotionStation : MonoBehaviour
             yield return null;
         }
     }
-
-    //placeholder Fluid&Item
-
-    public readonly struct Fluid
-    {
-        public readonly string name;
-        public readonly float fillLevel;
-
-        public Fluid(string name, float fillLevel)
-        {
-            this.name = name;
-            this.fillLevel = fillLevel;
-        }
-    }
-
-    public readonly struct Item
-    {
-        public readonly string name;
-        public readonly float randomThingyToDebug;
-
-        public Item(string name, float randomThingyToDebug)
-        {
-            this.name = name;
-            this.randomThingyToDebug = randomThingyToDebug;
-        }
-    }
-
 }

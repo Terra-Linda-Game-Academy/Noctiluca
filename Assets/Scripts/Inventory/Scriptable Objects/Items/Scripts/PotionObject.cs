@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Potion Object", menuName = "Inventory System/Items/Potion")]
-public class PotionObject : DefaultObject
+public class PotionObject : Item
 {
-    public string potionColor;
+    public Color potionColor;
 }

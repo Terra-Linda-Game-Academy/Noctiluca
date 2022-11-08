@@ -4,11 +4,11 @@ using UnityEngine;
 
 public enum ItemType
 {
-    Default,
+    Ingredient,
     Potion,
     Seed
 }
-public abstract class ItemObject : ScriptableObject
+public abstract class Item : ScriptableObject
 {
     public GameObject prefab;
     public ItemType type;
