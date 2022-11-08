@@ -24,12 +24,10 @@ public class DebugController : MonoBehaviour
     public List<string> consoleLog = new List<string>();
 
     public static Dictionary<Type,(MethodInfo, string)> baseConsoleParameters = new Dictionary<Type,(MethodInfo, string)>();
-    //public static List<BaseConsoleParameter> baseConsoleParameters = new List<BaseConsoleParameter>();
 
-    [ConsoleCommand("test","ok")]
-    public string TestFunction(string s, int i, string x) {
-        return s + i + x;
-    }
+
+    public static bool CheatsEnabled = false;
+    //public static List<BaseConsoleParameter> baseConsoleParameters = new List<BaseConsoleParameter>();
 
     public void OnToggleDebug()
     {
@@ -190,7 +188,7 @@ public class DebugController : MonoBehaviour
                             Type classType = member.DeclaringType;
 
                             //take parameter types, use function to convert string into those type and pass it through
-                            commandList.Add(new DebugCommand<string[]>(attribute.id, attribute.description, GenerateFormat(attribute.id, parameterInfo), (x) => {
+                            commandList.Add(new DebugCommand<string[]>(attribute.id, attribute.description, GenerateFormat(attribute.id, parameterInfo), attribute.executionValue, attribute.requiresCheats, (x) => {
                                 List<string> arguments = new List<string>(x);
                                 arguments.RemoveAt(0);
                                 object[] parameters = ParametersFromString(arguments.ToArray(), parameterInfo);
@@ -202,7 +200,39 @@ public class DebugController : MonoBehaviour
                                 } else if(methodInfo.IsStatic) {
                                     script = null;
                                 }
-                                AddToConsoleLog(methodInfo.Invoke(script, parameters)+"");}));
+                                string output = methodInfo.Invoke(script, parameters) + "";
+
+                                if (output == "")
+                                {
+                                    if (attribute.executionValue == "")
+                                    {
+                                        AddToConsoleLog(attribute.id + " executed succesfully");
+                                    }
+                                    else
+                                    {
+                                        int index = 0;
+                                        string[] parts = attribute.executionValue.Split("^");
+                                        foreach (string part in parts)
+                                        {
+                                            int value;
+                                            if (!int.TryParse(part, out value))
+                                            {
+                                                parts[index] = parameters[value].ToString();
+                                            }
+                                            index++;
+                                        }
+                                        
+                                        AddToConsoleLog(String.Join("^", parts));
+                                    }
+
+                                }
+                                else
+                                {
+                                    AddToConsoleLog(output);
+                                }
+
+                                //AddToConsoleLog(output==""? (attribute.executionValue==""?attribute.id + " executed succesfully":attribute.executionValue): output);
+                            }));
                         }
                         
                     }
@@ -297,18 +327,23 @@ public class DebugController : MonoBehaviour
             // GUI.contentColor = new Color(50, 50, 50, 50);
             // GUI.TextField(new Rect(10f, y - 25f, Screen.width - 20f, 20f), suggestions[0]);
 
+
             foreach (string suggestion in suggestions)
             {
                 // GUI.Box(new Rect(0, y, Screen.width, 20), "");
                 // GUI.backgroundColor = new Color(0, 0, 0, 0);
                 // GUI.TextArea(new Rect(0, y, Screen.width, 20), suggestion);
                 GUI.contentColor = new Color(255, 255, 255, 255);
-                GUI.backgroundColor = new Color(0, 0, 0, 0);
+                GUI.backgroundColor = new Color(255, 0, 0, 255);
+                //GUI.backgroundColor = new Color(0, 0, 0, 0);
                 if (GUI.Button(new Rect(0, y, Screen.width, 20), new GUIContent(suggestion))) {
                  input = suggestion.Split(" ")[0];
                 }
                 y += 20;
             }
+            
+
+
 
 
         }
@@ -326,7 +361,7 @@ public class DebugController : MonoBehaviour
             string[] commandSuggestions = GetCommandSuggestions(input);
             if(commandSuggestions.Length > 0)
             {
-                input = commandSuggestions[0];
+                input = commandSuggestions[0].Split(" ")[0];
             }
         }
 
@@ -383,6 +418,11 @@ public class DebugController : MonoBehaviour
 
             if (input.StartsWith(commandBase.commandId))
             {
+                if (commandBase.requiresCheats && !CheatsEnabled)
+                {
+                    AddToConsoleLog("This command requires cheats to be enabled, use \"cheats true\" to enable");
+                    return;
+                }
                 if (commandList[i] as DebugCommand != null)
                 {
                     (commandList[i] as DebugCommand).Invoke();
@@ -426,16 +466,22 @@ public class DebugCommandBase
     private string _commandId;
     private string _commandDescription;
     private string _commandFormat;
+    private string _executionValue;
+    private bool _requiresCheats;
 
     public string commandId { get { return _commandId; } }
     public string commandDescription { get { return _commandDescription; } }
     public string commandFormat { get { return _commandFormat; } }
+    public string executionValue { get { return _executionValue; } }
+    public bool requiresCheats { get { return _requiresCheats; } }
 
-    public DebugCommandBase(string id, string description, string format)
+    public DebugCommandBase(string id, string description, string format, string executionValue, bool requiresCheats)
     {
         _commandId = id;
         _commandDescription = description;
         _commandFormat = format;
+        _requiresCheats = requiresCheats;
+        _executionValue= executionValue;
     }
 }
 
@@ -443,7 +489,7 @@ public class DebugCommand : DebugCommandBase
 {
     private Action command;
 
-    public DebugCommand(string id, string description, string format, Action command) : base(id, description, format)
+    public DebugCommand(string id, string description, string format, string executionValue, bool requiresCheats, Action command) : base(id, description, format, executionValue, requiresCheats)
     {
         this.command = command;
     }
@@ -454,11 +500,11 @@ public class DebugCommand : DebugCommandBase
     }
 }
 
-public class DebugCommandTest : DebugCommandBase
+/*public class DebugCommandTest : DebugCommandBase
 {
     private Action<string> command;
 
-    public DebugCommandTest(string id, string description, string format, Action<string> command) : base(id, description, format)
+    public DebugCommandTest(string id, string description, string format, string executionValue bool requiresCheats, Action<string> command) : base(id, description, format, requiresCheats)
     {
         this.command = command;
     }
@@ -468,12 +514,13 @@ public class DebugCommandTest : DebugCommandBase
         command.Invoke(value);
     }
 }
+*/
 
 public class DebugCommand<T1> : DebugCommandBase
 {
     private Action<T1> command;
 
-    public DebugCommand(string id, string description, string format, Action<T1> command) : base(id, description, format)
+    public DebugCommand(string id, string description, string format, string executionValue, bool requiresCheats, Action<T1> command) : base(id, description, format, executionValue, requiresCheats)
     {
         this.command = command;
     }
@@ -488,10 +535,16 @@ public class DebugCommand<T1> : DebugCommandBase
 [AttributeUsage(AttributeTargets.Method)]
 public class ConsoleCommand : System.Attribute {
     public string id;
-    public string description; 
-    public ConsoleCommand(string id, string description) {
+    public string description;
+    public string executionValue;
+    public bool requiresCheats;
+
+    public ConsoleCommand(string id, string description, bool requiresCheats = false, string executionValue = "") {
         this.id=id;
         this.description=description;
-        }
+        this.executionValue = executionValue;
+        this.requiresCheats = requiresCheats;
+    }
+
 }
 

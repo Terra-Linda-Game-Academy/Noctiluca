@@ -4,13 +4,14 @@ using UnityEngine;
 
 public class DefaultCommands
 {
-    
+
     [ConsoleCommand("help", "gets list of all commands")]
     public static string Help(string input)
     {
-        Debug.Log("Input: "+ input);
+        Debug.Log("Input: " + input);
         string output = "";
-        if(input == "" || input == null) {
+        if (input == "" || input == null)
+        {
             for (int i = 0; i < DebugController.commandList.Count; i++)
             {
 
@@ -23,14 +24,17 @@ public class DefaultCommands
                 output += line + "\n";
 
             }
-        } else {
-       
+        }
+        else
+        {
+
             for (int i = 0; i < DebugController.commandList.Count; i++)
             {
 
                 DebugCommandBase command = DebugController.commandList[i] as DebugCommandBase;
 
-                if(command.commandId==input) {
+                if (command.commandId == input)
+                {
                     string line = $"{command.commandFormat} - {command.commandDescription}";
                     output += line;
                     break;
@@ -38,9 +42,14 @@ public class DefaultCommands
 
             }
         }
-        
+
         return output;
     }
 
-    
+    [ConsoleCommand("cheats", "enables/disables cheat commands")]
+    public static string Cheats(bool input)
+    {
+        DebugController.CheatsEnabled = input;
+        return "Cheats " + (input? "enabled":"disabled");
+    }
 }
