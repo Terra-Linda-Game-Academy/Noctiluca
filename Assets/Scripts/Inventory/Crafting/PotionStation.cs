@@ -4,12 +4,14 @@ using System.Threading.Tasks;
 using UnityEngine;
 public class PotionStation : MonoBehaviour
 {
-    //Replace with type fluid. Will be null(?) if empty
+    public Fluid defaultFluid;
     protected Fluid currentFluid;
     public RecipePool recipePoolScriptableObject;
-    public IEnumerator AddIngredient(Fluid fluid, Item item)
+
+    //Should be run by player. Player should wait for this to stop executing before being able to run again
+    public IEnumerator AddIngredient(Item item)
     {
-        Fluid newFluid = recipePoolScriptableObject.Search(fluid, item);
+        Fluid newFluid = recipePoolScriptableObject.Search(currentFluid, item);
         yield return LerpFluids(currentFluid, newFluid);
         //Lerp Cauldron Material (Art Team Stuff) <- (not me)
 
@@ -17,15 +19,18 @@ public class PotionStation : MonoBehaviour
     }
     void Drain()
     {
-        //set currentFluid to air
+        currentFluid = defaultFluid;
     }
     void Retrieve()
     {
+        //TODO:
         //get the fluid container from player (or somethin idfk)
         //send the fluid data from currentFluid
 
         Drain();
     }
+
+    //blend/lerp between fluid materials
     IEnumerator LerpFluids(Fluid start, Fluid end)
     {
         //do stuff to Material.lerp (maybe overflow with particles depending on fillLevel)

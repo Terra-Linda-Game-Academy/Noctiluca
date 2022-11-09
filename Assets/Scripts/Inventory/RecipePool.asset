@@ -12,3 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c449227ecae1f7044ac49bdc7a290704, type: 3}
   m_Name: RecipePool
   m_EditorClassIdentifier: 
+  recipeList: []

@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Seed Object", menuName = "Inventory System/Items/Seed")]
-public class SeedObject : Item
+public class SeedItem : Item
 {
     
     public void Awake()
