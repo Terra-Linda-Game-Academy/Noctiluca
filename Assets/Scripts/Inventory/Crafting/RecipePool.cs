@@ -23,11 +23,13 @@ public class RecipePool : ScriptableObject
         public Fluid fluid;
         public Item item;
         public Fluid product;
-        public Recipe(Fluid fluid, Item item,  Fluid product)
+        public string description;
+        public Recipe(Fluid fluid, Item item,  Fluid product, string description)
         {
             this.fluid = fluid;
             this.item = item;
             this.product = product;
+            this.description = description;
         }
     }
 }
