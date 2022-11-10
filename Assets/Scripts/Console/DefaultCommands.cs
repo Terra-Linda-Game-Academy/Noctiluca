@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class DefaultCommands
@@ -50,6 +51,20 @@ public class DefaultCommands
     public static string Cheats(bool input)
     {
         DebugController.CheatsEnabled = input;
-        return "Cheats " + (input? "enabled":"disabled");
+        return "cheats " + (input? "enabled":"disabled");
+    }
+
+    // [ConsoleCommand("parameterhelp", "gets specifics for parameter types")]
+    // public static string Parameterhelp(string input)
+    // {
+    //     Type parameterType = Type.GetType(input);
+    //     string format = DebugController.GetFormatOfParameter(parameterType);
+    //     return format;
+    // }
+
+    [ConsoleCommand("disable", "disables selected gameobject")]
+    public void DestroyGameobject(GameObject gameObject)
+    {
+        gameObject.SetActive(false);
     }
 }

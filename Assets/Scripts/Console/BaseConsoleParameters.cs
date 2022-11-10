@@ -5,7 +5,7 @@ using System;
 
 public static class BaseConsoleParameters {
 
-    [BaseConsoleParameter(typeof(Vector3), "x(int) y(int) x(int)")]
+    [BaseConsoleParameter(typeof(Vector3), "x(float) y(float) x(float)")]
     public static ConsoleArgument ConsoleConvertVector3(string[] args) {
         //                                         used 3 args  |                    |                    |   so 3
         return new ConsoleArgument(new Vector3(float.Parse(args[0]),float.Parse(args[1]),float.Parse(args[2])), 3);
@@ -46,15 +46,22 @@ public static class BaseConsoleParameters {
         return new ConsoleArgument(output, index);
     }
 
-    [BaseConsoleParameter(typeof(Color), "color")]
+    [BaseConsoleParameter(typeof(Color), "r(int) g(int) b(int)")]
     public static ConsoleArgument ConsoleConvertColor(string[] args)
     {
-        Color color = (Color)typeof(Color).GetProperty(args[0].ToLowerInvariant()).GetValue(null, null);
-
-        return new ConsoleArgument(color, 1);
+        //Color color = (Color)typeof(Color).GetProperty(args[0].ToLowerInvariant()).GetValue(null, null);
+        float r = int.Parse(args[0]) / 255.0f;
+        float g = int.Parse(args[1]) / 255.0f;
+        float b = int.Parse(args[2]) / 255.0f;
+        return new ConsoleArgument(new Color(r,g,b), 3);
     }
 
-
+    [BaseConsoleParameter(typeof(GameObject), "selected gameobject")]
+    public static ConsoleArgument ConsoleConvertGameObject(string[] args)
+    {
+        return new ConsoleArgument(DebugController.SelectedGameObject, 0);
+    }
+//spawnmob bob 1.123 31 5 50 100 12
 
     // }
 }

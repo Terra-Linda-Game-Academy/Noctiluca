@@ -22,10 +22,9 @@ public class ConsoleTesting : MonoBehaviour
     }
 
 
-    [ConsoleCommand("cube", "spawns cube at pos")]
-    public string phrase(Vector3 pos) {
-        Instantiate(GameObject.CreatePrimitive(PrimitiveType.Cube),pos,Quaternion.identity);
-        return "Spawned cube at " + pos;
+    [ConsoleCommand("cube", "spawns cube at pos", false, "spawned cube at {pos}")]
+    public void cube(Vector3 pos) {
+        GameObject.CreatePrimitive(PrimitiveType.Cube).transform.position = pos;
     }
 
 

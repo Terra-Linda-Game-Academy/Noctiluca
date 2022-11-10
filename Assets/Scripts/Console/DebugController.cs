@@ -8,6 +8,9 @@ using UnityEngine;
 using UnityEngine.Events;
 using JetBrains.Annotations;
 using UnityEditor;
+using System.Text.RegularExpressions;
+using System.Collections.Specialized;
+
 
 public class DebugController : MonoBehaviour
 {
@@ -21,7 +24,7 @@ public class DebugController : MonoBehaviour
     private int commandHistoryIndex = -1;
     private const int MAX_COMMAND_HISTORY = 30;
 
-    public List<string> consoleLog = new List<string>();
+    public static List<string> consoleLog = new List<string>();
 
     public static Dictionary<Type,(MethodInfo, string)> baseConsoleParameters = new Dictionary<Type,(MethodInfo, string)>();
 
@@ -49,6 +52,18 @@ public class DebugController : MonoBehaviour
             input = "";
         }
     }
+    public static string GetFormatOfParameter(Type parameterType) {
+        string format = parameterType.Name;
+        if (typeof(CustomConsoleParameter).IsAssignableFrom(parameterType))
+        {
+            format = (string)parameterType.GetField("ConsoleFormat", BindingFlags.Public | BindingFlags.Static).GetValue(null);
+        }
+        else if (baseConsoleParameters.ContainsKey(parameterType))
+        {
+            format = baseConsoleParameters[parameterType].Item2;
+        }
+        return format;
+    }
 
     public string GenerateFormat(string commandName, ParameterInfo[] parameterInfo) {
         string output = commandName;
@@ -58,14 +73,7 @@ public class DebugController : MonoBehaviour
             string format = parameterType.Name;
             try
             {
-                if (typeof(CustomConsoleParameter).IsAssignableFrom(parameterType))
-                {
-                    format = (string)parameterType.GetField("ConsoleFormat", BindingFlags.Public | BindingFlags.Static).GetValue(null);
-                }
-                else if (baseConsoleParameters.ContainsKey(parameterType))
-                {
-                    format = baseConsoleParameters[parameterType].Item2;
-                }
+                format = GetFormatOfParameter(parameterType);
             } catch (Exception ex) { Debug.LogError(ex); }
             
 
@@ -97,19 +105,23 @@ public class DebugController : MonoBehaviour
     public object[] ParametersFromString(string[] arguments, ParameterInfo[] parameterInfo) {
         List<object> objects = new List<object>();
         Debug.Log("Arguments " + arguments.Length);
+
+        Type parameterType = null;
+        int argumentIndex = 0;
         try {
             if(arguments.Length == 0) {
                 foreach(ParameterInfo pi in parameterInfo) {
-                    objects.Add(null);
+                    objects.Add(StringToArgument(new string[0], pi.ParameterType).value);
                 }
+                Debug.Log("O" + objects[0]);
                 return objects.ToArray();
             }
 
-            int argumentIndex = 0;
+            
             foreach(ParameterInfo pi in parameterInfo) {
-                Type parameterType = pi.ParameterType;
-                Debug.Log("Current Index " + argumentIndex);
+                parameterType = pi.ParameterType;
                 ConsoleArgument consoleArgument = StringToArgument(arguments[argumentIndex..arguments.Length], parameterType);
+                
                 if(consoleArgument != null)
                 {
                     argumentIndex += consoleArgument.lastIndexUsed;
@@ -151,6 +163,7 @@ public class DebugController : MonoBehaviour
             }
         } catch(Exception e) {
             Debug.Log(e.Message);
+            AddToConsoleLog($"There was an issue when converting {String.Join(" ", arguments[argumentIndex..arguments.Length])} into type {parameterType}");
         }
         
         return objects.ToArray();
@@ -201,7 +214,6 @@ public class DebugController : MonoBehaviour
                                     script = null;
                                 }
                                 string output = methodInfo.Invoke(script, parameters) + "";
-
                                 if (output == "")
                                 {
                                     if (attribute.executionValue == "")
@@ -210,19 +222,20 @@ public class DebugController : MonoBehaviour
                                     }
                                     else
                                     {
-                                        int index = 0;
-                                        string[] parts = attribute.executionValue.Split("^");
-                                        foreach (string part in parts)
-                                        {
-                                            int value;
-                                            if (!int.TryParse(part, out value))
-                                            {
-                                                parts[index] = parameters[value].ToString();
-                                            }
-                                            index++;
+                                        //replaces {variables} with their parameter value
+                                        Regex re = new Regex(@"\{([^\}]+)\}", RegexOptions.Compiled);
+                                        string input = attribute.executionValue;
+                                        StringDictionary fields = new StringDictionary();
+
+                                        for(int i = 0; i < parameters.Length; i++) {
+                                            fields.Add(parameterInfo[i].Name, parameters[i].ToString());
                                         }
-                                        
-                                        AddToConsoleLog(String.Join("^", parts));
+
+                                        output = re.Replace(input, delegate (Match match) {
+                                            return fields[match.Groups[1].Value];
+                                        });
+
+                                        AddToConsoleLog(output);
                                     }
 
                                 }
@@ -247,7 +260,7 @@ public class DebugController : MonoBehaviour
 
 
 
-    private void AddToConsoleLog(string log, bool timestamp = true, bool fromUser = false)
+    public void AddToConsoleLog(string log, bool timestamp = true, bool fromUser = false)
     {
         string[] lines = log.Split(
             new string[] { "\r\n", "\r", "\n" },
@@ -269,7 +282,9 @@ public class DebugController : MonoBehaviour
         }
     }
 
-    Vector2 scroll;
+    public Vector2 scroll;
+
+    public static GameObject SelectedGameObject = null;
 
 
     int suggestionIndex = 0;
@@ -341,14 +356,32 @@ public class DebugController : MonoBehaviour
                 }
                 y += 20;
             }
-            
-
-
-
-
         }
 
+        if(SelectedGameObject != null) {
+            GUI.color = new Color(0, 0, 0, 255);
+            Rect hoveredRect = new Rect(5, y, viewport.width - 100, 20);
+            GUI.Label(hoveredRect, $"{SelectedGameObject.name} - <{SelectedGameObject.GetInstanceID()}>");
+        }
+        
+
         Event e = Event.current;
+        if(e.isMouse && e.type == EventType.MouseDown) {
+            //Get Current Hovered Gameobject
+            Debug.Log("Shooting!");
+            
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, 100))
+            {
+                Debug.Log("Hit!");
+                SelectedGameObject = hit.transform.gameObject;
+                
+            } else {
+                SelectedGameObject = null;
+            }
+        }
+
         if (!e.isKey) return;
 
         if (e.keyCode == KeyCode.Return)
