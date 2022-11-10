@@ -5,7 +5,7 @@ using System;
 
 public static class BaseConsoleParameters {
 
-    [BaseConsoleParameter(typeof(Vector3), "x(float) y(float) x(float)")]
+    [BaseConsoleParameter(typeof(Vector3), "vector3[x(float) y(float) x(float)]")]
     public static ConsoleArgument ConsoleConvertVector3(string[] args) {
         //                                         used 3 args  |                    |                    |   so 3
         return new ConsoleArgument(new Vector3(float.Parse(args[0]),float.Parse(args[1]),float.Parse(args[2])), 3);
@@ -46,7 +46,7 @@ public static class BaseConsoleParameters {
         return new ConsoleArgument(output, index);
     }
 
-    [BaseConsoleParameter(typeof(Color), "r(int) g(int) b(int)")]
+    [BaseConsoleParameter(typeof(Color), "color[r(int) g(int) b(int)]")]
     public static ConsoleArgument ConsoleConvertColor(string[] args)
     {
         //Color color = (Color)typeof(Color).GetProperty(args[0].ToLowerInvariant()).GetValue(null, null);

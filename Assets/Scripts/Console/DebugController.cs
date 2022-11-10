@@ -61,6 +61,31 @@ public class DebugController : MonoBehaviour
         else if (baseConsoleParameters.ContainsKey(parameterType))
         {
             format = baseConsoleParameters[parameterType].Item2;
+        } else
+        {
+            foreach (ConstructorInfo constructorInfo in parameterType.GetConstructors())
+            {
+                bool isUsableConstructor = true;
+                foreach (ParameterInfo parameterInfo in constructorInfo.GetParameters())
+                {
+                    if (!IsConvertableType(parameterInfo.ParameterType))
+                    {
+                        isUsableConstructor = false;
+                        break;
+                    }
+                }
+                if (!isUsableConstructor)
+                    continue;
+                format = "";
+               // format = parameterType.Name+"[";
+                foreach (ParameterInfo parameterInfo in constructorInfo.GetParameters())
+                {
+                    format += $"{parameterInfo.Name}({parameterInfo.ParameterType.Name}), ";
+                }
+                format = format.Substring(0, format.Length - 2);
+                //format += "]";
+
+            }
         }
         return format;
     }
@@ -88,6 +113,11 @@ public class DebugController : MonoBehaviour
         return "There are "+num+""+person.name+"s";
     }
 
+    public static bool IsConvertableType(Type type)
+    {
+        return baseConsoleParameters.ContainsKey(type) || typeof(CustomConsoleParameter).IsAssignableFrom(type);
+    }
+
     public static ConsoleArgument StringToArgument(string[] arguments, Type parameterType)
     {
         ConsoleArgument ca = null;
@@ -98,6 +128,33 @@ public class DebugController : MonoBehaviour
         else if (baseConsoleParameters.ContainsKey(parameterType))
         {
             ca = (ConsoleArgument)baseConsoleParameters[parameterType].Item1.Invoke(null, new object[] { arguments });
+        } else
+        {
+            foreach(ConstructorInfo constructorInfo in parameterType.GetConstructors())
+            {
+                bool isUsableConstructor = true;
+                foreach (ParameterInfo parameterInfo in constructorInfo.GetParameters())
+                {
+                    if (!IsConvertableType(parameterInfo.ParameterType))
+                    {
+                        isUsableConstructor = false;
+                        break;
+                    }
+                }
+                if (!isUsableConstructor)
+                    continue;
+
+                List<object> constructorArguments = new List<object>();
+                int index = 0;
+                foreach (ParameterInfo parameterInfo in constructorInfo.GetParameters())
+                {
+                    ConsoleArgument constructParam = StringToArgument(arguments[index..arguments.Length], parameterInfo.ParameterType);
+                    index += constructParam.lastIndexUsed;
+                    constructorArguments.Add(constructParam.value);
+                }
+                return new ConsoleArgument(Activator.CreateInstance(parameterType, constructorArguments.ToArray()), index);
+
+            }
         }
         return ca;
     }
