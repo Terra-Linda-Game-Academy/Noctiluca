@@ -64,6 +64,24 @@ namespace Input
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Primary Attack"",
+                    ""type"": ""Button"",
+                    ""id"": ""9f2090c2-cc27-49b5-af1c-c8554e00b59d"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Secondary Attack"",
+                    ""type"": ""Button"",
+                    ""id"": ""bfe333ed-981e-48f3-a8ab-9a0feac84410"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -200,26 +218,70 @@ namespace Input
                     ""isPartOfComposite"": false
                 },
                 {
-                    ""name"": """",
-                    ""id"": ""90a384dd-34c3-4d43-b4da-0c1eb8060294"",
-                    ""path"": ""<Keyboard>/q"",
+                    ""name"": ""Keyboard"",
+                    ""id"": ""71429b2f-33e7-4e19-8f7a-0882d5512602"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Potion Swap"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""e8a9c7e3-2710-490e-a6cb-f7f3d9289dad"",
+                    ""path"": ""<Keyboard>/leftShift"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard & Mouse"",
                     ""action"": ""Potion Swap"",
                     ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""068e0939-4792-412d-9526-bf82edf2bf12"",
+                    ""path"": ""<Keyboard>/leftCtrl"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard & Mouse"",
+                    ""action"": ""Potion Swap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""Gamepad"",
+                    ""id"": ""a1972f75-28af-4b06-ac10-aaa65543a100"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Potion Swap"",
+                    ""isComposite"": true,
                     ""isPartOfComposite"": false
                 },
                 {
-                    ""name"": """",
-                    ""id"": ""53a7189a-c696-4905-bfc7-b1f7e61d58fe"",
+                    ""name"": ""negative"",
+                    ""id"": ""ba66895a-40b7-41d5-9ab4-fe86859410f2"",
                     ""path"": ""<Gamepad>/leftShoulder"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
                     ""action"": ""Potion Swap"",
                     ""isComposite"": false,
-                    ""isPartOfComposite"": false
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""70ad1af0-0500-4c8b-aa94-3dca2bebf799"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Potion Swap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 },
                 {
                     ""name"": """",
@@ -240,6 +302,50 @@ namespace Input
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
                     ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""23154cb6-b2e0-4e0d-aacc-25e0d58c6517"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard & Mouse"",
+                    ""action"": ""Primary Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""642fc986-b9de-47a9-b176-84c47f8d3452"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Primary Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3bf1bb64-00a8-4790-b510-c99e68eb5c09"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard & Mouse"",
+                    ""action"": ""Secondary Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a6513d2b-6e47-4319-9d97-310560f20e85"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Secondary Attack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -524,6 +630,8 @@ namespace Input
             m_InGame_Aim = m_InGame.FindAction("Aim", throwIfNotFound: true);
             m_InGame_PotionSwap = m_InGame.FindAction("Potion Swap", throwIfNotFound: true);
             m_InGame_Interact = m_InGame.FindAction("Interact", throwIfNotFound: true);
+            m_InGame_PrimaryAttack = m_InGame.FindAction("Primary Attack", throwIfNotFound: true);
+            m_InGame_SecondaryAttack = m_InGame.FindAction("Secondary Attack", throwIfNotFound: true);
             // Menu
             m_Menu = asset.FindActionMap("Menu", throwIfNotFound: true);
             m_Menu_SelectorMovement = m_Menu.FindAction("SelectorMovement", throwIfNotFound: true);
@@ -593,6 +701,8 @@ namespace Input
         private readonly InputAction m_InGame_Aim;
         private readonly InputAction m_InGame_PotionSwap;
         private readonly InputAction m_InGame_Interact;
+        private readonly InputAction m_InGame_PrimaryAttack;
+        private readonly InputAction m_InGame_SecondaryAttack;
         public struct InGameActions
         {
             private @InputActions m_Wrapper;
@@ -601,6 +711,8 @@ namespace Input
             public InputAction @Aim => m_Wrapper.m_InGame_Aim;
             public InputAction @PotionSwap => m_Wrapper.m_InGame_PotionSwap;
             public InputAction @Interact => m_Wrapper.m_InGame_Interact;
+            public InputAction @PrimaryAttack => m_Wrapper.m_InGame_PrimaryAttack;
+            public InputAction @SecondaryAttack => m_Wrapper.m_InGame_SecondaryAttack;
             public InputActionMap Get() { return m_Wrapper.m_InGame; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -622,6 +734,12 @@ namespace Input
                     @Interact.started -= m_Wrapper.m_InGameActionsCallbackInterface.OnInteract;
                     @Interact.performed -= m_Wrapper.m_InGameActionsCallbackInterface.OnInteract;
                     @Interact.canceled -= m_Wrapper.m_InGameActionsCallbackInterface.OnInteract;
+                    @PrimaryAttack.started -= m_Wrapper.m_InGameActionsCallbackInterface.OnPrimaryAttack;
+                    @PrimaryAttack.performed -= m_Wrapper.m_InGameActionsCallbackInterface.OnPrimaryAttack;
+                    @PrimaryAttack.canceled -= m_Wrapper.m_InGameActionsCallbackInterface.OnPrimaryAttack;
+                    @SecondaryAttack.started -= m_Wrapper.m_InGameActionsCallbackInterface.OnSecondaryAttack;
+                    @SecondaryAttack.performed -= m_Wrapper.m_InGameActionsCallbackInterface.OnSecondaryAttack;
+                    @SecondaryAttack.canceled -= m_Wrapper.m_InGameActionsCallbackInterface.OnSecondaryAttack;
                 }
                 m_Wrapper.m_InGameActionsCallbackInterface = instance;
                 if (instance != null)
@@ -638,6 +756,12 @@ namespace Input
                     @Interact.started += instance.OnInteract;
                     @Interact.performed += instance.OnInteract;
                     @Interact.canceled += instance.OnInteract;
+                    @PrimaryAttack.started += instance.OnPrimaryAttack;
+                    @PrimaryAttack.performed += instance.OnPrimaryAttack;
+                    @PrimaryAttack.canceled += instance.OnPrimaryAttack;
+                    @SecondaryAttack.started += instance.OnSecondaryAttack;
+                    @SecondaryAttack.performed += instance.OnSecondaryAttack;
+                    @SecondaryAttack.canceled += instance.OnSecondaryAttack;
                 }
             }
         }
@@ -723,6 +847,8 @@ namespace Input
             void OnAim(InputAction.CallbackContext context);
             void OnPotionSwap(InputAction.CallbackContext context);
             void OnInteract(InputAction.CallbackContext context);
+            void OnPrimaryAttack(InputAction.CallbackContext context);
+            void OnSecondaryAttack(InputAction.CallbackContext context);
         }
         public interface IMenuActions
         {
