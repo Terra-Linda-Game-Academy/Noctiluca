@@ -6,21 +6,18 @@ namespace Input {
 	public class PlayerInputSystemMiddleware : InputMiddleware<PlayerInputData, PlayerInputEvents> {
 		public float testFloat;
 
+		// ReSharper disable once RedundantAssignment
 		public override void TransformInput(ref PlayerInputData inputData, ref PlayerInputEvents events) {
 			inputData = App.InputManager.playerInputData;
 			Events    = events;
 		}
 
 		protected override void EventSubscriptions() {
-			ProviderTester.TestAction += TestAct;
+			//subscribe events
 		}
 
 		protected override void DisposeSubscriptions() {
-			ProviderTester.TestAction -= TestAct;
-		}
-
-		private void TestAct() {
-			Events.TestAct?.Invoke($"{testFloat}");
+			//unsubscribe events
 		}
 	}
 }

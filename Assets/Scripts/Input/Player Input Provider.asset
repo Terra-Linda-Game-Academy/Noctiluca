@@ -21,8 +21,8 @@ MonoBehaviour:
     - rid: 4086486321209540611
       type: {class: PlayerInputSystemMiddleware, ns: Input, asm: Assembly-CSharp}
       data:
-        testFloat: -2.64
+        testFloat: 1.15
     - rid: 4086486321209540612
       type: {class: PlayerInputSystemMiddleware, ns: Input, asm: Assembly-CSharp}
       data:
-        testFloat: 4.59
+        testFloat: 2.23

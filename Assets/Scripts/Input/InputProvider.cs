@@ -26,16 +26,16 @@ namespace Input {
 		private void OnValidate() { ClearBaseObjects(); }
 
 		private void ClearBaseObjects() {
-			List<object> toBeDeleted = new List<object>();
+			int nullObjs = 0;
 
 			foreach (object middleware in _middlewares) {
 				if (middleware == null) {
-					toBeDeleted.Add(middleware);
+					nullObjs++;
 					Debug.LogWarning("Please add middlewares with the dedicated \"Add Middleware\" button.");
 				}
 			}
 
-			foreach (object delete in toBeDeleted) { _middlewares.Remove(delete); }
+			for (int i = 0; i < nullObjs; i++) _middlewares.Remove(null);
 		}
 	}
 }
