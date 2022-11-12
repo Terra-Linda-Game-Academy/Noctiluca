@@ -6,7 +6,7 @@ namespace Main {
 	public class InputManager : MonoBehaviour {
 		private InputActions _inputActions;
 
-		public PlayerInputData playerInputData;
+		[HideInInspector] public PlayerInputData playerInputData;
 
 		public Action OnJump;
 
