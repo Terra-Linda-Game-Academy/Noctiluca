@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 namespace Levels {
-    public partial interface ITile {
+    public interface ITile {
         /// <summary>
         /// What to name the created GameObject
         /// </summary>
@@ -13,7 +13,6 @@ namespace Levels {
         /// </summary>
         public Vector3Int Position { get; }
         
-
         /// <summary>
         /// Initialize the given GameObject
         /// </summary>
@@ -22,7 +21,5 @@ namespace Levels {
         /// The ID of the current room, to support having multiple of the same room loaded at once
         /// </param>
         public void Init(GameObject obj, Guid roomId);
-        
-        
     }
 } 

@@ -1,65 +1,59 @@
 #pragma kernel generateTerrain;
 
-struct GeneratedVertex
+struct Vertex
 {
     float3 positionOS;
     float3 normalOS;
     float2 uv;
 };
 
-RWStructuredBuffer<GeneratedVertex> _GeneratedVertices;
-RWStructuredBuffer<int> _GeneratedTris;
+struct Triangle
+{
+    //wound counter-clockwise
+    Vertex a;
+    Vertex b;
+    Vertex c;
+};
 
-uint3 _RoomDimensions;
-StructuredBuffer<int> _HeightMap;
+AppendStructuredBuffer<Triangle> Triangles;
 
-[numthreads(16, 16, 1)]
-void generateTerrain (uint3 id : SV_DispatchThreadID) {
-    if (id.x > _RoomDimensions.x || id.z > _RoomDimensions.z) { return; }
+uint3 RoomDimensions;
+StructuredBuffer<int> HeightMap;
+
+[numthreads(16, 1, 16)]
+void generateTerrain (uint3 pos : SV_DispatchThreadID) {
+    if (pos.x >= RoomDimensions.x || pos.z >= RoomDimensions.z) { return; }
     
-    const uint linearIndex = id.y * _RoomDimensions.x + id.x;
-    const uint height = _HeightMap[linearIndex];
-    const uint vertStart = linearIndex * 4;
-    const uint triStart = linearIndex * 6;
-
-    const float3 meshPos = float3(id.x, height, id.y);
+    const uint height = HeightMap[pos.z * RoomDimensions.x + pos.x];
+    
+    const float3 meshPos = float3(pos.x, height, pos.z);
     const float3 normal = float3(0, 1, 0);
 
-    GeneratedVertex a;
-    a.positionOS = meshPos + float3(-0.5, 0, -0.5);
+    Vertex a;
+    a.positionOS = meshPos;
     a.normalOS = normal;
     a.uv = float2(0, 0);
-    const int aIndex = vertStart;
     
-    GeneratedVertex b;
-    b.positionOS = meshPos + float3(0.5, 0, -0.5);
+    Vertex b;
+    b.positionOS = meshPos + float3(1, 0, 0);
     b.normalOS = normal;
     b.uv = float2(1, 0);
-    const int bIndex = vertStart + 1;
     
-    GeneratedVertex c;
-    c.positionOS = meshPos + float3(0.5, 0, 0.5);
-    c.normalOS = normal;
+    Vertex c;
+    c.positionOS = meshPos + float3(1, 0, 1);
+    c.normalOS =  normal;
     c.uv = float2(1, 1);
-    const int cIndex = vertStart + 2;
     
-    GeneratedVertex d;
-    d.positionOS = meshPos + float3(-0.5, 0, 0.5);
+    Vertex d;
+    d.positionOS = meshPos + float3(0, 0, 1);
     d.normalOS = normal;
     d.uv = float2(0, 1);
-    const int dIndex = vertStart + 3;
 
-    _GeneratedVertices[aIndex] = a;
-    _GeneratedVertices[bIndex] = b;
-    _GeneratedVertices[cIndex] = c;
-    _GeneratedVertices[dIndex] = d;
+    Triangle tri1 = { c, b, a };
+    Triangle tri2 = { c, a, d };
 
-    _GeneratedTris[triStart] = cIndex;
-    _GeneratedTris[triStart + 1] = bIndex;
-    _GeneratedTris[triStart + 2] = aIndex;
-    _GeneratedTris[triStart + 3] = dIndex;
-    _GeneratedTris[triStart + 4] = cIndex;
-    _GeneratedTris[triStart + 5] = bIndex;
+    Triangles.Append(tri1);
+    Triangles.Append(tri2);
 }
 
 
