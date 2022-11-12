@@ -8,7 +8,7 @@ namespace Main {
 
 		[HideInInspector] public PlayerInputData playerInputData;
 
-		public Action OnJump;
+		public Action OnInteract;
 
 		private void Awake() {
 			_inputActions = new InputActions();
@@ -18,8 +18,8 @@ namespace Main {
 			_inputActions.InGame.Aim.canceled       += _ => { playerInputData.aim        = Vector2.zero; };
 			_inputActions.InGame.Movement.performed += ctx => { playerInputData.movement = ctx.ReadValue<Vector2>(); };
 			_inputActions.InGame.Movement.canceled  += _ => { playerInputData.movement   = Vector2.zero; };
-		}
 
-		private void OnEnable() { OnJump?.Invoke(); }
+			_inputActions.InGame.Interact.performed += _ => { OnInteract?.Invoke(); };
+		}
 	}
 }

@@ -6,7 +6,5 @@ namespace Input {
 	public struct PlayerInputData {
 		public Vector2 aim;
 		public Vector2 movement;
-
-		public bool canJump;
 	}
 }

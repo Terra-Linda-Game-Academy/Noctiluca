@@ -1,4 +1,5 @@
 using System;
+using Input.Events;
 using Main;
 
 namespace Input {
@@ -14,10 +15,12 @@ namespace Input {
 
 		protected override void EventSubscriptions() {
 			//subscribe events
+			App.InputManager.OnInteract += Events.OnInteract;
 		}
 
 		protected override void DisposeSubscriptions() {
 			//unsubscribe events
+			App.InputManager.OnInteract -= Events.OnInteract;
 		}
 	}
 }
