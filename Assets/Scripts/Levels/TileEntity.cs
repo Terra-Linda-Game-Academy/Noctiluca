@@ -7,7 +7,7 @@ namespace Levels {
     where E : TileEntity<E, C> // C for "Controller"
     where C : TileEntityController<E, C> { // E for "Entity" (this object)
         private Dictionary<Guid, C> instances;
-        protected C this[Guid roomId] => instances[roomId];
+        protected C GetInstance(Guid roomId) => instances[roomId];
         
         protected abstract void Init(C component);
 

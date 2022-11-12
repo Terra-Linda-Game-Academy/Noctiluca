@@ -5,16 +5,16 @@ using UnityEngine.UIElements;
 namespace Levels.Editor {
     [CustomEditor(typeof(Room))]
     public class RoomEditor : UnityEditor.Editor {
-
         public override VisualElement CreateInspectorGUI() {
             VisualElement element = new VisualElement();
 
-            var dimensionsProp = serializedObject.FindProperty("dimensions");
-            
-            element.Add(new PropertyField(dimensionsProp, "dimensions"));
+            var sizeProp = serializedObject.FindProperty("size");
+            element.Add(new PropertyField(sizeProp, "size"));
 
             element.Bind(serializedObject);
             return element;
         }
+
+        public override bool RequiresConstantRepaint() => true;
     }
 }

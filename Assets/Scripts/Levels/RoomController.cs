@@ -52,6 +52,7 @@ namespace Levels {
         
         #if UNITY_EDITOR
         private void OnSceneSave(Scene scene, string path) {
+            //todo: save room asset here if necessary
         }
         #endif
     }
