@@ -2,9 +2,8 @@ using System;
 using UnityEngine;
 
 namespace Input.Events {
-	public struct PlayerInputEvents : IInputEvents<PlayerInputData, PlayerInputEvents.Dispatcher> {
+	public class PlayerInputEvents : IInputEvents<PlayerInputData, PlayerInputEvents.Dispatcher> {
 		public event Action Interact;
-
 
 		public Dispatcher GetDispatcher(Func<PlayerInputData> inputFunc) {
 			Debug.Log($"is OnInteract null: {Interact is null}");
@@ -12,10 +11,17 @@ namespace Input.Events {
 			return dispatcher;
 		}
 
+		public void CheckNull() {
+			if (Interact is null) {
+				Debug.Log("Interact is null!");
+			} else {
+				Debug.Log("Interact is NOT null!");
+			}
+		}
+
 		public class Dispatcher : Dispatcher<PlayerInputData> {
 			public Dispatcher(Func<PlayerInputData> inputFunc, Action interact) : base(inputFunc) {
 				_interact = interact;
-				Debug.Log($"are Actions equivalent?: {interact == _interact}");
 			}
 
 			private readonly Action _interact;
@@ -25,7 +31,7 @@ namespace Input.Events {
 				//demo event blocking, cant interact while moving
 				PlayerInputData inputData = GetInput();
 				//if (inputData.movement.magnitude < .2) _invokeInteract?.Invoke();
-				_interact.Invoke();
+				_interact?.Invoke();
 			}
 		}
 	}

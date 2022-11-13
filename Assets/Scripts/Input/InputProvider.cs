@@ -32,7 +32,7 @@ namespace Input {
 			int nullObjs = 0;
 
 			foreach (object middleware in _middlewares) {
-				if (middleware == null) {
+				if (middleware is null) {
 					nullObjs++;
 					Debug.LogWarning("Please add middlewares with the dedicated \"Add Middleware\" button.");
 				}

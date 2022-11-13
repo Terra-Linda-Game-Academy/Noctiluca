@@ -37,6 +37,7 @@ namespace Player {
 		private void Start() {
 			inputProvider.RequireInit();
 			inputProvider.Events.Interact += () => { Debug.Log("interact club headed by randall baker"); };
+			inputProvider.Events.CheckNull();
 		}
 
 		private void FixedUpdate() {
@@ -45,7 +46,7 @@ namespace Player {
 			_direction = new Vector3(inputData.movement.x, 0, inputData.movement.y);
 
 			transform.position += _direction * (movementSpeed * Time.deltaTime);
-			transform.rotation =  Rotation;
+			transform.rotation = Rotation;
 		}
 	}
 }
