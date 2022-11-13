@@ -9,5 +9,6 @@ namespace Input {
 		public abstract void TransformInput(ref T inputData);
 
 		public abstract void Init();
+		//public abstract void Release();
 	}
 }

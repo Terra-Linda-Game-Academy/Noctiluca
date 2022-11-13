@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 
 namespace Input.Events {
 	public class PlayerInputEvents : IInputEvents<PlayerInput, PlayerInputEvents.Dispatcher> {

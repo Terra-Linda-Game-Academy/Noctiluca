@@ -4,7 +4,7 @@ using Input.Events;
 using UnityEngine;
 
 namespace Input {
-	public class InputProvider<T, E, D> : ScriptableObject
+	public class InputProvider<T, E, D> : ScriptableObject//, IList<InputMiddleware<T, D>>
 	where T : struct
 	where E : class, IInputEvents<T, D>, new() 
 	where D : EventDispatcher<T> {
@@ -54,5 +54,63 @@ namespace Input {
 		private class NotInittedException : Exception {
 			public override string Message => "InputProvider was not initialized before using! Run RequireInit() first.";
 		}
+
+		// IList implementation methods
+
+		/*public IEnumerator<InputMiddleware<T, D>> GetEnumerator() {
+			foreach (object obj in _middlewares) 
+				yield return (InputMiddleware<T, D>) obj;
+		}
+		
+		IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }
+
+		public void Add(InputMiddleware<T, D> item) {
+			if (item is null) {
+				Debug.LogWarning("Attempted to add null middleware to InputProvider, blocked.");
+				return;
+			}
+			_middlewares.Add(item);
+		}
+		public void Clear() => _middlewares.Clear();
+		public bool Contains(InputMiddleware<T, D> item) => _middlewares.Contains(item);
+		public void CopyTo(InputMiddleware<T, D>[] array, int arrayIndex) {
+			for (int i = arrayIndex; i < array.Length; i++) {
+				array[i] = (InputMiddleware<T, D>) _middlewares[i];
+			}
+		}
+
+		public bool Remove(InputMiddleware<T, D> item) {
+			bool itemPresent = _middlewares.Remove(item);
+			if (itemPresent) item?.Release();
+			return itemPresent;
+		}
+		
+		public int Count => _middlewares.Count;
+		public bool IsReadOnly => false; //todo: is this right?
+		public int IndexOf(InputMiddleware<T, D> item) => _middlewares.IndexOf(item);
+
+		public void Insert(int index, InputMiddleware<T, D> item) {
+			if (item is null) {
+				Debug.LogWarning("Attempted to add null middleware to InputProvider, blocked.");
+				return;
+			}
+			_middlewares[index] = item;
+			item.Init();
+		}
+
+		public void RemoveAt(int index) {
+			((InputMiddleware<T, D>) _middlewares[index]).Release();
+			_middlewares.RemoveAt(index);
+		}
+
+		public InputMiddleware<T, D> this[int index] {
+			get => (InputMiddleware<T, D>) _middlewares[index];
+			set {
+				((InputMiddleware<T, D>) _middlewares[index]).Release();
+				_middlewares[index] = value;
+				value.Dispatcher = _dispatcher;
+				value.Init();
+			}
+		}*/
 	}
 }
