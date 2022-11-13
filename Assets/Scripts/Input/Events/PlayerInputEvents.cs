@@ -2,36 +2,28 @@ using System;
 using UnityEngine;
 
 namespace Input.Events {
-	public class PlayerInputEvents : IInputEvents<PlayerInputData, PlayerInputEvents.Dispatcher> {
+	public class PlayerInputEvents : IInputEvents<PlayerInput, PlayerInputEvents.Dispatcher> {
 		public event Action Interact;
+		
+		private void InvokeInteract() => Interact?.Invoke();
 
-		public Dispatcher GetDispatcher(Func<PlayerInputData> inputFunc) {
-			Debug.Log($"is OnInteract null: {Interact is null}");
-			Dispatcher dispatcher = new Dispatcher(inputFunc, Interact);
+		public Dispatcher GetDispatcher(Func<PlayerInput> inputFunc) {
+			Dispatcher dispatcher = new Dispatcher(inputFunc, InvokeInteract);
 			return dispatcher;
 		}
 
-		public void CheckNull() {
-			if (Interact is null) {
-				Debug.Log("Interact is null!");
-			} else {
-				Debug.Log("Interact is NOT null!");
-			}
-		}
-
-		public class Dispatcher : Dispatcher<PlayerInputData> {
-			public Dispatcher(Func<PlayerInputData> inputFunc, Action interact) : base(inputFunc) {
-				_interact = interact;
+		public class Dispatcher : EventDispatcher<PlayerInput> {
+			public Dispatcher(Func<PlayerInput> inputFunc, Action invokeInteract) : base(inputFunc) {
+				_invokeInteract = invokeInteract;
 			}
 
-			private readonly Action _interact;
+			private readonly Action _invokeInteract;
 
 			public void Interact() {
-				Debug.Log("tried to interact");
 				//demo event blocking, cant interact while moving
-				PlayerInputData inputData = GetInput();
+				PlayerInput input = GetInput();
 				//if (inputData.movement.magnitude < .2) _invokeInteract?.Invoke();
-				_interact?.Invoke();
+				_invokeInteract.Invoke();
 			}
 		}
 	}

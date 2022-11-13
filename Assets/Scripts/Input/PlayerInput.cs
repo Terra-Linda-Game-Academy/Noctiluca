@@ -1,9 +1,7 @@
-using System;
 using UnityEngine;
 
 namespace Input {
-	[Serializable]
-	public struct PlayerInputData {
+	public struct PlayerInput {
 		public Vector2 aim;
 		public Vector2 movement;
 	}

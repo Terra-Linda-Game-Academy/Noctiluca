@@ -32,7 +32,7 @@ namespace Input.Editor {
 			Type targetObjType = serializedObject.targetObject.GetType();
 
 			if (targetObjType == typeof(PlayerInputProvider)) {
-				_types = TypeCache.GetTypesDerivedFrom<InputMiddleware<PlayerInputData, PlayerInputEvents.Dispatcher>>();
+				_types = TypeCache.GetTypesDerivedFrom<InputMiddleware<PlayerInput, PlayerInputEvents.Dispatcher>>();
 			}
 
 			Button addMiddlewareButton = root.Q<Button>("add-middleware-button");

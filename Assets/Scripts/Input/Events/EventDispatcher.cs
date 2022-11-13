@@ -1,12 +1,12 @@
 using System;
 
 namespace Input.Events {
-	public abstract class Dispatcher<T> {
+	public abstract class EventDispatcher<T> {
 		private readonly Func<T> _inputFunc;
 
 		protected T GetInput() => _inputFunc.Invoke();
 
-		protected Dispatcher(Func<T> inputFunc) {
+		protected EventDispatcher(Func<T> inputFunc) {
 			_inputFunc = inputFunc;
 		}
 	}

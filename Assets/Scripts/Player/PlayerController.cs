@@ -36,14 +36,13 @@ namespace Player {
 
 		private void Start() {
 			inputProvider.RequireInit();
-			inputProvider.Events.Interact += () => { Debug.Log("interact club headed by randall baker"); };
-			inputProvider.Events.CheckNull();
+			inputProvider.Events.Interact += () => Debug.Log("interact club headed by randall baker");
 		}
 
 		private void FixedUpdate() {
-			PlayerInputData inputData = inputProvider.GetInputData();
+			PlayerInput input = inputProvider.GetInput();
 
-			_direction = new Vector3(inputData.movement.x, 0, inputData.movement.y);
+			_direction = new Vector3(input.movement.x, 0, input.movement.y);
 
 			transform.position += _direction * (movementSpeed * Time.deltaTime);
 			transform.rotation = Rotation;

@@ -5,25 +5,21 @@ using UnityEngine;
 
 namespace Input {
 	public class InputProvider<T, E, D> : ScriptableObject
-		where T : new() where E : IInputEvents<T, D>, new() {
-		// ReSharper disable once CollectionNeverUpdated.Local
-		// ReSharper disable once FieldCanBeMadeReadOnly.Local
+	where T : struct
+	where E : class, IInputEvents<T, D>, new() 
+	where D : EventDispatcher<T> {
 		[SerializeReference] private List<object> _middlewares = new();
-
-		[NonSerialized] private T _inputStruct;
-		public  E Events { get; private set; }
+		
+		public E Events { get; private set; }
 		[NonSerialized] private D _dispatcher;
-
 		[NonSerialized] private bool _initted;
 
-		public T GetInputData() {
+		public T GetInput() {
 			if (!_initted) throw new NotInittedException();
 
-			_inputStruct = new T();
-
-			foreach (InputMiddleware<T, D> middleware in _middlewares) { middleware.TransformInput(ref _inputStruct); }
-
-			return _inputStruct;
+			var input = new T();
+			foreach (InputMiddleware<T, D> middleware in _middlewares) { middleware.TransformInput(ref input); }
+			return input;
 		}
 
 		private void OnValidate() { ClearBaseObjects(); }
@@ -43,10 +39,9 @@ namespace Input {
 
 		public void RequireInit() {
 			if (_initted) return;
-			Debug.Log("initiated");
 
 			Events      = new E();
-			_dispatcher = Events.GetDispatcher(GetInputData);
+			_dispatcher = Events.GetDispatcher(GetInput);
 
 			foreach (InputMiddleware<T, D> middleware in _middlewares) {
 				middleware.Dispatcher = _dispatcher;
