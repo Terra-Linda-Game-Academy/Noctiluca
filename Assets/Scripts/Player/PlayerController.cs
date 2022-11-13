@@ -35,7 +35,8 @@ namespace Player {
 			Vector3.RotateTowards(transform.forward, _direction, rotationSpeed * Time.deltaTime, 0);
 
 		private void Start() {
-			inputProvider.events.OnInteract += () => { Debug.Log("interact club headed by randall baker"); };
+			inputProvider.RequireInit();
+			inputProvider.Events.OnInteract += () => { Debug.Log("interact club headed by randall baker"); };
 		}
 
 		private void FixedUpdate() {

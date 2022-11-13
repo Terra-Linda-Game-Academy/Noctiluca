@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 using PopupWindow = UnityEditor.PopupWindow;
 
 namespace Input.Editor {
-	[CustomEditor(typeof(InputProvider<,>), true)]
+	[CustomEditor(typeof(InputProvider<,,>), true)]
 	public class InputProviderEditor : UnityEditor.Editor {
 		private TypeCache.TypeCollection _types;
 
@@ -32,7 +32,7 @@ namespace Input.Editor {
 			Type targetObjType = serializedObject.targetObject.GetType();
 
 			if (targetObjType == typeof(PlayerInputProvider)) {
-				_types = TypeCache.GetTypesDerivedFrom<InputMiddleware<PlayerInputData, PlayerInputEvents>>();
+				_types = TypeCache.GetTypesDerivedFrom<InputMiddleware<PlayerInputData, PlayerInputEvents.Dispatcher>>();
 			}
 
 			Button addMiddlewareButton = root.Q<Button>("add-middleware-button");

@@ -2,23 +2,12 @@ using System;
 
 namespace Input {
 	[Serializable]
-	public abstract class InputMiddleware<T, E> {
-		private   E _events;
-		protected E Events {
-			get => _events;
-			set {
-				_events = value;
-				if (_eventsSubscribed) DisposeSubscriptions();
-				EventSubscriptions();
-				_eventsSubscribed = true;
-			}
-		}
+	public abstract class InputMiddleware<T, D> {
 
-		private bool _eventsSubscribed;
+		[NonSerialized] public D Dispatcher;
 
-		public abstract void TransformInput(ref T inputData, ref E events);
+		public abstract void TransformInput(ref T inputData);
 
-		protected abstract void EventSubscriptions();
-		protected abstract void DisposeSubscriptions();
+		public abstract void Init();
 	}
 }

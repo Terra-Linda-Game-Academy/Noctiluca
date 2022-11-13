@@ -4,23 +4,16 @@ using Main;
 
 namespace Input {
 	[Serializable]
-	public class PlayerInputSystemMiddleware : InputMiddleware<PlayerInputData, PlayerInputEvents> {
+	public class PlayerInputSystemMiddleware : InputMiddleware<PlayerInputData, PlayerInputEvents.Dispatcher> {
 		public float testFloat;
 
 		// ReSharper disable once RedundantAssignment
-		public override void TransformInput(ref PlayerInputData inputData, ref PlayerInputEvents events) {
+		public override void TransformInput(ref PlayerInputData inputData) {
 			inputData = App.InputManager.playerInputData;
-			Events    = events;
 		}
 
-		protected override void EventSubscriptions() {
-			//subscribe events
-			App.InputManager.OnInteract += Events.OnInteract;
-		}
-
-		protected override void DisposeSubscriptions() {
-			//unsubscribe events
-			App.InputManager.OnInteract -= Events.OnInteract;
+		public override void Init() {
+			App.InputManager.OnInteract += Dispatcher.Interact;
 		}
 	}
 }
