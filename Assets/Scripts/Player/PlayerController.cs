@@ -36,7 +36,7 @@ namespace Player {
 
 		private void Start() {
 			inputProvider.RequireInit();
-			inputProvider.Events.OnInteract += () => { Debug.Log("interact club headed by randall baker"); };
+			inputProvider.Events.Interact += () => { Debug.Log("interact club headed by randall baker"); };
 		}
 
 		private void FixedUpdate() {
