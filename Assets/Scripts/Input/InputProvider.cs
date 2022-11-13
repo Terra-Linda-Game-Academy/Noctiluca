@@ -22,7 +22,7 @@ namespace Input {
 			return input;
 		}
 
-		private void OnValidate() { ClearBaseObjects(); }
+		private void OnValidate() => ClearBaseObjects();
 
 		private void ClearBaseObjects() {
 			int nullObjs = 0;
@@ -39,7 +39,6 @@ namespace Input {
 
 		public void RequireInit() {
 			if (_initted) return;
-
 			Events      = new E();
 			_dispatcher = Events.GetDispatcher(GetInput);
 
