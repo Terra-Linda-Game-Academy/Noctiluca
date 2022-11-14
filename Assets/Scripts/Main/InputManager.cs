@@ -1,5 +1,6 @@
 using System;
 using Input;
+using Input.Data;
 using UnityEngine;
 
 namespace Main {

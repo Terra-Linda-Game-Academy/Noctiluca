@@ -1,8 +1,9 @@
 using System;
+using Input.Data;
 using Input.Events;
 using Main;
 
-namespace Input {
+namespace Input.Middleware {
 	[Serializable]
 	public class PlayerInputMiddleware : InputMiddleware<PlayerInput, PlayerInputEvents.Dispatcher> {
 		public override void TransformInput(ref PlayerInput input) {

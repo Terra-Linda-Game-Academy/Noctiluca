@@ -1,4 +1,5 @@
 using System;
+using Input.Data;
 
 namespace Input.Events {
 	public class PlayerInputEvents : IInputEvents<PlayerInput, PlayerInputEvents.Dispatcher> {

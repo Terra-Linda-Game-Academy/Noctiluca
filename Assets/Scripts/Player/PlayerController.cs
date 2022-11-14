@@ -1,6 +1,7 @@
 using System;
 using Input;
 using Input.ConcreteInputProviders;
+using Input.Data;
 using UnityEngine;
 
 namespace Player {

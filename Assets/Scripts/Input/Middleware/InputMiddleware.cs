@@ -1,6 +1,6 @@
 using System;
 
-namespace Input {
+namespace Input.Middleware {
 	[Serializable]
 	public abstract class InputMiddleware<T, D> {
 		public D Dispatcher { protected get; set; }

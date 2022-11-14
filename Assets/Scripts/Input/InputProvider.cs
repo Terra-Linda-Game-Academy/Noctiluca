@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Input.Events;
+using Input.Middleware;
 using UnityEngine;
 
 namespace Input {
