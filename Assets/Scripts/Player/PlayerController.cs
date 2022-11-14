@@ -7,24 +7,16 @@ namespace Player {
 	public class PlayerController : MonoBehaviour {
 		/// <summary>
 		/// Author : EvanisEpicandCool
-		/// 
-		/// Description : And I will cast abominable filth upon thee,
-		///                         and make thee vile,
-		///                and will set thee as a gazingstock.
-		///                                                 -Nahum 3:6
 		///                                                 
 		/// Simple Character/Player Controller to take in external inputmap modifiers
 		/// also has some Movement code that is on a string
 		/// 
 		/// Date : 11/9/22
-		/// 
 		/// </summary>
 
 		//Just a Couple Movement paramaters
 		[SerializeField] private float movementSpeed = 3;
-
 		[SerializeField] private float rotationSpeed = 10;
-
 		[SerializeField] private PlayerInputProvider inputProvider;
 
 		//Movement Vectors and Bools
