@@ -19,7 +19,9 @@ namespace Input {
 			if (!_initted) throw new NotInittedException();
 
 			var input = new T();
-			foreach (InputMiddleware<T, D> middleware in _middlewares) { middleware.TransformInput(ref input); }
+			foreach (InputMiddleware<T, D> middleware in _middlewares) {
+				input = middleware.TransformInput(input);
+			}
 			return input;
 		}
 
