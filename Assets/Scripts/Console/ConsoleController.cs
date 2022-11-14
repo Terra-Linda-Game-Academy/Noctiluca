@@ -107,8 +107,12 @@ public class ConsoleController : MonoBehaviour
 
     public static ConsoleArgument StringToArgument(string[] arguments, Type parameterType)
     {
-        ConsoleArgument ca = null;
-        if (typeof(CustomConsoleParameter).IsAssignableFrom(parameterType))
+        ConsoleArgument ca = new ConsoleArgument(null, 0);
+        if (arguments.Length == 0 && parameterType != typeof(GameObject))
+        {
+            return ca;
+        }
+        else if (typeof(CustomConsoleParameter).IsAssignableFrom(parameterType))
         {
             ca = (ConsoleArgument)parameterType.GetMethod("ConsoleConvert").Invoke(null, new object[] { arguments });
         }
@@ -176,7 +180,7 @@ public class ConsoleController : MonoBehaviour
             }
         } catch(Exception e) {
             Debug.Log(e.Message);
-            AddToConsoleLog($"There was an issue when converting {String.Join(" ", arguments[argumentIndex..arguments.Length])} into type {parameterType}");
+            AddToConsoleLog($"There was an issue when converting {String.Join(" ", arguments[argumentIndex..arguments.Length])} into type {parameterType.Name}");
         }
         
         return objects.ToArray();
@@ -449,7 +453,7 @@ public class ConsoleController : MonoBehaviour
         {
             ConsoleCommandHolder command = commandList[i];
 
-            if (input.StartsWith(command.commandId))
+            if (properties[0] == (command.commandId))
             {
                 if (command.requiresCheats && !CheatsEnabled)
                 {

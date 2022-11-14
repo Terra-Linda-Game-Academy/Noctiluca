@@ -6,7 +6,7 @@ public class MobManagerExample : MonoBehaviour
 {
     public List<GameObject> mobs = new List<GameObject>();
 
-    [ConsoleCommand("spawnmob", "spawns mob", true)]
+    [ConsoleCommand("spawnmob", "Spawns mob", requiresCheats = true)]
     public void SpawnMob(MobSpawnInfo mobSpawnInfo)
     {
         GameObject mob = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -16,12 +16,23 @@ public class MobManagerExample : MonoBehaviour
         mobs.Add(mob);
     }
 
-    
-    public void KillMob(string mobName)
+
+    [ConsoleCommand("killmobbyname", "kills mob", true, "Succesfully killed mob by name {mobName}!")]
+    public void KillMobByName(string mobName)
     {
         //mobs.RemoveAll(mob => mob.name == mobName);
         var mobsToRemove = mobs.FindAll(mob => mob.name == mobName);
         mobsToRemove.ForEach(mob => { mobs.Remove(mob); Destroy(mob); });
+    }
+    
+    [ConsoleCommand("killmob", "kills mob",true)]
+    public void KillMob(GameObject mob)
+    {
+        if(mobs.Contains(mob))
+        {
+            mobs.Remove(mob);
+            Destroy(mob);
+        }
     }
 
     public int GetMobCount()
