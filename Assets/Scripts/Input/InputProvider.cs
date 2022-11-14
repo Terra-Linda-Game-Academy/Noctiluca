@@ -54,6 +54,12 @@ namespace Input {
 			public override string Message => "InputProvider was not initialized before using! Run RequireInit() first.";
 		}
 
+		public static void Create(params InputMiddleware<T, D>[] middlewares) {
+			var newObj = CreateInstance<InputProvider<T, E, D>>();
+			newObj._middlewares.AddRange(middlewares);
+			newObj.RequireInit();
+		}
+
 		// IList implementation methods
 
 		/*public IEnumerator<InputMiddleware<T, D>> GetEnumerator() {
