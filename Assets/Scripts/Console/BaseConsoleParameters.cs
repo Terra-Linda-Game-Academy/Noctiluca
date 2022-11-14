@@ -59,7 +59,7 @@ public static class BaseConsoleParameters {
     [BaseConsoleParameter(typeof(GameObject), "selected gameobject")]
     public static ConsoleArgument ConsoleConvertGameObject(string[] args)
     {
-        return new ConsoleArgument(DebugController.SelectedGameObject, 0);
+        return new ConsoleArgument(ConsoleController.SelectedGameObject, 0);
     }
 //spawnmob bob 1.123 31 5 50 100 12
 

@@ -12,25 +12,22 @@ using System.Text.RegularExpressions;
 using System.Collections.Specialized;
 
 
-public class DebugController : MonoBehaviour
+public class ConsoleController : MonoBehaviour
 {
     bool showConsole;
-
     string input = "";
+    public static bool CheatsEnabled = false;
 
-    public static List<object> commandList = new List<object>();
-
-    public List<string> commandHistory = new List<string>();
-    private int commandHistoryIndex = -1;
-    private const int MAX_COMMAND_HISTORY = 30;
 
     public static List<string> consoleLog = new List<string>();
-
+    public static List<ConsoleCommandHolder> commandList = new List<ConsoleCommandHolder>();
+    public static List<string> commandHistory = new List<string>();
+    private int commandHistoryIndex = -1;
+    private const int MAX_COMMAND_HISTORY = 30;
     public static Dictionary<Type,(MethodInfo, string)> baseConsoleParameters = new Dictionary<Type,(MethodInfo, string)>();
 
 
-    public static bool CheatsEnabled = false;
-    //public static List<BaseConsoleParameter> baseConsoleParameters = new List<BaseConsoleParameter>();
+    
 
     public void OnToggleDebug()
     {
@@ -44,11 +41,9 @@ public class DebugController : MonoBehaviour
         {
             AddToConsoleLog(input, true, true);
             AddToConsoleHistory(input);
-            try
-            {
-                HandleInput();
-            }
-            catch (Exception ex) { }
+
+            HandleInput();
+           
             input = "";
         }
     }
@@ -77,13 +72,11 @@ public class DebugController : MonoBehaviour
                 if (!isUsableConstructor)
                     continue;
                 format = "";
-               // format = parameterType.Name+"[";
                 foreach (ParameterInfo parameterInfo in constructorInfo.GetParameters())
                 {
-                    format += $"{parameterInfo.Name}({parameterInfo.ParameterType.Name}), ";
+                    format += $"{parameterInfo.Name} - <{GetFormatOfParameter(parameterInfo.ParameterType)}>, ";
                 }
                 format = format.Substring(0, format.Length - 2);
-                //format += "]";
 
             }
         }
@@ -96,10 +89,8 @@ public class DebugController : MonoBehaviour
         foreach(ParameterInfo pi in parameterInfo) {
             Type parameterType = pi.ParameterType;
             string format = parameterType.Name;
-            try
-            {
-                format = GetFormatOfParameter(parameterType);
-            } catch (Exception ex) { Debug.LogError(ex); }
+
+            format = GetFormatOfParameter(parameterType);
             
 
             output += " <"+ format + ">";
@@ -108,10 +99,6 @@ public class DebugController : MonoBehaviour
         return output;
     }
 
-    [ConsoleCommand("person", "creates person")]
-    public string PersonF(Person person, int num) {
-        return "There are "+num+""+person.name+"s";
-    }
 
     public static bool IsConvertableType(Type type)
     {
@@ -186,37 +173,6 @@ public class DebugController : MonoBehaviour
                 } else {
                     objects.Add(null);
                 }
-                // }else if(parameterType == typeof(int)) {
-                //     objects.Add(int.Parse(arguments[argumentIndex]));
-                //     argumentIndex++;
-                // } else if(parameterType == typeof(string)) {
-                //     string argument = arguments[argumentIndex];
-                //     if(argument.StartsWith('"')) {
-                //         string total = argument.Substring(1);
-                //         if(total.EndsWith('"')) {
-                //             objects.Add(total);
-                //             break;
-                //         }
-                //         argumentIndex++;
-                //         while (!(total.EndsWith('"'))) {
-                //             total += " " + arguments[argumentIndex];
-                //             argumentIndex++;
-                //         }
-                //         total=total.Substring(0,total.Length-1);
-                //         objects.Add(total);
-                        
-                //     } else {
-                //         objects.Add(arguments[argumentIndex]);
-                //         argumentIndex++;
-                //     }
-                    
-                // }else if(parameterType == typeof(Vector3)) {
-                //     objects.Add(new Vector3(float.Parse(arguments[argumentIndex]),float.Parse(arguments[argumentIndex+1]),float.Parse(arguments[argumentIndex+2])));
-                //     argumentIndex+=3;
-                // }
-                //  else {
-
-                // }
             }
         } catch(Exception e) {
             Debug.Log(e.Message);
@@ -258,12 +214,12 @@ public class DebugController : MonoBehaviour
                             Type classType = member.DeclaringType;
 
                             //take parameter types, use function to convert string into those type and pass it through
-                            commandList.Add(new DebugCommand<string[]>(attribute.id, attribute.description, GenerateFormat(attribute.id, parameterInfo), attribute.executionValue, attribute.requiresCheats, (x) => {
+                            commandList.Add(new ConsoleCommandHolder(attribute.id, attribute.description, GenerateFormat(attribute.id, parameterInfo), attribute.executionValue, attribute.requiresCheats, (x) => {
                                 List<string> arguments = new List<string>(x);
                                 arguments.RemoveAt(0);
                                 object[] parameters = ParametersFromString(arguments.ToArray(), parameterInfo);
                                 object script = null;
-                                try{if(classType.IsSubclassOf(typeof(UnityEngine.Object))) script = GameObject.FindObjectOfType(classType);} catch(Exception e) {}
+                                if (classType.IsSubclassOf(typeof(UnityEngine.Object))) script = GameObject.FindObjectOfType(classType);
                                 if (script == null && !methodInfo.IsStatic)
                                 {
                                     script = Activator.CreateInstance(type, null);
@@ -301,7 +257,6 @@ public class DebugController : MonoBehaviour
                                     AddToConsoleLog(output);
                                 }
 
-                                //AddToConsoleLog(output==""? (attribute.executionValue==""?attribute.id + " executed succesfully":attribute.executionValue): output);
                             }));
                         }
                         
@@ -339,7 +294,7 @@ public class DebugController : MonoBehaviour
         }
     }
 
-    public Vector2 scroll;
+    private Vector2 scroll;
 
     public static GameObject SelectedGameObject = null;
 
@@ -395,19 +350,10 @@ public class DebugController : MonoBehaviour
         {
             string[] suggestions = GetCommandSuggestions(input.Split(" ")[0]);
 
-            //suggestion
-            // GUI.contentColor = new Color(50, 50, 50, 50);
-            // GUI.TextField(new Rect(10f, y - 25f, Screen.width - 20f, 20f), suggestions[0]);
-
-
             foreach (string suggestion in suggestions)
             {
-                // GUI.Box(new Rect(0, y, Screen.width, 20), "");
-                // GUI.backgroundColor = new Color(0, 0, 0, 0);
-                // GUI.TextArea(new Rect(0, y, Screen.width, 20), suggestion);
                 GUI.contentColor = new Color(255, 255, 255, 255);
                 GUI.backgroundColor = new Color(255, 0, 0, 255);
-                //GUI.backgroundColor = new Color(0, 0, 0, 0);
                 if (GUI.Button(new Rect(0, y, Screen.width, 20), new GUIContent(suggestion))) {
                  input = suggestion.Split(" ")[0];
                 }
@@ -425,13 +371,10 @@ public class DebugController : MonoBehaviour
         Event e = Event.current;
         if(e.isMouse && e.type == EventType.MouseDown) {
             //Get Current Hovered Gameobject
-            Debug.Log("Shooting!");
-            
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, 100))
             {
-                Debug.Log("Hit!");
                 SelectedGameObject = hit.transform.gameObject;
                 
             } else {
@@ -504,27 +447,18 @@ public class DebugController : MonoBehaviour
 
         for (int i = 0; i < commandList.Count; i++)
         {
-            DebugCommandBase commandBase = commandList[i] as DebugCommandBase;
+            ConsoleCommandHolder command = commandList[i];
 
-            if (input.StartsWith(commandBase.commandId))
+            if (input.StartsWith(command.commandId))
             {
-                if (commandBase.requiresCheats && !CheatsEnabled)
+                if (command.requiresCheats && !CheatsEnabled)
                 {
                     AddToConsoleLog("This command requires cheats to be enabled, use \"cheats true\" to enable");
                     return;
                 }
-                if (commandList[i] as DebugCommand != null)
-                {
-                    (commandList[i] as DebugCommand).Invoke();
-                }
-                else if (commandList[i] as DebugCommand<int> != null)
-                {
-                    (commandList[i] as DebugCommand<int>).Invoke(int.Parse(properties[1]));
-                } 
-                else if (commandList[i] as DebugCommand<string[]> != null)
-                {
-                    (commandList[i] as DebugCommand<string[]>).Invoke(properties);
-                }
+                command.Invoke(properties);
+
+
             }
         }
 
@@ -538,7 +472,7 @@ public class DebugController : MonoBehaviour
 
         for (int i = 0; i < commandList.Count; i++)
         {
-            DebugCommandBase commandBase = commandList[i] as DebugCommandBase;
+            ConsoleCommandHolder commandBase = commandList[i] as ConsoleCommandHolder;
 
             if (commandBase.commandId.Contains(command))
             {
@@ -551,13 +485,14 @@ public class DebugController : MonoBehaviour
 
 }
 
-public class DebugCommandBase
+public class ConsoleCommandHolder
 {
     private string _commandId;
     private string _commandDescription;
     private string _commandFormat;
     private string _executionValue;
     private bool _requiresCheats;
+    private Action<string[]> command;
 
     public string commandId { get { return _commandId; } }
     public string commandDescription { get { return _commandDescription; } }
@@ -565,61 +500,24 @@ public class DebugCommandBase
     public string executionValue { get { return _executionValue; } }
     public bool requiresCheats { get { return _requiresCheats; } }
 
-    public DebugCommandBase(string id, string description, string format, string executionValue, bool requiresCheats)
+    public void Invoke(string[] args)
+    {
+        command.Invoke(args);
+    }
+
+
+    public ConsoleCommandHolder(string id, string description, string format, string executionValue, bool requiresCheats, Action<string[]> command)
     {
         _commandId = id;
         _commandDescription = description;
         _commandFormat = format;
         _requiresCheats = requiresCheats;
         _executionValue= executionValue;
-    }
-}
-
-public class DebugCommand : DebugCommandBase
-{
-    private Action command;
-
-    public DebugCommand(string id, string description, string format, string executionValue, bool requiresCheats, Action command) : base(id, description, format, executionValue, requiresCheats)
-    {
         this.command = command;
     }
-
-    public void Invoke()
-    {
-        command.Invoke();
-    }
 }
 
-/*public class DebugCommandTest : DebugCommandBase
-{
-    private Action<string> command;
 
-    public DebugCommandTest(string id, string description, string format, string executionValue bool requiresCheats, Action<string> command) : base(id, description, format, requiresCheats)
-    {
-        this.command = command;
-    }
-
-    public void Invoke(string value)
-    {
-        command.Invoke(value);
-    }
-}
-*/
-
-public class DebugCommand<T1> : DebugCommandBase
-{
-    private Action<T1> command;
-
-    public DebugCommand(string id, string description, string format, string executionValue, bool requiresCheats, Action<T1> command) : base(id, description, format, executionValue, requiresCheats)
-    {
-        this.command = command;
-    }
-
-    public void Invoke(T1 value)
-    {
-        command.Invoke(value);
-    }
-}
 
 
 [AttributeUsage(AttributeTargets.Method)]

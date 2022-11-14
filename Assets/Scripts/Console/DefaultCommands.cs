@@ -13,10 +13,10 @@ public class DefaultCommands
         string output = "";
         if (input == "" || input == null)
         {
-            for (int i = 0; i < DebugController.commandList.Count; i++)
+            for (int i = 0; i < ConsoleController.commandList.Count; i++)
             {
 
-                DebugCommandBase command = DebugController.commandList[i] as DebugCommandBase;
+                ConsoleCommandHolder command = ConsoleController.commandList[i] as ConsoleCommandHolder;
 
                 string line = $"{command.commandFormat} - {command.commandDescription}";
 
@@ -29,10 +29,10 @@ public class DefaultCommands
         else
         {
 
-            for (int i = 0; i < DebugController.commandList.Count; i++)
+            for (int i = 0; i < ConsoleController.commandList.Count; i++)
             {
 
-                DebugCommandBase command = DebugController.commandList[i] as DebugCommandBase;
+                ConsoleCommandHolder command = ConsoleController.commandList[i] as ConsoleCommandHolder;
 
                 if (command.commandId == input)
                 {
@@ -50,21 +50,15 @@ public class DefaultCommands
     [ConsoleCommand("cheats", "enables/disables cheat commands")]
     public static string Cheats(bool input)
     {
-        DebugController.CheatsEnabled = input;
+        ConsoleController.CheatsEnabled = input;
         return "cheats " + (input? "enabled":"disabled");
     }
 
-    // [ConsoleCommand("parameterhelp", "gets specifics for parameter types")]
-    // public static string Parameterhelp(string input)
-    // {
-    //     Type parameterType = Type.GetType(input);
-    //     string format = DebugController.GetFormatOfParameter(parameterType);
-    //     return format;
-    // }
 
-    [ConsoleCommand("disable", "disables selected gameobject")]
+    [ConsoleCommand("disable", "disables selected gameobject", true)]
     public void DestroyGameobject(GameObject gameObject)
     {
         gameObject.SetActive(false);
     }
+
 }
