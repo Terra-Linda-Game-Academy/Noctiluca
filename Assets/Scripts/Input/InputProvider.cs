@@ -20,7 +20,7 @@ namespace Input {
 
 			var input = new T();
 			foreach (InputMiddleware<T, D> middleware in _middlewares) {
-				input = middleware.TransformInput(input);
+				middleware.TransformInput(ref input);
 			}
 			return input;
 		}
