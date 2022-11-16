@@ -22,7 +22,7 @@ namespace Levels.Editor {
             element.Bind(serializedObject);
             return element;
         }
-
-        public override bool RequiresConstantRepaint() => true;
+        
+        
     }
 }
