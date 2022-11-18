@@ -10,12 +10,25 @@ namespace Levels {
         /// <Summary> values: in [-128, -64) are pits, in [-64, 0) are walls, [0, 127] are valid heights </Summary>
         [SerializeField] private sbyte[] heightMap;
         
-        [SerializeField] private List<BaseTileEntity> tileEntities;
+        [SerializeField] private List<TileAsset> tileAssets;
         [SerializeReference] private List<ITile> tiles;
+
+
+        public IEnumerable<TileAsset> TileAssets {
+            get {
+                foreach (var ta in tileAssets) yield return ta; 
+            }
+        }
 
         public IEnumerable<ITile> Tiles {
             get {
-                foreach (var te in tileEntities) yield return te;
+                foreach (var t in tiles) yield return t;
+            }
+        }
+
+        public IEnumerable<ITile> AllTiles {
+            get {
+                foreach (var ta in tileAssets) yield return ta; 
                 foreach (var t in tiles) yield return t;
             }
         }

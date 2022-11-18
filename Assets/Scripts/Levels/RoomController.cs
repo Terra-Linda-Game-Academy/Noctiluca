@@ -25,14 +25,21 @@ namespace Levels {
             RoomId = new Guid();
             meshRenderer = GetComponent<MeshRenderer>();
             meshFilter = GetComponent<MeshFilter>();
-        }
+            
+            foreach (var tile in room.TileAssets) {
+                if (!tile.CreateGameObject) return;
+                GameObject obj = new GameObject(tile.Name);
+                Transform objTransform = obj.transform;
+                objTransform.parent = transform;
+                objTransform.position = tile.Position;
+                tile.Init(obj, RoomId);
+            }
 
-        private void Start() {
             foreach (var tile in room.Tiles) {
                 GameObject obj = new GameObject(tile.Name);
                 Transform objTransform = obj.transform;
                 objTransform.parent = transform;
-                objTransform.position = tile.Position;// + new Vector3(0.5f, 0f, 0.5f);
+                objTransform.position = tile.Position;
                 tile.Init(obj, RoomId);
             }
         }

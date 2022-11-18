@@ -2,10 +2,13 @@ using UnityEditor;
 using UnityEngine;
 
 namespace Levels.Editor {
-    public class Property3D {
-        private Bounds selectionRegion;
-        public Bounds SelectionRegion => selectionRegion;
+    public abstract class Property3D {
+        public abstract Bounds SelectionRegion { get; }
 
-        private SerializedProperty target;
+        protected readonly SerializedProperty serializedProperty;
+        
+        public Property3D(SerializedProperty property) {
+            serializedProperty = property;
+        }
     }
 }
