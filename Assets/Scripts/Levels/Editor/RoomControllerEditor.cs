@@ -1,10 +1,12 @@
+using System;
 using UnityEditor;
 using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Levels.Editor {
     [CustomEditor(typeof(RoomController))]
-    public class RoomControllerEditor : UnityEditor.Editor {
+    public class RoomControllerEditor : UnityEditor.Editor { 
         public override VisualElement CreateInspectorGUI() {
             VisualElement element = new VisualElement();
 
@@ -22,7 +24,5 @@ namespace Levels.Editor {
             element.Bind(serializedObject);
             return element;
         }
-        
-        
     }
 }

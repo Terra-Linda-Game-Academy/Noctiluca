@@ -18,6 +18,10 @@ namespace Levels {
         private MeshRenderer meshRenderer;
         private MeshFilter meshFilter;
 
+
+        public bool HasTarget => room is not null;
+        public Vector3Int Size => room.Size;
+
         private void Awake() {
             #if UNITY_EDITOR 
             EditorSceneManager.sceneSaving += OnSceneSave;
@@ -56,7 +60,7 @@ namespace Levels {
             EditorSceneManager.sceneSaving -= OnSceneSave;
             #endif
         }
-        
+
         #if UNITY_EDITOR
         private void OnSceneSave(Scene scene, string path) {
             //todo: save room asset here if necessary
