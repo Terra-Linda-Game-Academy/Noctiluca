@@ -11,7 +11,7 @@ namespace Levels {
         [SerializeField] private sbyte[] heightMap;
         
         [SerializeField] private List<TileAsset> tileAssets;
-        [SerializeReference] private List<ITile> tiles;
+        [SerializeReference] private List<SimpleTile> tiles;
 
 
         public IEnumerable<TileAsset> TileAssets {
@@ -20,7 +20,7 @@ namespace Levels {
             }
         }
 
-        public IEnumerable<ITile> Tiles {
+        public IEnumerable<SimpleTile> Tiles {
             get {
                 foreach (var t in tiles) yield return t;
             }
