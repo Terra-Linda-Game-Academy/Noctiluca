@@ -12,15 +12,13 @@ namespace Levels {
     [RequireComponent(typeof(MeshRenderer), typeof(MeshFilter))]
     public class RoomController : MonoBehaviour {
         [SerializeField] private Room room;
+
+        public Room Room => room;
         
         public Guid RoomId { get; private set; }
         
         private MeshRenderer meshRenderer;
         private MeshFilter meshFilter;
-
-
-        public bool HasTarget => room is not null;
-        public Vector3Int Size => room.Size;
 
         private void Awake() {
             #if UNITY_EDITOR 
