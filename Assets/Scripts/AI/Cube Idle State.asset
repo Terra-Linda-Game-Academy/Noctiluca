@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 150f1f2363ac41719c5608eb15924a1c, type: 3}
+  m_Name: Cube Idle State
+  m_EditorClassIdentifier: 
+  actions:
+  - {fileID: 11400000, guid: f29d1ce63c856466fb6c0cf42051d87e, type: 2}
+  transitions:
+  - decision: {fileID: 11400000, guid: a06b5128f575841c69ce2c918f363875, type: 2}
+    trueState: {fileID: 11400000, guid: 792b55c1e6d4a4a47ab4a6fada9f0d38, type: 2}
+    falseState:
+      enabled: 0
+      value: {fileID: 0}
+  gizmoColor: {r: 0.21888566, g: 1, b: 0, a: 1}
