@@ -1,21 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;using UnityEngine.AI;
+using UnityEngine;
+using UnityEngine;
+using UnityEngine.AI;
 
-public class PotatoMob : MonoBehaviour
+public class ChargeMob : MonoBehaviour
 {
 
     public float wanderRadius;
     public float wanderTimer;
 
-    private Transform target;
     private NavMeshAgent agent;
     private float timer;
 
     bool isWandering = true;
-    bool triggered = false;
-
-    public GameObject player;
 
     public GameObject model;
 
@@ -40,34 +38,23 @@ public class PotatoMob : MonoBehaviour
                 timer = 0;
             }
         }
-        if(!triggered)
-        {
-            if (Vector3.Distance(transform.position, player.transform.position) < 3f)
-            {
-                triggered = true;
-                isWandering = false;
-                RunToBurrow();
-            }
-        }
+        RaycastHit hit;
+        Vector3 fwd = transform.TransformDirection(Vector3.forward);
 
-        if (triggered && !agent.pathPending)
+        if (Physics.Raycast(transform.position, fwd, out hit))
         {
-            if (agent.remainingDistance <= agent.stoppingDistance)
+            GameObject hitObject = hit.transform.gameObject;
+            if(hitObject.tag == "Player")
             {
-                if (!agent.hasPath || agent.velocity.sqrMagnitude == 0f)
-                {
-                    model.transform.position = this.transform.position - new Vector3(0, 0.6f, 0);
-                } 
+                agent.speed = 100;
+                agent.angularSpeed = 0;
+                agent.SetDestination(hitObject.transform.position);
             }
+            Debug.DrawLine(transform.position, hit.point, Color.cyan);
         }
 
     }
 
-    public void RunToBurrow()
-    {
-        Vector3 newPos = RandomNavSphere(transform.position, wanderRadius, -1);
-        agent.SetDestination(newPos);
-    }
 
     public static Vector3 RandomNavSphere(Vector3 origin, float dist, int layermask)
     {
