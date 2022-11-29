@@ -1,74 +1,103 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine;
 using UnityEngine.AI;
 
-public class ChargeMob : MonoBehaviour
+public class ChargeMob : BasicMob
 {
+    public float agroRadius = 20f;
+    public GameObject player;
 
-    public float wanderRadius;
-    public float wanderTimer;
+    Vector3 chargeLocation;
+    bool isAgro = false;
 
-    private NavMeshAgent agent;
-    private float timer;
+    float chargeCooldown = 0f;
+    float chargeTime = 0f;
 
-    bool isWandering = true;
 
-    public GameObject model;
-
-    // Use this for initialization
-    void OnEnable()
+    void Awake()
     {
-        agent = GetComponent<NavMeshAgent>();
-        timer = wanderTimer;
+        base.Awake();
+        updateFunctions += detectPlayer;
+        updateFunctions += chargeUpdate;
     }
 
-    // Update is called once per frame
-    void Update()
+    void detectPlayer()
     {
-        if (isWandering)
+        chargeCooldown -= Time.deltaTime;
+        if (chargeCooldown > 0f || isAgro) return;
+        if(Vector3.Distance(transform.position, player.transform.position) < agroRadius)
         {
-            timer += Time.deltaTime;
-
-            if (timer >= wanderTimer)
+            RaycastHit hit;
+            Vector3 rayDirection = player.transform.position- transform.position;
+            Quaternion targetRotation = Quaternion.LookRotation(rayDirection, Vector3.up);
+            transform.rotation = Quaternion.Lerp(transform.rotation,targetRotation,Time.deltaTime*10);
+            Debug.DrawRay(transform.position, rayDirection, Color.blue);
+            if (Physics.Raycast(transform.position, rayDirection, out hit))
             {
-                Vector3 newPos = RandomNavSphere(transform.position, wanderRadius, -1);
-                agent.SetDestination(newPos);
-                timer = 0;
+                Debug.Log("hit");
+                if (hit.transform.gameObject == player)
+                {
+                    isWandering = false;
+                    Debug.Log("hitPlayer");
+                    chargeCooldown = 30f;
+                    chargeLocation = player.transform.position;
+                    GameObject.CreatePrimitive(PrimitiveType.Capsule).transform.position = chargeLocation;
+
+                    isAgro = true;
+                    
+                    
+                    StartCoroutine(chargeAtLocaiton());
+                }
+                
+            }
+
+            
+        } else
+        {
+            isWandering = true;
+        }
+        
+    }
+
+    IEnumerator chargeAtLocaiton()
+    {
+        yield return new WaitForSeconds(0.3f);
+        Debug.Log("Charge!!");
+        agent.SetDestination(chargeLocation);
+        agent.speed = 40f;
+        agent.angularSpeed = 5;
+    }
+
+    void chargeUpdate()
+    {
+
+        if (isAgro && Vector3.Distance(transform.position, chargeLocation) < 1f)
+        {
+            isAgro = false;
+            isWandering = true;
+            agent.speed = 4.67f;
+            Debug.Log("THere!!");
+            chargeTime = 0f;
+            agent.angularSpeed = 120f;
+        }
+        
+        if(isAgro)
+        {
+            chargeTime += Time.deltaTime;
+            if(chargeTime > 10f)
+            {
+                chargeTime = 0f;
+                isAgro = false;
+                isWandering = true;
+                agent.speed = 4.67f;
+                Debug.Log("THere!!");
+                agent.angularSpeed = 120f;
             }
         }
-        RaycastHit hit;
-        Vector3 fwd = transform.TransformDirection(Vector3.forward);
-
-        if (Physics.Raycast(transform.position, fwd, out hit))
-        {
-            GameObject hitObject = hit.transform.gameObject;
-            if(hitObject.tag == "Player")
-            {
-                agent.speed = 100;
-                agent.angularSpeed = 0;
-                agent.SetDestination(hitObject.transform.position);
-            }
-            Debug.DrawLine(transform.position, hit.point, Color.cyan);
-        }
+        
 
     }
-
-
-    public static Vector3 RandomNavSphere(Vector3 origin, float dist, int layermask)
-    {
-        Vector3 randDirection = Random.insideUnitSphere * dist;
-
-        randDirection += origin;
-
-        NavMeshHit navHit;
-
-        NavMesh.SamplePosition(randDirection, out navHit, dist, layermask);
-
-        return navHit.position;
-    }
-
 
 }
 
