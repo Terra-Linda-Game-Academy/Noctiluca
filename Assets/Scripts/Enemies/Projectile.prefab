@@ -112,6 +112,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lifetime: 5
+  force: 50
 --- !u!54 &-5652938662352489030
 Rigidbody:
   m_ObjectHideFlags: 0

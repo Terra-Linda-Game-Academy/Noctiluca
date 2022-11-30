@@ -13,7 +13,7 @@ public class StaticEnemyController : MonoBehaviour
     {
         if(Vector3.Distance(player.transform.position, gameObject.transform.position) <= range)
         {
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, player.transform.rotation, 100);
+            transform.LookAt(new Vector3(player.transform.position.x, this.transform.position.y, player.transform.position.z));
 
             if(!shooting)
                 StartCoroutine("Shoot");
@@ -23,10 +23,7 @@ public class StaticEnemyController : MonoBehaviour
     IEnumerator Shoot()
     {
         shooting = true;
-        Debug.Log("bang");
-
-        Instantiate(projectilePrefab, gameObject.transform.position, transform.rotation);
-
+        Instantiate(projectilePrefab, transform.position + 1f * transform.forward, transform.rotation);
         yield return new WaitForSeconds(cooldown);
         shooting = false;
     }
