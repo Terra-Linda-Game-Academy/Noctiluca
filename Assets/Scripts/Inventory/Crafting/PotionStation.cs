@@ -24,7 +24,7 @@ public class PotionStation : MonoBehaviour
     void Retrieve()
     {
         //TODO:
-        //get the fluid container from player (or somethin idfk)
+        //get the fluid container from player (or somethin idk)
         //send the fluid data from currentFluid
 
         Drain();
