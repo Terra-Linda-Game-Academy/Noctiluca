@@ -14,27 +14,39 @@ using System.Collections.Specialized;
 
 public class ConsoleController : MonoBehaviour
 {
-    bool showConsole;
-    string input = "";
+    private Vector2 scroll;
+
+    private bool showConsole;
     public static bool CheatsEnabled = false;
 
+    private string input = "";
 
-    public static List<string> consoleLog = new List<string>();
+    //Type Conversion methods are added in the Awake funciton
+    public static Dictionary<Type, (MethodInfo, string)> baseConsoleParameters = new Dictionary<Type, (MethodInfo, string)>();
+
     public static List<ConsoleCommandHolder> commandList = new List<ConsoleCommandHolder>();
     public static List<string> commandHistory = new List<string>();
+    public static List<string> consoleLog = new List<string>();
+
     private int commandHistoryIndex = -1;
-    public int MAX_COMMAND_HISTORY = 30;
-    public static Dictionary<Type,(MethodInfo, string)> baseConsoleParameters = new Dictionary<Type,(MethodInfo, string)>();
+    public const int MAX_COMMAND_HISTORY = 30;
+
+    public static GameObject SelectedGameObject = null;
 
 
-    
+    public static ConsoleController Instance = null;
 
-    public void OnToggleDebug()
+
+
+
+    //Toggles Console
+    public void ToggleConsole()
     {
         showConsole = !showConsole;
         commandHistoryIndex = -1;
     }
 
+    //What runs when the command is enetered by the user
     public void OnReturn()
     {
         if (showConsole && input != "")
@@ -47,6 +59,8 @@ public class ConsoleController : MonoBehaviour
             input = "";
         }
     }
+
+    // Gets the tooltip format example for the console based on the single given parameter
     public static string GetFormatOfParameter(Type parameterType) {
         string format = parameterType.Name;
         if (typeof(CustomConsoleParameter).IsAssignableFrom(parameterType))
@@ -83,6 +97,7 @@ public class ConsoleController : MonoBehaviour
         return format;
     }
 
+    // Gets the tooltip format example for the console based on the multiple given parameters and commandName
     public string GenerateFormat(string commandName, ParameterInfo[] parameterInfo) {
         string output = commandName;
         
@@ -99,12 +114,13 @@ public class ConsoleController : MonoBehaviour
         return output;
     }
 
-
+    //Checks if the type is convertable from a string
     public static bool IsConvertableType(Type type)
     {
         return baseConsoleParameters.ContainsKey(type) || typeof(CustomConsoleParameter).IsAssignableFrom(type);
     }
 
+    //converts arguments to a single variable and returns its last index used and the variable
     public static ConsoleArgument StringToArgument(string[] arguments, Type parameterType)
     {
         ConsoleArgument ca = new ConsoleArgument(null, 0);
@@ -121,6 +137,7 @@ public class ConsoleController : MonoBehaviour
             ca = (ConsoleArgument)baseConsoleParameters[parameterType].Item1.Invoke(null, new object[] { arguments });
         } else
         {
+            //If all else fails the program will try to detect if the given Parameter has a Constructor that is satisfied by the arguments
             foreach(ConstructorInfo constructorInfo in parameterType.GetConstructors())
             {
                 bool isUsableConstructor = true;
@@ -150,18 +167,23 @@ public class ConsoleController : MonoBehaviour
         return ca;
     }
     
+    //Converts multiple parameters at once
     public object[] ParametersFromString(string[] arguments, ParameterInfo[] parameterInfo) {
         List<object> objects = new List<object>();
         Debug.Log("Arguments " + arguments.Length);
 
         Type parameterType = null;
         int argumentIndex = 0;
+
+        if(arguments.Length == 0 && parameterInfo.Length == 0)
+        {
+            return objects.ToArray();
+        }
         try {
             if(arguments.Length == 0) {
                 foreach(ParameterInfo pi in parameterInfo) {
                     objects.Add(StringToArgument(new string[0], pi.ParameterType).value);
                 }
-                Debug.Log("O" + objects[0]);
                 return objects.ToArray();
             }
 
@@ -189,8 +211,22 @@ public class ConsoleController : MonoBehaviour
 
     public void Awake()
     {
-        long startTime = DateTime.Now.Millisecond;
+        if (Instance == null) {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        } 
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
 
+
+        //just to see how long it takes
+        long startTime = DateTime.Now.Millisecond;
+        // ---
+
+        //Loads all of the methods attributed with BaseConsoleParameter from the BaseConsoleParameters class
         Assembly assembly =  Assembly.GetExecutingAssembly();
 
         System.Type[] types = assembly.GetTypes();
@@ -201,7 +237,9 @@ public class ConsoleController : MonoBehaviour
                 baseConsoleParameters.Add(baseConsoleParameter.type, (methodInfo, baseConsoleParameter.format));
             }
         }
+        //-------------------
 
+        //Finds all of the methods in every script attributed with ConsoleCommand and sets up their logic
         foreach(Type type in types) {
 
             BindingFlags flags = BindingFlags.Public | BindingFlags.Static| BindingFlags.NonPublic | BindingFlags.Instance;
@@ -223,7 +261,19 @@ public class ConsoleController : MonoBehaviour
                                 arguments.RemoveAt(0);
                                 object[] parameters = ParametersFromString(arguments.ToArray(), parameterInfo);
                                 object script = null;
-                                if (classType.IsSubclassOf(typeof(UnityEngine.Object))) script = GameObject.FindObjectOfType(classType);
+                                if (classType.IsSubclassOf(typeof(UnityEngine.Object)))
+                                {
+                                    script = GameObject.FindObjectOfType(classType);
+                                    if (script == null)
+                                    {
+                                        AddToConsoleLog($"There was no instance of Type {classType.Name} to tun the command {attribute.id}({methodInfo.Name})");
+                                        return;
+                                    }
+
+
+
+                                }
+
                                 if (script == null && !methodInfo.IsStatic)
                                 {
                                     script = Activator.CreateInstance(type, null);
@@ -275,7 +325,7 @@ public class ConsoleController : MonoBehaviour
 
 
 
-
+    //Adds a string to the console
     public void AddToConsoleLog(string log, bool timestamp = true, bool fromUser = false)
     {
         string[] lines = log.Split(
@@ -289,6 +339,7 @@ public class ConsoleController : MonoBehaviour
         }
     }
 
+    //adds to the console command history
     private void AddToConsoleHistory(string line)
     {
         commandHistory.Insert(0, input);
@@ -298,12 +349,10 @@ public class ConsoleController : MonoBehaviour
         }
     }
 
-    private Vector2 scroll;
-
-    public static GameObject SelectedGameObject = null;
+    
 
 
-    // int suggestionIndex = 0;
+    //Renders the console using unity's GUI class and Event input system
     public void OnGUI()
     {
 
@@ -425,7 +474,7 @@ public class ConsoleController : MonoBehaviour
     {
         if (UnityEngine.Input.GetKeyDown(KeyCode.BackQuote))
         {
-            OnToggleDebug();
+            ToggleConsole();
         }
 
         if (UnityEngine.Input.GetKeyDown(KeyCode.F1))
@@ -444,7 +493,7 @@ public class ConsoleController : MonoBehaviour
     }
 
 
-
+    //chooses the correct command to run based on the input
     private void HandleInput()
     {
         string[] properties = input.Split(' ');

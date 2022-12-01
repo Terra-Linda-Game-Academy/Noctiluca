@@ -14,7 +14,7 @@ public class ConsoleTesting : MonoBehaviour
     }
 
 
-    [ConsoleCommand("hangup", "plays hangup noise")]
+   // [ConsoleCommand("hangup", "plays hangup noise")]
     public string hangup() {
         audioSource.PlayOneShot(audioClip);
         Debug.Log("played");
@@ -22,10 +22,10 @@ public class ConsoleTesting : MonoBehaviour
     }
 
 
-    [ConsoleCommand("cube", "spawns cube at pos", false, "spawned cube at {pos}")]
-    public void cube(Vector3 pos) {
-        GameObject.CreatePrimitive(PrimitiveType.Cube).transform.position = pos;
-    }
+   // [ConsoleCommand("cube", "spawns cube at pos", false, "spawned cube at {pos}")]
+  //  public void cube(Vector3 pos) {
+  //      GameObject.CreatePrimitive(PrimitiveType.Cube).transform.position = pos;
+ //   }
 
 
 }
