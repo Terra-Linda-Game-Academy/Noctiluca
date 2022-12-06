@@ -212,7 +212,7 @@ MonoBehaviour:
   burrowAgent: {fileID: 0}
   player: {fileID: 0}
   playerNear: 1
-  projectilePrefab: {fileID: 1954903680782664620, guid: a852494640bc79147885c32c481b3191,
+  projectilePrefab: {fileID: 5670120004677153200, guid: 4bd39e4e0295bfe42b927c60049d008d,
     type: 3}
   projectileSpawn: {fileID: 7656697359677185852}
   projectileSpeed: 2
