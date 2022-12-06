@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Enemies {
+namespace Enemies.Walking {
 	public class WalkingEnemyController : MonoBehaviour {
 		public Vector3 playerPos;
 
