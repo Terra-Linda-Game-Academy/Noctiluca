@@ -12,7 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbc799b4c7d64ee6b5fefdb4bd79e67e, type: 3}
   m_Name: Player Input Provider
   m_EditorClassIdentifier: 
-  middlewares: []
+  _middlewares:
+  - rid: 3644405180793618432
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 3644405180793618432
+      type: {class: PlayerInputMiddleware, ns: Input.Middleware, asm: Assembly-CSharp}
