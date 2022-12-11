@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28a1f4943d5945b2a093cdce6efce0d5, type: 3}
+  m_Name: List Tester
+  m_EditorClassIdentifier: 
+  testString: gaming
+  things:
+  - rid: 3644405228221235200
+  - rid: 3644405228221235206
+  references:
+    version: 2
+    RefIds:
+    - rid: 3644405228221235200
+      type: {class: ListType, ns: Util, asm: Assembly-CSharp}
+      data:
+        num: 0
+    - rid: 3644405228221235206
+      type: {class: ListType, ns: Util, asm: Assembly-CSharp}
+      data:
+        num: 0
