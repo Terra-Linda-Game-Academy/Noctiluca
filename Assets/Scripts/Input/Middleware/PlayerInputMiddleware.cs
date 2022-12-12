@@ -13,9 +13,5 @@ namespace Input.Middleware {
 		public override void Init() {
 			App.InputManager.OnInteract += Dispatcher.Interact;
 		}
-
-		/*public override void Release() {
-			App.InputManager.OnInteract -= Dispatcher.Interact;
-		}*/
 	}
 }

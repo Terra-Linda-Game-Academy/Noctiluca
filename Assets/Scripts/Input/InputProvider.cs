@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Input.Events;
 using Input.Middleware;
 using UnityEngine;
 
 namespace Input {
-	public class InputProvider<T, E, D> : ScriptableObject//, IList<InputMiddleware<T, D>>
+	public class InputProvider<T, E, D> : ScriptableObject, IBaseInputProvider//, IList<InputMiddleware<T, D>>
 	where T : struct
 	where E : class, IInputEvents<T, D>, new() 
 	where D : EventDispatcher<T> {
@@ -26,6 +27,23 @@ namespace Input {
 		}
 
 		private void OnValidate() => ClearBaseObjects();
+
+		public IEnumerable<Type> GetValidMiddlewareTypes() {
+			Type[] allTypes =
+				Assembly.GetAssembly(typeof(InputMiddleware<,>)).GetTypes();
+
+			Debug.Log($"All types: {allTypes.Length}");
+
+			foreach (Type type in allTypes) {
+				if (type.IsAbstract
+				 || type.BaseType == null)
+					continue;
+
+				if (type
+				   .BaseType.IsGenericType
+				 && typeof(InputMiddleware<T,D>).IsAssignableFrom(type.BaseType)) { yield return type; }
+			}
+		}
 
 		private void ClearBaseObjects() {
 			int nullObjs = 0;

@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Input.ConcreteInputProviders;
 using Input.Data;
 using Input.Events;
@@ -45,6 +47,14 @@ namespace Input.Editor {
 				                               PopupWindow.Show(addMiddlewareButton.worldBound, popup);
 			                               };
 
+			Button debugTypesButton = new Button(() => {
+				                                     foreach (Type type in ((IBaseInputProvider) target)
+				                                             .GetValidMiddlewareTypes()) {
+					                                     Debug.Log(type);
+				                                     }
+			                                     });
+			root.Add(debugTypesButton);
+
 			return root;
 		}
 
@@ -52,7 +62,7 @@ namespace Input.Editor {
 			Type pickedType = _types[index];
 
 			var newMiddleware = Activator.CreateInstance(pickedType);
-			
+
 			_middlewares.arraySize++;
 			_middlewares.GetArrayElementAtIndex(_middlewares.arraySize - 1).managedReferenceValue = newMiddleware;
 			serializedObject.ApplyModifiedProperties();

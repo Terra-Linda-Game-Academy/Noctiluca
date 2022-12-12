@@ -1,6 +1,7 @@
 using System;
 using UnityEditor;
 using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Util.Editor {
@@ -51,8 +52,8 @@ namespace Util.Editor {
 			for (int i = 0; i < _serializedList.arraySize; i++) {
 				SerializedProperty listItem = _serializedList.GetArrayElementAtIndex(i);
 
-				PropertyField newField =
-					new PropertyField(listItem, listItem.managedReferenceFieldTypename.Substring(16));
+				HeadedPropertyField newField =
+					new HeadedPropertyField(listItem, listItem.managedReferenceFieldTypename.Substring(16));
 
 				_body.Add(newField);
 			}
@@ -63,16 +64,22 @@ namespace Util.Editor {
 			_serializedList.GetArrayElementAtIndex(_serializedList.arraySize - 1).managedReferenceValue = newItem;
 			_serializedList.serializedObject.ApplyModifiedProperties();
 
-			//Regenerate();
-			MarkDirtyRepaint();
+			Regenerate();
+			_body.MarkDirtyRepaint();
 		}
 
 		private void Shrink() {
 			_serializedList.arraySize--;
 			_serializedList.serializedObject.ApplyModifiedProperties();
 
-			//Regenerate();
-			MarkDirtyRepaint();
+			Regenerate();
+			_body.MarkDirtyRepaint();
+		}
+
+		class HeadedPropertyField : PropertyField {
+			public HeadedPropertyField(SerializedProperty property, string label) : base(property, label) { }
+
+			
 		}
 	}
 }
