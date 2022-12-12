@@ -5,8 +5,6 @@ using UnityEngine;
 namespace Util {
 	[CreateAssetMenu]
 	public class ListTester : ScriptableObject {
-		public string testString;
-
 		[SerializeReference] public List<ListType> things;
 	}
 

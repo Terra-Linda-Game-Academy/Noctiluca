@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -29,7 +30,7 @@ namespace Util.Editor {
 			}
 		}*/
 
-		public ManagedListViewer(SerializedProperty list, Func<T> addFunc) {
+		public ManagedListViewer(SerializedProperty list, Task<T> addFunc) {
 			_serializedList = list;
 
 			VisualTreeAsset tree =
@@ -40,7 +41,7 @@ namespace Util.Editor {
 
 			_body = this.Q<VisualElement>("body");
 
-			this.Q<Button>("add-button").clicked += () => { AddItem(addFunc.Invoke()); };
+			this.Q<Button>("add-button").clicked += async () => { AddItem(await addFunc); };
 
 			Regenerate();
 		}
@@ -71,6 +72,8 @@ namespace Util.Editor {
 		}
 
 		private void AddItem(T newItem) {
+			Debug.Log("gaming");
+			
 			_serializedList.arraySize++;
 			_serializedList.GetArrayElementAtIndex(_serializedList.arraySize - 1).managedReferenceValue = newItem;
 			_serializedList.serializedObject.ApplyModifiedProperties();
