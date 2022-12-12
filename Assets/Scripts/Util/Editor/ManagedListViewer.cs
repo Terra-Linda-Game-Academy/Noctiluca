@@ -40,8 +40,7 @@ namespace Util.Editor {
 
 			_body = this.Q<VisualElement>("body");
 
-			this.Q<Button>("add-button").clicked    += () => { AddItem(addFunc.Invoke()); };
-			this.Q<Button>("remove-button").clicked += () => { Shrink(); };
+			this.Q<Button>("add-button").clicked += () => { AddItem(addFunc.Invoke()); };
 
 			Regenerate();
 		}
@@ -52,10 +51,22 @@ namespace Util.Editor {
 			for (int i = 0; i < _serializedList.arraySize; i++) {
 				SerializedProperty listItem = _serializedList.GetArrayElementAtIndex(i);
 
-				HeadedPropertyField newField =
-					new HeadedPropertyField(listItem, listItem.managedReferenceFieldTypename.Substring(16));
+				int localI = i;
 
-				_body.Add(newField);
+				Action[] actions = {
+					                   () => { ShiftUp(localI); },
+					                   () => { ShiftDown(localI); },
+					                   () => { RemoveItem(localI); }
+				                   };
+
+				HeadedFoldout foldout = new HeadedFoldout(listItem.managedReferenceFieldTypename.Substring(16),
+				                                          actions);
+
+				PropertyField propertyField = new PropertyField(listItem, "Data");
+
+				foldout.Add(propertyField);
+
+				_body.Add(foldout);
 			}
 		}
 
@@ -65,21 +76,77 @@ namespace Util.Editor {
 			_serializedList.serializedObject.ApplyModifiedProperties();
 
 			Regenerate();
-			_body.MarkDirtyRepaint();
 		}
 
-		private void Shrink() {
+		private void RemoveItem(int index) {
+			_serializedList.GetArrayElementAtIndex(index).managedReferenceValue = null;
+
+			for (int i = index + 1; i < _serializedList.arraySize; i++) {
+				_serializedList.GetArrayElementAtIndex(i - 1).managedReferenceValue =
+					_serializedList.GetArrayElementAtIndex(i).managedReferenceValue;
+			}
+
 			_serializedList.arraySize--;
+
 			_serializedList.serializedObject.ApplyModifiedProperties();
 
 			Regenerate();
-			_body.MarkDirtyRepaint();
 		}
 
-		class HeadedPropertyField : PropertyField {
-			public HeadedPropertyField(SerializedProperty property, string label) : base(property, label) { }
+		private void ShiftUp(int index) {
+			if (index <= 0) return;
 
+			object storage = _serializedList.GetArrayElementAtIndex(index - 1).managedReferenceValue;
+			_serializedList.GetArrayElementAtIndex(index - 1).managedReferenceValue =
+				_serializedList.GetArrayElementAtIndex(index).managedReferenceValue;
+			_serializedList.GetArrayElementAtIndex(index).managedReferenceValue = storage;
+
+			_serializedList.serializedObject.ApplyModifiedProperties();
+
+			Regenerate();
+		}
+
+		private void ShiftDown(int index) {
+			if (index >= _serializedList.arraySize - 1) return;
+
+			object storage = _serializedList.GetArrayElementAtIndex(index + 1).managedReferenceValue;
+			_serializedList.GetArrayElementAtIndex(index + 1).managedReferenceValue =
+				_serializedList.GetArrayElementAtIndex(index).managedReferenceValue;
+			_serializedList.GetArrayElementAtIndex(index).managedReferenceValue = storage;
+
+			_serializedList.serializedObject.ApplyModifiedProperties();
 			
+			Regenerate();
+		}
+
+		class HeadedFoldout : Foldout {
+			public HeadedFoldout(string labelText, Action[] actions) {
+				VisualElement header = new VisualElement {style = {flexDirection = FlexDirection.Row, flexGrow = 1}};
+
+				Label label = new Label(labelText);
+
+				VisualElement buttonContainer =
+					new VisualElement {style = {flexDirection = FlexDirection.Row, flexGrow = 1}};
+
+				Button upButton   = new Button(actions[0]) {text = "^"};
+				Button downButton = new Button(actions[1]) {text = "V"};
+
+				Button removeButton = new Button(actions[2]) {text = "  X"};
+
+				buttonContainer.Add(upButton);
+				buttonContainer.Add(downButton);
+
+				VisualElement buttonSpacer = new VisualElement {style = {flexGrow = 1}};
+				buttonContainer.Add(buttonSpacer);
+
+				buttonContainer.Add(removeButton);
+
+				header.Add(label);
+				header.Add(buttonContainer);
+
+				VisualElement target = this.Query<VisualElement>(className: "unity-base-field__input").First();
+				target.Add(header);
+			}
 		}
 	}
 }

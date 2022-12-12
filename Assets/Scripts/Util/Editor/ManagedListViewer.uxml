@@ -8,9 +8,6 @@
             <ui:VisualElement name="add-button-container" style="flex-grow: 1; padding-left: 20px; padding-right: 20px;">
                 <ui:Button text="Add" display-tooltip-when-elided="true" name="add-button" />
             </ui:VisualElement>
-            <ui:VisualElement name="remove-button-container" style="flex-grow: 1; padding-left: 20px; padding-right: 20px;">
-                <ui:Button text="Remove" display-tooltip-when-elided="true" name="remove-button" />
-            </ui:VisualElement>
         </ui:VisualElement>
     </ui:Foldout>
 </ui:UXML>

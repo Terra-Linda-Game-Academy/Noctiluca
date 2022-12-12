@@ -7,20 +7,16 @@ namespace Util.Editor {
 	public class ListTesterEditor : UnityEditor.Editor {
 		private ListTester _listTester;
 
-		public ListTesterEditor() {
-			
-		}
-		
+		public ListTesterEditor() { }
+
 		public override VisualElement CreateInspectorGUI() {
 			VisualElement root = new VisualElement();
 
 			SerializedProperty things = serializedObject.FindProperty("things");
 
-			ManagedListViewer<ListType> listViewer = new ManagedListViewer<ListType>(things, () => {
-				Debug.Log("add");
-				return new ListType();
-			});
-			
+			ManagedListViewer<ListType> listViewer =
+				new ManagedListViewer<ListType>(things, () => new ListType());
+
 			root.Add(listViewer);
 
 			return root;

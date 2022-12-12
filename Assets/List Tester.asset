@@ -15,15 +15,15 @@ MonoBehaviour:
   testString: gaming
   things:
   - rid: 3644405228221235200
-  - rid: 3644405228221235206
+  - rid: 3644405228221235212
   references:
     version: 2
     RefIds:
     - rid: 3644405228221235200
       type: {class: ListType, ns: Util, asm: Assembly-CSharp}
       data:
-        num: 0
-    - rid: 3644405228221235206
+        num: 25
+    - rid: 3644405228221235212
       type: {class: ListType, ns: Util, asm: Assembly-CSharp}
       data:
-        num: 0
+        num: 18
