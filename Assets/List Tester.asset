@@ -12,18 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28a1f4943d5945b2a093cdce6efce0d5, type: 3}
   m_Name: List Tester
   m_EditorClassIdentifier: 
-  testString: gaming
-  things:
-  - rid: 3644405228221235200
-  - rid: 3644405228221235212
+  things: []
   references:
     version: 2
-    RefIds:
-    - rid: 3644405228221235200
-      type: {class: ListType, ns: Util, asm: Assembly-CSharp}
-      data:
-        num: 25
-    - rid: 3644405228221235212
-      type: {class: ListType, ns: Util, asm: Assembly-CSharp}
-      data:
-        num: 18
+    RefIds: []

@@ -30,7 +30,7 @@ namespace Util.Editor {
 			}
 		}*/
 
-		public ManagedListViewer(SerializedProperty list, Task<T> addFunc) {
+		public ManagedListViewer(SerializedProperty list, (Action, Action<T>) addFuncs) {
 			_serializedList = list;
 
 			VisualTreeAsset tree =
@@ -41,7 +41,8 @@ namespace Util.Editor {
 
 			_body = this.Q<VisualElement>("body");
 
-			this.Q<Button>("add-button").clicked += async () => { AddItem(await addFunc); };
+			this.Q<Button>("add-button").clicked += addFuncs.Item1;
+			addFuncs.Item2                       += AddItem;
 
 			Regenerate();
 		}
@@ -73,7 +74,7 @@ namespace Util.Editor {
 
 		private void AddItem(T newItem) {
 			Debug.Log("gaming");
-			
+
 			_serializedList.arraySize++;
 			_serializedList.GetArrayElementAtIndex(_serializedList.arraySize - 1).managedReferenceValue = newItem;
 			_serializedList.serializedObject.ApplyModifiedProperties();
@@ -118,7 +119,7 @@ namespace Util.Editor {
 			_serializedList.GetArrayElementAtIndex(index).managedReferenceValue = storage;
 
 			_serializedList.serializedObject.ApplyModifiedProperties();
-			
+
 			Regenerate();
 		}
 
