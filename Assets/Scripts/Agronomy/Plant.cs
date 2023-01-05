@@ -2,12 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Plant : MonoBehaviour
+[CreateAssetMenu(fileName = "Plant", menuName = "Plants/Plant", order = 1)]
+public class Plant : ScriptableObject
 {
     public string name;
     public float growStages;
     public float timeSpent;
-    public PlantRepository.Item product; //product of plant
+    //public Item product; //product of plant
     public int lowProd, highProd; //range of items produced
     public List<GameObject> plantStagePrefabs;
 }
