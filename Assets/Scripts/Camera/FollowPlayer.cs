@@ -12,7 +12,7 @@ namespace Camera {
         /// 
         /// </summary>
 
-        public GameObject player;
+        private GameObject player;
         public Vector3 transf;
 
         void Start()
