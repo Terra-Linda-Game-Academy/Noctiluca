@@ -35,7 +35,7 @@ namespace Player {
 		private void FixedUpdate() {
 			PlayerInput input = inputProvider.GetInput();
 
-			_direction = new Vector3(input.movement.x, 0, input.movement.y);
+			_direction = new Vector3(input.Movement.x, 0, input.Movement.y);
 
 			transform.position += _direction * (movementSpeed * Time.deltaTime);
 			transform.rotation = Rotation;

@@ -1,6 +1,6 @@
 using Util;
 
-namespace AI {
+namespace AI.Old {
 	[System.Serializable]
 	public struct Transition {
 		public Decision decision;

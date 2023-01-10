@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using AI;
 using Input.Events;
 using Input.Middleware;
 using UnityEngine;
 
 namespace Input {
-	public class InputProvider<T, E, D> : ScriptableObject//, IList<InputMiddleware<T, D>>
+	public class InputProvider<T, E, D> : ScriptableObject
 	where T : struct
 	where E : class, IInputEvents<T, D>, new() 
 	where D : EventDispatcher<T> {

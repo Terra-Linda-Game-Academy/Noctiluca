@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace AI {
+namespace AI.Old {
 	[CreateAssetMenu(menuName = "AI/Actions/Walk")]
 	public class WalkAction : Action {
 		public float speed = 0.1f;

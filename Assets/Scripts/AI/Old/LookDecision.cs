@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace AI {
+namespace AI.Old {
 	[CreateAssetMenu(menuName = "AI/Decisions/Look")]
 	public class LookDecision : Decision {
 		public override bool Decide(StateController controller) { return Look(controller); }

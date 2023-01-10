@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace AI {
+namespace AI.Old {
 	[CreateAssetMenu(menuName = "AI/State")]
 	public class State : ScriptableObject {
 		public Action[]     actions;

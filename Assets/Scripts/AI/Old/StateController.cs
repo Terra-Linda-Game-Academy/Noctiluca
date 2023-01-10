@@ -1,7 +1,7 @@
 using UnityEngine;
 using Util;
 
-namespace AI {
+namespace AI.Old {
 	public class StateController : MonoBehaviour {
 		public bool  aiActive;
 		
