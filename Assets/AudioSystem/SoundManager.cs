@@ -33,7 +33,7 @@ public class SoundEvent
 public class SoundEventCondition
 {
     //[Header("Class That The Compared Variable Is From")]
-    /public class variablesClass;
+    //public class variablesClass;
 
     
     public string variableCondition;
