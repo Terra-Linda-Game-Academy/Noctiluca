@@ -13,22 +13,20 @@ namespace Levels.Editor {
             var sizeProp = serializedObject.FindProperty("size");
             element.Add(new PropertyField(sizeProp, "size"));
 
-            var button = new Button(FindRoomController);
-            button.text = "Edit in Scene View";
+            var button = new Button(FindRoomController) { text = "Edit in Scene View" };
             element.Add(button);
             
             element.Bind(serializedObject);
             return element;
         }
         
-        public void FindRoomController() {
+        private void FindRoomController() {
             RoomController[] presentControllers = FindObjectsOfType<RoomController>();
-            foreach(var controller in presentControllers) {
-                if (controller.Room == target) {
-                    Selection.activeObject = controller;
-                    Selection.activeTransform = controller.transform;
-                    return;
-                }
+            foreach (var controller in presentControllers) {
+                if (controller.Room != target) continue;
+                Selection.activeObject = controller;
+                Selection.activeTransform = controller.transform;
+                return;
             }
 
             GameObject newObj = new GameObject(target.name);

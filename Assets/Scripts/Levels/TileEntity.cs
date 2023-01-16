@@ -14,7 +14,7 @@ namespace Levels {
         protected abstract void Init(C component);
 
         public override void Init(GameObject obj, Guid roomId) {
-            C controller = obj.AddComponent<C>();
+            var controller = obj.AddComponent<C>();
             instances.Add(roomId, controller);
             controller.Init((E) this, roomId);
             Init(controller);

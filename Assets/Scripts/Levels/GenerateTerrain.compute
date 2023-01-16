@@ -1,14 +1,12 @@
 #pragma kernel generateTerrain;
 
-struct Vertex
-{
+struct Vertex {
     float3 positionOS;
     float3 normalOS;
     float2 uv;
 };
 
-struct Triangle
-{
+struct Triangle {
     //wound counter-clockwise
     Vertex a;
     Vertex b;
@@ -21,11 +19,11 @@ uint3 RoomDimensions;
 StructuredBuffer<int> HeightMap;
 
 [numthreads(16, 1, 16)]
-void generateTerrain (uint3 pos : SV_DispatchThreadID) {
+void generateTerrain(uint3 pos : SV_DispatchThreadID) {
     if (pos.x >= RoomDimensions.x || pos.z >= RoomDimensions.z) { return; }
-    
+
     const uint height = HeightMap[pos.z * RoomDimensions.x + pos.x];
-    
+
     const float3 meshPos = float3(pos.x, height, pos.z);
     const float3 normal = float3(0, 1, 0);
 
@@ -33,27 +31,26 @@ void generateTerrain (uint3 pos : SV_DispatchThreadID) {
     a.positionOS = meshPos;
     a.normalOS = normal;
     a.uv = float2(0, 0);
-    
+
     Vertex b;
     b.positionOS = meshPos + float3(1, 0, 0);
     b.normalOS = normal;
     b.uv = float2(1, 0);
-    
+
     Vertex c;
     c.positionOS = meshPos + float3(1, 0, 1);
-    c.normalOS =  normal;
+    c.normalOS = normal;
     c.uv = float2(1, 1);
-    
+
     Vertex d;
     d.positionOS = meshPos + float3(0, 0, 1);
     d.normalOS = normal;
     d.uv = float2(0, 1);
 
-    Triangle tri1 = { c, b, a };
-    Triangle tri2 = { c, a, d };
+    Triangle tri1 = {c, b, a};
+    Triangle tri2 = {c, a, d};
+
 
     Triangles.Append(tri1);
     Triangles.Append(tri2);
 }
-
-
