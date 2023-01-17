@@ -27,4 +27,3 @@ public class CrossFadeController : MonoBehaviour
         audioSource2.Play();
     }
 }
-

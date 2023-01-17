@@ -50,7 +50,7 @@ public class AudioController : MonoBehaviour
         musicsSource.Play();
     }
 
-    
+    // Plays audio SFX based on its name. 
     public void PlaySFX(string name)
     {
         SoundData sound = Array.Find(sfxSounds, x => x.name == name);
