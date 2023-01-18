@@ -24,6 +24,4 @@ namespace Levels.Editor {
 
         protected abstract void DrawEditor(SerializedObject so);
     }
-    
-    public abstract class SimpleEditor3D
 }
