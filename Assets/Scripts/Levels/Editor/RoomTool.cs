@@ -22,21 +22,21 @@ namespace Levels.Editor {
 
             using (new Handles.DrawingScope(controller.transform.localToWorldMatrix)) {
                 Handles.color = Handles.xAxisColor;
-                Vector3 xHandlePos = new Vector3(sizeVal.x, 0, 0);
+                var xHandlePos = new Vector3(sizeVal.x, 0, 0);
                 sizeVal.x = Mathf.FloorToInt(Mathf.Max(1, Handles.ScaleSlider(
                     sizeVal.x, xHandlePos, Vector3.right,
                     Quaternion.identity, HandleUtility.GetHandleSize(xHandlePos), 1
                 )));
                 
                 Handles.color = Handles.yAxisColor;
-                Vector3 yHandlePos = new Vector3(0, sizeVal.y, 0);
+                var yHandlePos = new Vector3(0, sizeVal.y, 0);
                 sizeVal.y = Mathf.FloorToInt(Mathf.Max(1, Handles.ScaleSlider(
                     sizeVal.y, yHandlePos, Vector3.up,
                     Quaternion.identity, HandleUtility.GetHandleSize(yHandlePos), 1
                 )));
 
                 Handles.color = Handles.zAxisColor;
-                Vector3 zHandlePos = new Vector3(0, 0, sizeVal.z);
+                var zHandlePos = new Vector3(0, 0, sizeVal.z);
                 sizeVal.z = Mathf.FloorToInt(Mathf.Max(1, Handles.ScaleSlider(
                     sizeVal.z, zHandlePos, Vector3.forward,
                     Quaternion.identity, HandleUtility.GetHandleSize(zHandlePos), 1
