@@ -1,9 +1,10 @@
 using System;
 using UnityEngine;
+using Util;
 
 namespace Audio {
 	public class AudioController : MonoBehaviour {
-		public static AudioController Instance;
+		public RuntimeVar<MonoBehaviour> audioController;
 
 		// How intense the game is currently
 		public float musicalIntensity;
@@ -14,18 +15,12 @@ namespace Audio {
 		public SoundData[] musicSounds,  sfxSounds;
 		public AudioSource musicsSource, sfxSource;
 
-		private void Awake() //Making sure this is the only audio controller instance.
-		{
-			if (Instance == null) {
-				Instance = this;
-				DontDestroyOnLoad(gameObject);
-			} else { Destroy(gameObject); }
-		}
+		private void OnEnable() { audioController.Value = this; }
 
-		private void Start() // This is just for demo/testing and can be removed for prod. 
-		{
-			PlayMusicIntensity(musicalIntensity);
-		}
+		private void OnDisable() { audioController.Value = null; }
+
+		// This is just for demo/testing and can be removed for prod. 
+		private void Start() { PlayMusicIntensity(musicalIntensity); }
 
 
 		public void PlayMusicIntensity(float intensity) {
