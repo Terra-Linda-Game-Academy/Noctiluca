@@ -4,11 +4,14 @@ using UnityEngine;
 
 public class ProjectileController : MonoBehaviour
 {
-    public float speed;
-    public float weight;
-    
-    public Vector3 offset;
-    public bool obeysGravity;
+   
+     
+
+    [HideInInspector] public float speed;
+    [HideInInspector] public float weight;
+
+    [HideInInspector] public Vector3 offset;
+    [HideInInspector] public bool obeysGravity;
     public GameObject prefab;
     Rigidbody rig;
 
@@ -20,25 +23,36 @@ public class ProjectileController : MonoBehaviour
 
     private void Update()
     {
+
     }
     public void shoot()
     {
-        prefab.AddComponent<Rigidbody>();
-        rig = prefab.GetComponent<Rigidbody>();
 
-        Instantiate(prefab, offset, Quaternion.identity);
+        Vector3 v3Force = speed * transform.forward;
 
-        rig.AddRelativeForce(new Vector3(0, speed, 0));
-        
-        if (obeysGravity)
-        {
-            rig.useGravity = true;
-            rig.mass = weight;
-        }
-        else
-        {
-            rig.isKinematic = true;
-        }
-        
+        Debug.Log("help");
+
+        Instantiate(rig = prefab.GetComponent<Rigidbody>(), transform.position, transform.rotation  );
+
+        prefab.GetComponent<Rigidbody>().AddForce(v3Force);
+
+        //Rigidbody instantiatedProjectile = Instantiate(,
+        //                                                  transform.position,
+        //                                                transform.rotation)
+        //   as Rigidbody;
+
+        //instantiatedProjectile.velocity = transform.TransformDirection(new Vector3(0, 0, speed));
+
+        //if (obeysGravity)
+        //{
+        //  rig.useGravity = true;
+        //rig.mass = weight;
+        //}
+        //else
+        //{
+        //rig.useGravity = false;
+
+        //}
+
     }
 }

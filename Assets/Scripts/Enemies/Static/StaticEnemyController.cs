@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 namespace Enemies.Static {
-	[RequireComponent(typeof(ProjectileController))]
+	
 
 	public class StaticEnemyController : MonoBehaviour {
 		public  float      range;
