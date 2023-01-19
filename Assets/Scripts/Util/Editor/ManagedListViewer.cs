@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -6,7 +7,7 @@ using UnityEngine.UIElements;
 using PopupWindow = UnityEditor.PopupWindow;
 
 namespace Util.Editor {
-	public class ManagedListViewer<T> : VisualElement where T : class, new() {
+	public class ManagedListViewer<T> : VisualElement where T : new() {
 		//TODO: won't show up in UIBuilder cuz we've giving it a constructor w/ parameters
 		//public new class UxmlFactory : UxmlFactory<ManagedListViewer<T>, UxmlTraits> { }
 
@@ -30,7 +31,14 @@ namespace Util.Editor {
 			}
 		}*/
 
-		public ManagedListViewer(SerializedProperty list) {
+		[Flags]
+		public enum Options {
+			None = 0,
+			ListSize = 1,
+			Default = ListSize
+		}
+
+		public ManagedListViewer(SerializedProperty list, Options options = Options.Default) {
 			_serializedList = list;
 
 			VisualTreeAsset tree =
@@ -41,11 +49,42 @@ namespace Util.Editor {
 
 			_body = this.Q<VisualElement>("body");
 
+			if ((options & Options.ListSize) != 0) {
+				VisualElement listSizeContainer = this.Q<VisualElement>("list-size-container");
+				listSizeContainer.Add(new TextField("List Size") {value = $"{_serializedList.arraySize}", isReadOnly = true});
+			}
+
+			Button addButton = this.Q<Button>("add-button");
+
+			addButton.clicked += () => { AddItem(new T()); };
+			
+			Regenerate();
+		}
+
+		public ManagedListViewer(SerializedProperty list, Type[] creationTypes, Options options = Options.Default) {
+			_serializedList = list;
+
+			VisualTreeAsset tree =
+				AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Scripts/Util/Editor/ManagedListViewer.uxml");
+			tree.CloneTree(this);
+
+			this.Q<Foldout>("header").text = _serializedList.name;
+
+			_body = this.Q<VisualElement>("body");
+
+			if ((options & Options.ListSize) != 0) {
+				VisualElement listSizeContainer = this.Q<VisualElement>("list-size-container");
+				listSizeContainer.Add(new TextField("List Size") {value = $"{_serializedList.arraySize}", isReadOnly = true});
+			}
+
 			Button addButton = this.Q<Button>("add-button");
 
 			addButton.clicked += () => {
-				                     AddItemPopup addItemPopup = new AddItemPopup(new []{new T()});
-				                     addItemPopup.OnSelect += AddItem;
+				                     AddItemPopup addItemPopup =
+					                     new AddItemPopup(creationTypes.Select(t => t.Name).ToArray());
+				                     addItemPopup.OnSelect += i => {
+					                                              AddItem(Activator.CreateInstance(creationTypes[i]));
+				                                              };
 				                     PopupWindow.Show(addButton.worldBound, addItemPopup);
 			                     };
 			Regenerate();
@@ -76,9 +115,8 @@ namespace Util.Editor {
 			}
 		}
 
-		public void AddItem(T newItem) {
+		private void AddItem(object newItem) {
 			Debug.Log($"adding item {newItem}");
-			return;
 
 			_serializedList.arraySize++;
 			_serializedList.GetArrayElementAtIndex(_serializedList.arraySize - 1).managedReferenceValue = newItem;
@@ -137,8 +175,8 @@ namespace Util.Editor {
 				VisualElement buttonContainer =
 					new VisualElement {style = {flexDirection = FlexDirection.Row, flexGrow = 1}};
 
-				Button upButton   = new Button(actions[0]) {text = "^"};
-				Button downButton = new Button(actions[1]) {text = "V"};
+				Button upButton   = new Button(actions[0]) {text = " ↑"};
+				Button downButton = new Button(actions[1]) {text = " ↓"};
 
 				Button removeButton = new Button(actions[2]) {text = "  X"};
 
@@ -159,22 +197,23 @@ namespace Util.Editor {
 		}
 
 		class AddItemPopup : PopupWindowContent {
-			public Action<T> OnSelect;
+			public Action<int> OnSelect;
 
-			private readonly T[] _options;
+			private readonly string[] _options;
 
-			public AddItemPopup(T[] options) { _options = options; }
+			public AddItemPopup(string[] options) { _options = options; }
 
 			public override void OnGUI(Rect rect) { }
 
 			public override Vector2 GetWindowSize() { return new Vector2(200, 100); }
 
 			public override void OnOpen() {
-				foreach (T option in _options) {
+				for (int i = 0; i < _options.Length; i++) {
+					var localI = i;
 					editorWindow.rootVisualElement.Add(new Button(() => {
-						                                              OnSelect.Invoke(option);
+						                                              OnSelect.Invoke(localI);
 						                                              editorWindow.Close();
-					                                              }) {text = option.ToString()});
+					                                              }) {text = _options[localI]});
 				}
 			}
 		}

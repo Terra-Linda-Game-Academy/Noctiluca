@@ -11,7 +11,8 @@ namespace Util.Editor {
 
 			SerializedProperty things = serializedObject.FindProperty("things");
 
-			ManagedListViewer<ListType> listViewer = new ManagedListViewer<ListType>(things);
+			ManagedListViewer<ListType> listViewer =
+				new ManagedListViewer<ListType>(things, ManagedListViewer<ListType>.Options.None);
 
 			root.Add(listViewer);
 
