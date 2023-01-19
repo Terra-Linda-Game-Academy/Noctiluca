@@ -1,40 +1,40 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class Pot : MonoBehaviour
-{
-    public Plant plant;
-    public float stagesGrown;
-    public bool harvestable;
-
-    void Start()
+namespace Agronomy {
+    public class Pot : MonoBehaviour
     {
-        //load plant from savesystem
-        if (plant != null)
-            Grow();
-    }
+        public Plant plant;
+        public float stagesGrown;
+        public bool  harvestable;
 
-    void Grow()
-    {
-        //add growtime between instances to plant
-        //random number between 1 and # of floors fought
+        void Start()
+        {
+            //todo: load plant from savesystem
+            if (plant != null)
+                Grow();
+        }
 
-        //if "fertilizer" used, number of floors fought is zero
-        stagesGrown += Random.Range(1, 2);
+        void Grow()
+        {
+            //add growtime between instances to plant
+            //random number between 1 and # of floors fought
 
-        if (stagesGrown > plant.growStages)
-            harvestable = true;
-    }
+            //if "fertilizer" used, number of floors fought is zero
+            stagesGrown += Random.Range(1, 2);
 
-    void Plant()
-    {
-        //get plant from seed item
-    }
+            if (stagesGrown > plant.growStages)
+                harvestable = true;
+        }
 
-    void Harvest()
-    {
-        //send Random.Range(lowProd, highProd) # of plant.product to inventory
-        plant = null;
+        void Plant()
+        {
+            //get plant from seed item
+        }
+
+        void Harvest()
+        {
+            //send Random.Range(lowProd, highProd) # of plant.product to inventory
+            plant = null;
+        }
     }
 }
