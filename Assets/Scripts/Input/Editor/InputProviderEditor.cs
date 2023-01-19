@@ -1,8 +1,11 @@
 using System;
 using System.Linq;
 using Input.ConcreteInputProviders;
+using Input.ConcreteInputProviders.Enemy;
 using Input.Data;
+using Input.Data.Enemy;
 using Input.Events;
+using Input.Events.Enemy;
 using Input.Middleware;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -11,7 +14,7 @@ using UnityEngine.UIElements;
 using PopupWindow = UnityEditor.PopupWindow;
 
 namespace Input.Editor {
-	[CustomEditor(typeof(InputProvider<,,>), true)]
+	[CustomEditor(typeof(InputProvider<,,,>), true)]
 	public class InputProviderEditor : UnityEditor.Editor {
 		private TypeCache.TypeCollection _types;
 
@@ -35,6 +38,9 @@ namespace Input.Editor {
 
 			if (targetObjType == typeof(PlayerInputProvider)) {
 				_types = TypeCache.GetTypesDerivedFrom<InputMiddleware<PlayerInput, PlayerInputEvents.Dispatcher>>();
+			} else if (targetObjType == typeof(WalkingEnemyInputProvider)) {
+				_types = TypeCache
+				   .GetTypesDerivedFrom<InputMiddleware<WalkingEnemyInput, WalkingEnemyInputEvents.Dispatcher>>();
 			}
 
 			Button addMiddlewareButton = root.Q<Button>("add-middleware-button");

@@ -1,8 +1,10 @@
 using System;
+using AI;
 using Input;
 using Input.ConcreteInputProviders;
 using Input.Data;
 using UnityEngine;
+using Util;
 
 namespace Player {
 	public class PlayerController : MonoBehaviour {
@@ -17,8 +19,12 @@ namespace Player {
 
 		//Just a Couple Movement paramaters
 		[SerializeField] private float movementSpeed = 3;
-		[SerializeField] private float rotationSpeed = 10;
-		[SerializeField] private PlayerInputProvider inputProvider;
+
+		[SerializeField] private float                     rotationSpeed = 10;
+		[SerializeField] private PlayerInputProvider       inputProvider;
+		[SerializeField] private RuntimeVar<MonoBehaviour> playerVar;
+
+		private Perceptron _perceptron;
 
 		//Movement Vectors and Bools
 		private Vector3    _direction;
@@ -27,8 +33,15 @@ namespace Player {
 		private Vector3 RotationDirection =>
 			Vector3.RotateTowards(transform.forward, _direction, rotationSpeed * Time.deltaTime, 0);
 
+		private void OnEnable() { playerVar.Value = this; }
+
+		private void OnDisable() { playerVar.Value = null; }
+
 		private void Start() {
-			inputProvider.RequireInit();
+			_perceptron      = GetComponent<Perceptron>();
+			_perceptron.eyes = transform;
+
+			inputProvider.RequireInit(_perceptron);
 			inputProvider.Events.Interact += () => Debug.Log("interact club headed by randall baker");
 		}
 
@@ -38,7 +51,7 @@ namespace Player {
 			_direction = new Vector3(input.Movement.x, 0, input.Movement.y);
 
 			transform.position += _direction * (movementSpeed * Time.deltaTime);
-			transform.rotation = Rotation;
+			transform.rotation =  Rotation;
 		}
 	}
 }

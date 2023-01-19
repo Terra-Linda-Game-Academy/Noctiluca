@@ -1,4 +1,5 @@
 using System;
+using AI;
 
 namespace Input.Events {
 	public interface IInputEvents<in T, out D> where D : EventDispatcher<T> {

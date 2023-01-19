@@ -9,10 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a2b2dca6eec475b95eea72824e36a50, type: 3}
-  m_Name: Walking Enemy Input Provider
+  m_Script: {fileID: 11500000, guid: 71a52e1f091c45119d79308e2276c093, type: 3}
+  m_Name: Player
   m_EditorClassIdentifier: 
-  _middlewares: []
-  references:
-    version: 2
-    RefIds: []
