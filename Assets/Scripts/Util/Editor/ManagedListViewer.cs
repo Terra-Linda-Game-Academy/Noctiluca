@@ -1,12 +1,12 @@
 using System;
-using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+using PopupWindow = UnityEditor.PopupWindow;
 
 namespace Util.Editor {
-	public class ManagedListViewer<T> : VisualElement where T : class {
+	public class ManagedListViewer<T> : VisualElement where T : class, new() {
 		//TODO: won't show up in UIBuilder cuz we've giving it a constructor w/ parameters
 		//public new class UxmlFactory : UxmlFactory<ManagedListViewer<T>, UxmlTraits> { }
 
@@ -30,7 +30,7 @@ namespace Util.Editor {
 			}
 		}*/
 
-		public ManagedListViewer(SerializedProperty list, (Action, Action<T>) addFuncs) {
+		public ManagedListViewer(SerializedProperty list) {
 			_serializedList = list;
 
 			VisualTreeAsset tree =
@@ -41,9 +41,13 @@ namespace Util.Editor {
 
 			_body = this.Q<VisualElement>("body");
 
-			this.Q<Button>("add-button").clicked += addFuncs.Item1;
-			addFuncs.Item2                       += AddItem;
+			Button addButton = this.Q<Button>("add-button");
 
+			addButton.clicked += () => {
+				                     AddItemPopup addItemPopup = new AddItemPopup(new []{new T()});
+				                     addItemPopup.OnSelect += AddItem;
+				                     PopupWindow.Show(addButton.worldBound, addItemPopup);
+			                     };
 			Regenerate();
 		}
 
@@ -72,8 +76,9 @@ namespace Util.Editor {
 			}
 		}
 
-		private void AddItem(T newItem) {
-			Debug.Log("gaming");
+		public void AddItem(T newItem) {
+			Debug.Log($"adding item {newItem}");
+			return;
 
 			_serializedList.arraySize++;
 			_serializedList.GetArrayElementAtIndex(_serializedList.arraySize - 1).managedReferenceValue = newItem;
@@ -150,6 +155,27 @@ namespace Util.Editor {
 
 				VisualElement target = this.Query<VisualElement>(className: "unity-base-field__input").First();
 				target.Add(header);
+			}
+		}
+
+		class AddItemPopup : PopupWindowContent {
+			public Action<T> OnSelect;
+
+			private readonly T[] _options;
+
+			public AddItemPopup(T[] options) { _options = options; }
+
+			public override void OnGUI(Rect rect) { }
+
+			public override Vector2 GetWindowSize() { return new Vector2(200, 100); }
+
+			public override void OnOpen() {
+				foreach (T option in _options) {
+					editorWindow.rootVisualElement.Add(new Button(() => {
+						                                              OnSelect.Invoke(option);
+						                                              editorWindow.Close();
+					                                              }) {text = option.ToString()});
+				}
 			}
 		}
 	}
