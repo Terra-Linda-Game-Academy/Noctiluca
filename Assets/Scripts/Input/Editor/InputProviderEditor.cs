@@ -10,12 +10,12 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using PopupWindow = UnityEditor.PopupWindow;
+using Util.Editor;
 
 namespace Input.Editor {
 	[CustomEditor(typeof(InputProvider<,,>), true)]
 	public class InputProviderEditor : UnityEditor.Editor {
-		private TypeCache.TypeCollection _types;
+		private Type[] _types;
 
 		private SerializedProperty _middlewares;
 		private VisualElement      _middlewareListContainer;
@@ -27,45 +27,24 @@ namespace Input.Editor {
 				AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Scripts/Input/Editor/InputProviderEditor.uxml");
 			tree.CloneTree(root);
 			_middlewareListContainer = root.Q<VisualElement>("middleware-list-container");
+			
+			_types = ((IBaseInputProvider) target).GetValidMiddlewareTypes().ToArray();
 
 			_middlewares = serializedObject.FindProperty("_middlewares");
-			PropertyField middlewaresField = new PropertyField(_middlewares) {style = {flexGrow = 1}};
-			middlewaresField.Bind(serializedObject);
-			_middlewareListContainer.Add(middlewaresField);
 
-			Type targetObjType = serializedObject.targetObject.GetType();
-
-			if (targetObjType == typeof(PlayerInputProvider)) {
-				_types = TypeCache.GetTypesDerivedFrom<InputMiddleware<PlayerInput, PlayerInputEvents.Dispatcher>>();
-			}
-
-			Button addMiddlewareButton = root.Q<Button>("add-middleware-button");
-			addMiddlewareButton.clicked += () => {
-				                               AddMiddlewarePopup popup =
-					                               new AddMiddlewarePopup(_types.Select(t => t.Name).ToArray());
-				                               popup.OnDone += AddInputProvider;
-				                               PopupWindow.Show(addMiddlewareButton.worldBound, popup);
-			                               };
+			ManagedListViewer<object> managedListViewer =
+				new ManagedListViewer<object>(_middlewares, _types, ManagedListViewer<object>.Options.None);
+			_middlewareListContainer.Add(managedListViewer);
 
 			Button debugTypesButton = new Button(() => {
 				                                     foreach (Type type in ((IBaseInputProvider) target)
 				                                             .GetValidMiddlewareTypes()) {
 					                                     Debug.Log(type);
 				                                     }
-			                                     });
+			                                     }) {text = "type debug"};
 			root.Add(debugTypesButton);
 
 			return root;
-		}
-
-		private void AddInputProvider(int index) {
-			Type pickedType = _types[index];
-
-			var newMiddleware = Activator.CreateInstance(pickedType);
-
-			_middlewares.arraySize++;
-			_middlewares.GetArrayElementAtIndex(_middlewares.arraySize - 1).managedReferenceValue = newMiddleware;
-			serializedObject.ApplyModifiedProperties();
 		}
 	}
 

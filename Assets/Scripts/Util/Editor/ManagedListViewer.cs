@@ -11,9 +11,9 @@ namespace Util.Editor {
 		//TODO: won't show up in UIBuilder cuz we've giving it a constructor w/ parameters
 		//public new class UxmlFactory : UxmlFactory<ManagedListViewer<T>, UxmlTraits> { }
 
-		private readonly SerializedProperty _serializedList;
+		private SerializedProperty _serializedList;
 
-		private readonly VisualElement _body;
+		private VisualElement _body;
 
 		/*private bool _testCheck;
 
@@ -33,49 +33,41 @@ namespace Util.Editor {
 
 		[Flags]
 		public enum Options {
-			None = 0,
+			None     = 0,
 			ListSize = 1,
-			Default = ListSize
+			Default  = ListSize
 		}
 
-		public ManagedListViewer(SerializedProperty list, Options options = Options.Default) {
+		private void Init(SerializedProperty list, Options options) {
 			_serializedList = list;
 
 			VisualTreeAsset tree =
 				AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Scripts/Util/Editor/ManagedListViewer.uxml");
 			tree.CloneTree(this);
 
-			this.Q<Foldout>("header").text = _serializedList.name;
+			this.Q<Foldout>("header").text = ObjectNames.NicifyVariableName(_serializedList.name);
 
 			_body = this.Q<VisualElement>("body");
 
 			if ((options & Options.ListSize) != 0) {
 				VisualElement listSizeContainer = this.Q<VisualElement>("list-size-container");
-				listSizeContainer.Add(new TextField("List Size") {value = $"{_serializedList.arraySize}", isReadOnly = true});
+				listSizeContainer.Add(
+					new TextField("List Size") {value = $"{_serializedList.arraySize}", isReadOnly = true});
 			}
+		}
+
+		public ManagedListViewer(SerializedProperty list, Options options = Options.Default) {
+			Init(list, options);
 
 			Button addButton = this.Q<Button>("add-button");
 
 			addButton.clicked += () => { AddItem(new T()); };
-			
+
 			Regenerate();
 		}
 
 		public ManagedListViewer(SerializedProperty list, Type[] creationTypes, Options options = Options.Default) {
-			_serializedList = list;
-
-			VisualTreeAsset tree =
-				AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Scripts/Util/Editor/ManagedListViewer.uxml");
-			tree.CloneTree(this);
-
-			this.Q<Foldout>("header").text = _serializedList.name;
-
-			_body = this.Q<VisualElement>("body");
-
-			if ((options & Options.ListSize) != 0) {
-				VisualElement listSizeContainer = this.Q<VisualElement>("list-size-container");
-				listSizeContainer.Add(new TextField("List Size") {value = $"{_serializedList.arraySize}", isReadOnly = true});
-			}
+			Init(list, options);
 
 			Button addButton = this.Q<Button>("add-button");
 
@@ -104,7 +96,11 @@ namespace Util.Editor {
 					                   () => { RemoveItem(localI); }
 				                   };
 
-				HeadedFoldout foldout = new HeadedFoldout(listItem.managedReferenceFieldTypename.Substring(16),
+				string fullTypeName =
+					ObjectNames.NicifyVariableName(
+						listItem.managedReferenceFullTypename.Split('.').Last());
+
+				HeadedFoldout foldout = new HeadedFoldout(fullTypeName,
 				                                          actions);
 
 				PropertyField propertyField = new PropertyField(listItem, "Data");
@@ -113,13 +109,11 @@ namespace Util.Editor {
 
 				_body.Add(foldout);
 			}
-			
+
 			_body.Bind(_serializedList.serializedObject);
 		}
 
 		private void AddItem(object newItem) {
-			Debug.Log($"adding item {newItem}");
-
 			_serializedList.arraySize++;
 			_serializedList.GetArrayElementAtIndex(_serializedList.arraySize - 1).managedReferenceValue = newItem;
 			_serializedList.serializedObject.ApplyModifiedProperties();

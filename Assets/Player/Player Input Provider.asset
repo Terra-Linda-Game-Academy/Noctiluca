@@ -14,8 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _middlewares:
   - rid: 3644405180793618432
+  - rid: 5896140367560966149
   references:
     version: 2
     RefIds:
     - rid: 3644405180793618432
+      type: {class: PlayerInputMiddleware, ns: Input.Middleware, asm: Assembly-CSharp}
+    - rid: 5896140367560966149
       type: {class: PlayerInputMiddleware, ns: Input.Middleware, asm: Assembly-CSharp}

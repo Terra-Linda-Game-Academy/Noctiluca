@@ -32,8 +32,6 @@ namespace Input {
 			Type[] allTypes =
 				Assembly.GetAssembly(typeof(InputMiddleware<,>)).GetTypes();
 
-			Debug.Log($"All types: {allTypes.Length}");
-
 			foreach (Type type in allTypes) {
 				if (type.IsAbstract
 				 || type.BaseType == null)

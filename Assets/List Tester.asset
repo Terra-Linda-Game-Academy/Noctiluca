@@ -12,7 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28a1f4943d5945b2a093cdce6efce0d5, type: 3}
   m_Name: List Tester
   m_EditorClassIdentifier: 
-  things: []
+  things:
+  - rid: 5896140367560966144
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 5896140367560966144
+      type: {class: ListType, ns: Util, asm: Assembly-CSharp}
+      data:
+        num: 0
