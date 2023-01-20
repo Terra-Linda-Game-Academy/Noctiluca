@@ -113,6 +113,8 @@ namespace Util.Editor {
 
 				_body.Add(foldout);
 			}
+			
+			_body.Bind(_serializedList.serializedObject);
 		}
 
 		private void AddItem(object newItem) {
