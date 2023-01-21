@@ -1,13 +1,5 @@
 using System;
 using System.Linq;
-using System.Reflection;
-using Input.ConcreteInputProviders;
-using Input.ConcreteInputProviders.Enemy;
-using Input.Data;
-using Input.Data.Enemy;
-using Input.Events;
-using Input.Events.Enemy;
-using Input.Middleware;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -46,37 +38,6 @@ namespace Input.Editor {
 			root.Add(debugTypesButton);
 
 			return root;
-		}
-	}
-
-	public class AddMiddlewarePopup : PopupWindowContent {
-		public Action<int> OnDone;
-
-		private readonly string[] _typeNames;
-
-		public AddMiddlewarePopup(string[] typeNames) { _typeNames = typeNames; }
-
-		public override Vector2 GetWindowSize() { return new Vector2(200, 100); }
-
-		public override void OnGUI(Rect rect) { }
-
-		public override void OnOpen() {
-			VisualTreeAsset tree =
-				AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Scripts/Input/Editor/AddMiddlewarePopup.uxml");
-			tree.CloneTree(editorWindow.rootVisualElement);
-
-			ScrollView scrollView = editorWindow.rootVisualElement.Q<ScrollView>();
-
-			for (int i = 0; i < _typeNames.Length; i++) {
-				int i1 = i;
-
-				Button newButton = new Button(() => {
-					                              OnDone?.Invoke(i1);
-					                              editorWindow.Close();
-				                              }) {text = _typeNames[i]};
-
-				scrollView.Add(newButton);
-			}
 		}
 	}
 }

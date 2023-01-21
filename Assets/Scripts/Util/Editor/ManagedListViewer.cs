@@ -8,31 +8,12 @@ using PopupWindow = UnityEditor.PopupWindow;
 
 namespace Util.Editor {
 	public class ManagedListViewer<T> : VisualElement where T : new() {
-		//TODO: won't show up in UIBuilder cuz we've giving it a constructor w/ parameters
-		//public new class UxmlFactory : UxmlFactory<ManagedListViewer<T>, UxmlTraits> { }
-
 		private SerializedProperty _serializedList;
 
 		private VisualElement _body;
 		private VisualElement _listSizeContainer;
 
 		private readonly Options _options;
-
-		/*private bool _testCheck;
-
-		public new class UxmlTraits : BindableElement.UxmlTraits {
-			private UxmlBoolAttributeDescription _testCheck = new() {name = "testCheck"};
-
-			public override IEnumerable<UxmlChildElementDescription> uxmlChildElementsDescription {
-				get { yield break; }
-			}
-
-			public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext ctx) {
-				base.Init(ve, bag, ctx);
-				ManagedListViewer<T> listViewer = (ManagedListViewer<T>) ve;
-				listViewer._testCheck = _testCheck.GetValueFromBag(bag, ctx);
-			}
-		}*/
 
 		[Flags]
 		public enum Options {
