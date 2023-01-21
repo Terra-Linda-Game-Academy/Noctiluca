@@ -1,4 +1,3 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
-    <ui:Label text="Input Middlewares" display-tooltip-when-elided="true" name="top-label" style="-unity-font-style: bold; -unity-text-align: upper-center; margin-left: 4px; margin-right: 4px; margin-top: 4px; margin-bottom: 4px;" />
     <ui:VisualElement name="middleware-list-container" />
 </ui:UXML>
