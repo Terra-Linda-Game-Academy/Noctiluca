@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Input.ConcreteInputProviders;
+using Input.ConcreteInputProviders.Enemy;
 using Input.Data;
+using Input.Data.Enemy;
 using Input.Events;
+using Input.Events.Enemy;
 using Input.Middleware;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -13,7 +16,7 @@ using UnityEngine.UIElements;
 using Util.Editor;
 
 namespace Input.Editor {
-	[CustomEditor(typeof(InputProvider<,,>), true)]
+	[CustomEditor(typeof(InputProvider<,,,>), true)]
 	public class InputProviderEditor : UnityEditor.Editor {
 		private Type[] _types;
 

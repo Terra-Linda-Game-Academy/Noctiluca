@@ -1,4 +1,5 @@
 using System;
+using AI;
 using Input.Data;
 
 namespace Input.Events {
@@ -13,17 +14,16 @@ namespace Input.Events {
 		}
 
 		public class Dispatcher : EventDispatcher<PlayerInput> {
+			private readonly Action _invokeInteract;
+			
 			public Dispatcher(Func<PlayerInput> inputFunc, Action invokeInteract) : base(inputFunc) {
 				_invokeInteract = invokeInteract;
 			}
 
-			private readonly Action _invokeInteract;
-
 			public void Interact() {
 				//demo event blocking, cant interact while moving
 				PlayerInput input = GetInput();
-				//if (inputData.movement.magnitude < .2) _invokeInteract?.Invoke();
-				_invokeInteract.Invoke();
+				if (input.Movement.magnitude < .2) _invokeInteract?.Invoke();
 			}
 		}
 	}
