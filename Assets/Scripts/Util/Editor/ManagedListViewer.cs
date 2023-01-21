@@ -14,6 +14,9 @@ namespace Util.Editor {
 		private SerializedProperty _serializedList;
 
 		private VisualElement _body;
+		private VisualElement _listSizeContainer;
+
+		private readonly Options _options;
 
 		/*private bool _testCheck;
 
@@ -33,12 +36,16 @@ namespace Util.Editor {
 
 		[Flags]
 		public enum Options {
-			None     = 0,
-			ListSize = 1,
-			Default  = ListSize
+			None         = 0,
+			ListSize     = 1,
+			AddButton    = 2,
+			RemoveButton = 4,
+			MoveButtons  = 8,
+			NoSize       = AddButton | RemoveButton | MoveButtons,
+			Default      = ListSize  | AddButton    | RemoveButton | MoveButtons
 		}
 
-		private void Init(SerializedProperty list, Options options) {
+		private void Init(SerializedProperty list, Action addButtonEvt) {
 			_serializedList = list;
 
 			VisualTreeAsset tree =
@@ -47,43 +54,44 @@ namespace Util.Editor {
 
 			this.Q<Foldout>("header").text = ObjectNames.NicifyVariableName(_serializedList.name);
 
-			_body = this.Q<VisualElement>("body");
+			_body          = this.Q<VisualElement>("body");
+			_listSizeContainer = new VisualElement {style = {flexGrow = 1}};
+			ElementAt(0).Q<VisualElement>(className: "unity-base-field__input").Add(_listSizeContainer);
 
-			if ((options & Options.ListSize) != 0) {
-				VisualElement listSizeContainer = this.Q<VisualElement>("list-size-container");
-				listSizeContainer.Add(
-					new TextField("List Size") {value = $"{_serializedList.arraySize}", isReadOnly = true});
+			if ((_options & Options.AddButton) != 0) {
+				VisualElement addButtonContainer = this.Q<VisualElement>("add-button-container");
+
+				Button addButton = new Button(addButtonEvt) {text = "Add"};
+
+				addButtonContainer.Add(addButton);
 			}
+
+			Regenerate();
 		}
 
 		public ManagedListViewer(SerializedProperty list, Options options = Options.Default) {
-			Init(list, options);
-
-			Button addButton = this.Q<Button>("add-button");
-
-			addButton.clicked += () => { AddItem(new T()); };
-
-			Regenerate();
+			_options = options;
+			Init(list, () => { AddItem(new T()); });
 		}
 
 		public ManagedListViewer(SerializedProperty list, Type[] creationTypes, Options options = Options.Default) {
-			Init(list, options);
-
-			Button addButton = this.Q<Button>("add-button");
-
-			addButton.clicked += () => {
-				                     AddItemPopup addItemPopup =
-					                     new AddItemPopup(creationTypes.Select(t => t.Name).ToArray());
-				                     addItemPopup.OnSelect += i => {
-					                                              AddItem(Activator.CreateInstance(creationTypes[i]));
-				                                              };
-				                     PopupWindow.Show(addButton.worldBound, addItemPopup);
-			                     };
-			Regenerate();
+			_options = options;
+			Init(list, () => {
+				           AddItemPopup addItemPopup =
+					           new AddItemPopup(creationTypes.Select(t => t.Name).ToArray());
+				           addItemPopup.OnSelect += i => { AddItem(Activator.CreateInstance(creationTypes[i])); };
+				           PopupWindow.Show(worldBound, addItemPopup);
+			           });
 		}
 
 		private void Regenerate() {
 			_body.Clear();
+
+			if ((_options & Options.ListSize) != 0) {
+				_listSizeContainer.Clear();
+				
+				_listSizeContainer.Add(new TextField {value = $"{_serializedList.arraySize}", isReadOnly = true, style = { paddingLeft = 10}});
+			}
 
 			for (int i = 0; i < _serializedList.arraySize; i++) {
 				SerializedProperty listItem = _serializedList.GetArrayElementAtIndex(i);
@@ -101,7 +109,9 @@ namespace Util.Editor {
 						listItem.managedReferenceFullTypename.Split('.').Last());
 
 				HeadedFoldout foldout = new HeadedFoldout(fullTypeName,
-				                                          actions);
+				                                          actions,
+				                                          (_options & Options.RemoveButton) != 0,
+				                                          (_options & Options.MoveButtons)  != 0);
 
 				PropertyField propertyField = new PropertyField(listItem, "Data");
 
@@ -163,7 +173,7 @@ namespace Util.Editor {
 		}
 
 		class HeadedFoldout : Foldout {
-			public HeadedFoldout(string labelText, Action[] actions) {
+			public HeadedFoldout(string labelText, Action[] actions, bool useRemove, bool useMove) {
 				VisualElement header = new VisualElement {style = {flexDirection = FlexDirection.Row, flexGrow = 1}};
 
 				Label label = new Label(labelText);
@@ -171,18 +181,21 @@ namespace Util.Editor {
 				VisualElement buttonContainer =
 					new VisualElement {style = {flexDirection = FlexDirection.Row, flexGrow = 1}};
 
-				Button upButton   = new Button(actions[0]) {text = " ↑"};
-				Button downButton = new Button(actions[1]) {text = " ↓"};
+				if (useMove) {
+					Button upButton   = new Button(actions[0]) {text = " ↑"};
+					Button downButton = new Button(actions[1]) {text = " ↓"};
 
-				Button removeButton = new Button(actions[2]) {text = "  X"};
-
-				buttonContainer.Add(upButton);
-				buttonContainer.Add(downButton);
+					buttonContainer.Add(upButton);
+					buttonContainer.Add(downButton);
+				}
 
 				VisualElement buttonSpacer = new VisualElement {style = {flexGrow = 1}};
 				buttonContainer.Add(buttonSpacer);
 
-				buttonContainer.Add(removeButton);
+				if (useRemove) {
+					Button removeButton = new Button(actions[2]) {text = "  X"};
+					buttonContainer.Add(removeButton);
+				}
 
 				header.Add(label);
 				header.Add(buttonContainer);

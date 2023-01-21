@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Input.ConcreteInputProviders;
@@ -10,7 +9,6 @@ using Input.Events;
 using Input.Events.Enemy;
 using Input.Middleware;
 using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Util.Editor;
@@ -36,7 +34,7 @@ namespace Input.Editor {
 			_middlewares = serializedObject.FindProperty("_middlewares");
 
 			ManagedListViewer<object> managedListViewer =
-				new ManagedListViewer<object>(_middlewares, _types, ManagedListViewer<object>.Options.None);
+				new ManagedListViewer<object>(_middlewares, _types, ManagedListViewer<object>.Options.NoSize);
 			_middlewareListContainer.Add(managedListViewer);
 
 			Button debugTypesButton = new Button(() => {
