@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using AI;
 using Input.Events;
 using Input.Middleware;
 using UnityEngine;
 
 namespace Input {
-	public class InputProvider<T, E, D, S> : ScriptableObject
+	public class InputProvider<T, E, D, S> : ScriptableObject, IBaseInputProvider
 		where T : struct
 		where E : class, IInputEvents<T, D>, new()
 		where D : EventDispatcher<T>
@@ -28,7 +29,22 @@ namespace Input {
 
 		private void OnValidate() => ClearBaseObjects();
 
-		private void ClearBaseObjects() { //todo: remove when listviewer is done
+		public IEnumerable<Type> GetValidMiddlewareTypes() {
+			Type[] allTypes =
+				Assembly.GetAssembly(typeof(InputMiddleware<,>)).GetTypes();
+
+			foreach (Type type in allTypes) {
+				if (type.IsAbstract
+				 || type.BaseType == null)
+					continue;
+
+				if (type
+				   .BaseType.IsGenericType
+				 && typeof(InputMiddleware<T,D>).IsAssignableFrom(type.BaseType)) { yield return type; }
+			}
+		}
+
+		private void ClearBaseObjects() {
 			int nullObjs = 0;
 
 			foreach (object middleware in _middlewares) {
