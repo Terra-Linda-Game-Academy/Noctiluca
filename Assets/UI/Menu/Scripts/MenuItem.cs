@@ -13,13 +13,19 @@ public class MenuItem : MonoBehaviour
     private Canvas canvas;
     //private RectTransform rectTransform;
 
-    [SerializeField] private float moveSpeed = 0.5f;
-
     //[SerializeField] private Transform hiddenPosition;
-    [SerializeField] private MenuItemTransitionInfo transitionInfo;
+    [SerializeField] private MenuItemTransitionInfo enterTransitionInfo;
+    [SerializeField] private MenuItemTransitionInfo exitTransitionInfo;
 
     [SerializeField] private UnityEvent OnBecomeVisible;
     [SerializeField] private UnityEvent OnBecomeHidden;
+
+
+    private Vector3 exitPosition;
+    private Vector3 entrancePosition;
+
+    [SerializeField] private float transitionDuration = 1f;
+    private float transitionTimer = 0f;
 
 
     private bool m_IsVisible;
@@ -36,10 +42,20 @@ public class MenuItem : MonoBehaviour
             else
                 OnBecomeHidden.Invoke();
 
+            if(!m_IsVisible && value && hasBeenInitilized)
+                transform.position = entrancePosition;
+
+            transitionTimer = 0f;
+
             m_IsVisible = value; 
         }
     }
 
+    private bool m_IsInstant;
+    public bool IsInstant { get { return m_IsInstant; } set { m_IsInstant = value; }}
+
+
+    private bool hasBeenInitilized = false;
 
 
 
@@ -52,6 +68,11 @@ public class MenuItem : MonoBehaviour
         {
             throw new Exception("Canvas Is Null, Could Be Because The Menu Canvas Has Parent!");
         }
+
+        entrancePosition = enterTransitionInfo.CalculateExitPosition(visiblePosition, canvas);
+        exitPosition = exitTransitionInfo.CalculateExitPosition(visiblePosition, canvas);
+
+        hasBeenInitilized = true;
     }
 
 
@@ -60,14 +81,24 @@ public class MenuItem : MonoBehaviour
 
     private void Update()
     {
-        if (IsVisible)
+
+        transitionTimer += Time.deltaTime/transitionDuration;
+        if(IsInstant) {
+            if(IsVisible) {
+                transform.position = visiblePosition;
+            } else {
+                transform.position = entrancePosition;
+            }
+            
+        }
+        else if (IsVisible)
         {
             //transform.position = Vector3.Lerp(transform.position, visiblePosition, Time.deltaTime * moveSpeed);
-            transform.position = transitionInfo.CalculateNextEnterPosition(transform.position, visiblePosition, canvas);
+            transform.position = enterTransitionInfo.CalculateNextEnterPosition(transform.position, visiblePosition, entrancePosition, transitionTimer, canvas);
         } else
         {
             //transform.position = Vector3.Lerp(transform.position, hiddenPosition.position, Time.deltaTime * moveSpeed);
-            transform.position = transitionInfo.CalculateNextExitPosition(transform.position, canvas);
+            transform.position = exitTransitionInfo.CalculateNextExitPosition(transform.position, visiblePosition, exitPosition, transitionTimer, canvas);
         }
     }
 
