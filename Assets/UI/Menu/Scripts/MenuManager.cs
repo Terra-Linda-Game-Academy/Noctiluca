@@ -50,7 +50,7 @@ public class MenuManager : MonoBehaviour
     }
     public void Update() {
         //lerp the section title background x size to the sectionTitle's x size + 25
-        sectionTitleBackground.sizeDelta = new Vector2(Mathf.Lerp(sectionTitleBackground.sizeDelta.x, sectionTitle.renderedWidth + 25, Time.deltaTime * 5), sectionTitleBackground.sizeDelta.y);
+        sectionTitleBackground.sizeDelta = new Vector2(Mathf.Lerp(sectionTitleBackground.sizeDelta.x, sectionTitle.text.Length>0 ? (sectionTitle.renderedWidth + 25) : 0, Time.deltaTime * 5), sectionTitleBackground.sizeDelta.y);
         
     }
 
