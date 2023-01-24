@@ -7205,7 +7205,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   averageSkip: 50
-  audioSizeMultiplier: 25
+  audioSizeMultiplier: 35
 --- !u!1 &2062963694
 GameObject:
   m_ObjectHideFlags: 0
