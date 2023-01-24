@@ -35,4 +35,16 @@ public class MenuSectionEditor : Editor
     //         //menuSectionScript.AnimateAllButtons();
     //     }
     // }
+
+    public override void OnInspectorGUI()
+    {
+        MenuSection menuSectionScript = (MenuSection)target;
+        if(GUILayout.Button("Load Items"))
+        {
+            menuSectionScript.LoadItems();
+        }
+
+        DrawDefaultInspector();
+    }
+ 
 }

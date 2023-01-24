@@ -67,7 +67,6 @@ public class MenuItemTransitionInfo : ScriptableObject
 
     public Vector3 CalculateNextExitPosition(Vector3 currentPosition, Vector3 originalPosiion, Vector3 exitPosition, float delta, Canvas canvas)
     {
-        //Vector3 exitPosition = CalculateExitPosition(originalPosiion, canvas);
         float progress = Vector3.Distance(exitPosition, currentPosition) / Vector3.Distance(exitPosition, originalPosiion);
 
         return Vector3.Lerp(currentPosition, exitPosition, exitMovement.Evaluate(progress) * delta);

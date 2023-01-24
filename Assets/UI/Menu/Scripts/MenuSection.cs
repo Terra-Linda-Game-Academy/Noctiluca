@@ -76,6 +76,14 @@ public class MenuSection : MonoBehaviour
 
     }
 
+    public void LoadItems() {
+        menuItems.Clear();
+
+        MenuItem[] sections = GetComponentsInChildren<MenuItem>();
+
+        menuItems.AddRange(sections);
+    }
+
 
 
 }

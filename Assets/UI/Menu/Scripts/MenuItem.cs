@@ -9,7 +9,7 @@ using System;
 public class MenuItem : MonoBehaviour
 {
 
-    [HideInInspector] public Vector3 visiblePosition;
+    public Vector3 visiblePosition;
     private Canvas canvas;
     //private RectTransform rectTransform;
 
@@ -43,7 +43,7 @@ public class MenuItem : MonoBehaviour
                 OnBecomeHidden.Invoke();
 
             if(!m_IsVisible && value && hasBeenInitilized)
-                transform.position = entrancePosition;
+                transform.localPosition = entrancePosition;
 
             transitionTimer = 0f;
 
@@ -59,46 +59,58 @@ public class MenuItem : MonoBehaviour
 
 
 
+    //Don't Set To Awake, For Some Reason I Breaks the vertain local positions
     private void Start()
     {
         //rectTransform = GetComponent<RectTransform>();
-        visiblePosition = transform.position; 
+        visiblePosition = transform.localPosition; 
         canvas = transform.root.GetComponent<Canvas>();
         if(canvas == null)
         {
             throw new Exception("Canvas Is Null, Could Be Because The Menu Canvas Has Parent!");
         }
 
-        entrancePosition = enterTransitionInfo.CalculateExitPosition(visiblePosition, canvas);
-        exitPosition = exitTransitionInfo.CalculateExitPosition(visiblePosition, canvas);
+        CalculateExitEntrance();
 
         hasBeenInitilized = true;
+    }
+
+    private void CalculateExitEntrance() {
+        entrancePosition = enterTransitionInfo.CalculateExitPosition(visiblePosition, canvas);
+        exitPosition = exitTransitionInfo.CalculateExitPosition(visiblePosition, canvas);
     }
 
 
 
 
-
+    Vector2 oldDimensions;
     private void Update()
     {
+        //CalculateExitEntrance is probably slow, so only do it when needed
+        Vector2 newDimensions = new Vector2(canvas.pixelRect.width, canvas.pixelRect.height);
+        if(oldDimensions != newDimensions) {
+            CalculateExitEntrance();
+            oldDimensions = new Vector2(canvas.pixelRect.width, canvas.pixelRect.height);
+        }
+        
 
         transitionTimer += Time.deltaTime/transitionDuration;
         if(IsInstant) {
             if(IsVisible) {
-                transform.position = visiblePosition;
+                transform.localPosition = visiblePosition;
             } else {
-                transform.position = entrancePosition;
+                transform.localPosition = entrancePosition;
             }
             
         }
         else if (IsVisible)
         {
             //transform.position = Vector3.Lerp(transform.position, visiblePosition, Time.deltaTime * moveSpeed);
-            transform.position = enterTransitionInfo.CalculateNextEnterPosition(transform.position, visiblePosition, entrancePosition, transitionTimer, canvas);
+            transform.localPosition = enterTransitionInfo.CalculateNextEnterPosition(transform.localPosition, visiblePosition, entrancePosition, transitionTimer, canvas);
         } else
         {
             //transform.position = Vector3.Lerp(transform.position, hiddenPosition.position, Time.deltaTime * moveSpeed);
-            transform.position = exitTransitionInfo.CalculateNextExitPosition(transform.position, visiblePosition, exitPosition, transitionTimer, canvas);
+            transform.localPosition = exitTransitionInfo.CalculateNextExitPosition(transform.localPosition, visiblePosition, exitPosition, transitionTimer, canvas);
         }
     }
 

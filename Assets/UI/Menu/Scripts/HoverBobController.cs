@@ -4,19 +4,19 @@ using UnityEngine;
 
 public class HoverBobController : MonoBehaviour
 {
-    public AnimationCurve myCurve;
+    //public AnimationCurve myCurve;
     public float strength = 5f;
     public float timeMultiplier = 0.1f;
 
-    Vector3 normalPostiion;
+    //Vector3 normalPostiion;
 
     private void Awake()
     {
-        normalPostiion = transform.position;
+        //normalPostiion = transform.position;
     }
 
     private void Update()
-    {
-        transform.position = new Vector3(normalPostiion.x, normalPostiion.y + myCurve.Evaluate(((Time.time * timeMultiplier) % myCurve.length)) * strength, normalPostiion.z);
+    {   
+        transform.position = new Vector3(transform.position.x, transform.position.y + Mathf.Sin(Time.time * timeMultiplier) * strength * Time.deltaTime, transform.position.z);
     }
 }
