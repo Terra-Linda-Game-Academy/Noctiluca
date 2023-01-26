@@ -9,7 +9,7 @@ using System;
 public class MenuItem : MonoBehaviour
 {
 
-    public Vector3 visiblePosition;
+    [HideInInspector] public Vector3 visiblePosition;
     private Canvas canvas;
     //private RectTransform rectTransform;
 

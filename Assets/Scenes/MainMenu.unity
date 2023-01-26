@@ -5948,6 +5948,7 @@ MonoBehaviour:
   sectionName: General Settings
   menuItems:
   - {fileID: 1738298176}
+  - {fileID: 1813012694}
   ItemDisappearSpacing: 0.1
   ItemReappearSpacing: 0.1
   OnOpen:
@@ -7094,6 +7095,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1813012691}
   - component: {fileID: 1813012692}
+  - component: {fileID: 1813012693}
+  - component: {fileID: 1813012695}
+  - component: {fileID: 1813012694}
   m_Layer: 5
   m_Name: Slider
   m_TagString: Untagged
@@ -7174,7 +7178,81 @@ MonoBehaviour:
   m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1813012693}
+        m_TargetAssemblyTypeName: SettingController, Assembly-CSharp
+        m_MethodName: SetSettingValue
+        m_Mode: 4
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &1813012693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1813012690}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7ad8df62338dbe4b9a505824a24c1e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1813012694
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1813012690}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4d0a4c912b51554c95a1e789c48e539, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visiblePosition: {x: 0, y: 0, z: 0}
+  enterTransitionInfo: {fileID: 11400000, guid: e47e6558921016d47a2a5c6d6f4cb8e2,
+    type: 2}
+  exitTransitionInfo: {fileID: 11400000, guid: 0f79aa4c9c260b94bbc8c0e81d1573cf, type: 2}
+  OnBecomeVisible:
+    m_PersistentCalls:
       m_Calls: []
+  OnBecomeHidden:
+    m_PersistentCalls:
+      m_Calls: []
+  transitionDuration: 1
+--- !u!114 &1813012695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1813012690}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9ae6b1924a9b3e42823f2508ba4e685, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  unityAction:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1813012692}
+        m_TargetAssemblyTypeName: UnityEngine.Object, UnityEngine
+        m_MethodName: set_name
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1841345453
 GameObject:
   m_ObjectHideFlags: 0

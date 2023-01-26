@@ -1,18 +1,35 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class SettingController : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+
+    public SettingVariable settingVariable;
+
+
+    public void SetSettingValue(object value) {
+        settingVariable.Value = value;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        Settings.general.particlesOn = false;
+    public T GetSettingValue<T>() {
+        return (T)settingVariable.Value;
     }
+
+    // public void SetValue(object value) {
+    //     settingFieldInfo.SetValue(null, value);
+    // }
+
+    // public object GetValue() {
+    //     return settingFieldInfo.GetValue(null);
+    // }
+
+    // void Start() {
+
+    // }
+
+
+
 }
