@@ -4,9 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class SettingController : MonoBehaviour
+public class SettingController : VariableController
 {
-
     public SettingVariable settingVariable;
 
 

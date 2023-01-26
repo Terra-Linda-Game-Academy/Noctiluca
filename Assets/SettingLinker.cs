@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-[RequireComponent(typeof(SettingController))]
-public class SettingLinker : MonoBehaviour
+
+public class SettingLinker : VariableController
 {
     public UnityEvent unityAction;
+
 
     // Start is called before the first frame update
     void Start()
