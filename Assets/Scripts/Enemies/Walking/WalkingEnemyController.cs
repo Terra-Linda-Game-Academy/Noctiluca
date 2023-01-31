@@ -22,6 +22,7 @@ namespace Enemies.Walking {
 		private void FixedUpdate() { HandleInput(_provider.GetInput()); }
 
 		private void HandleInput(WalkingEnemyInput inputData) {
+			Debug.Log("movment: " + inputData.Movement.ToString());
 			transform.position += new Vector3(inputData.Movement.x, 0.0f, inputData.Movement.y) * speed;
 			if (inputData.PlayerPos != Vector3.zero)
 				transform.LookAt(new Vector3(inputData.PlayerPos.x, transform.position.y, inputData.PlayerPos.z));
