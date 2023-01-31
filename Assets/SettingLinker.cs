@@ -4,9 +4,10 @@ using UnityEngine;
 using UnityEngine.Events;
 
 
-public class SettingLinker : VariableController
+public class SettingLinker : MonoBehaviour
 {
-    public UnityEvent unityAction;
+    public VariableController getVariable;
+    public VariableController setVariable;
 
 
     // Start is called before the first frame update
@@ -18,6 +19,8 @@ public class SettingLinker : VariableController
     // Update is called once per frame
     void Update()
     {
-        
+        if(getVariable.Variable != setVariable.Variable) {
+            setVariable.Variable = getVariable.Variable;
+        }
     }
 }

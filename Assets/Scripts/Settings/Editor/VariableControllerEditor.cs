@@ -10,26 +10,7 @@ using System;
 public class VariableControllerEditor : Editor
 {
 
-    private static int[] selected = new int[10];
-    private int m_LayerLength;
-
-    public int LayerLength
-    {
-        get { return m_LayerLength; }
-        set { 
-            m_LayerLength = value;
-            if (m_LayerLength > 50)
-            {
-                m_LayerLength = 50;
-            }
-            else if (m_LayerLength < 1)
-            {
-                m_LayerLength = 1;
-            }
-            selected = new int[m_LayerLength];
-        }
-    }
-
+    
     
     public override void OnInspectorGUI()
     {
@@ -37,9 +18,12 @@ public class VariableControllerEditor : Editor
 
         DrawDefaultInspector();
 
-        LayerLength = EditorGUILayout.IntField("Reflection Distance", LayerLength);
-
+        
+        //Debug.Log(selected[0]);
         VariableController selfController = (VariableController)target;
+
+        selfController.LayerLength = EditorGUILayout.IntField("Reflection Distance", selfController.LayerLength);
+
         bool stillMoreLayers = true;
         Type currentType;
         object instance = selfController.script;
@@ -55,52 +39,67 @@ public class VariableControllerEditor : Editor
          
         string directory = "";
         List<FieldInfo> layers = new List<FieldInfo>();
-        while (stillMoreLayers && currentType.GetFields().Length > 0 && layer < selected.Length)
+
+        FieldInfo currentField = null;
+
+        while (stillMoreLayers && layer < selfController.LayerLength)
         {
             //EditorGUILayout.LabelField("Selected Variable", EditorStyles.boldLabel);
             //category
            // Debug.Log("Type: " + currentType);
             Dictionary<string, FieldInfo> settingVariables = new Dictionary<string, FieldInfo>();
-            foreach (FieldInfo fieldInfo in currentType.GetFields())
+            foreach (FieldInfo fieldInfo in currentType.GetFields( BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static |
+                         BindingFlags.Instance))
             {
-                settingVariables.Add(fieldInfo.Name, fieldInfo);
+                settingVariables.Add(fieldInfo.Name, fieldInfo); 
             }
 
             string[] options = new string[settingVariables.Keys.Count];
             settingVariables.Keys.CopyTo(options, 0);
-            selected[layer] = EditorGUILayout.Popup("Selected Category", selected[layer], options);
+            selfController.selected[layer] = EditorGUILayout.Popup("Selected Category", selfController.selected[layer], options);
 
-            Type fieldType = settingVariables[options[selected[layer]]].FieldType;
-            FieldInfo field = settingVariables[options[selected[layer]]];
+            Type fieldType = settingVariables[options[selfController.selected[layer]]].FieldType;
+            currentField = settingVariables[options[selfController.selected[layer]]];
 
-            layers.Add(field);
+            layers.Add(currentField);
             
 
-            directory += field.Name;
-            if (fieldType.GetFields().Length > 0 && fieldType != typeof(SettingVariable))
+            directory += currentField.Name;
+            if (fieldType.GetFields().Length > 0 && fieldType != typeof(SettingVariable) &&  layer < selfController.LayerLength)
             {
                 //Continue
                 stillMoreLayers = true;
                 currentType = fieldType;
-                layer++;
+                
                 directory += ".";
             }
              else
             {
                 stillMoreLayers = false;
-                if(fieldType  == typeof(SettingVariable))
-                {
-                    object previousLayerObject = instance;
-                    foreach(FieldInfo fieldInfo in layers)
-                    {
-                        previousLayerObject = fieldInfo.GetValue(previousLayerObject);
-                    }
-                    selfController.Variable = previousLayerObject;
-                }
             }
+            layer++;
         }
 
-        EditorGUILayout.LabelField(directory, EditorStyles.helpBox);
+
+        if(layer > 0) {
+            object previousLayerObject = instance;
+            foreach(FieldInfo fieldInfo in layers)
+            {
+                previousLayerObject = fieldInfo.GetValue(previousLayerObject);
+            }
+            selfController.Variable = previousLayerObject;
+
+
+            EditorGUILayout.LabelField(currentField.FieldType.Name +" "+ directory, EditorStyles.helpBox);
+
+            string valueText = previousLayerObject.ToString();
+            if(previousLayerObject is SettingVariable) {
+                valueText = ((SettingVariable)previousLayerObject).Value.ToString();
+            }
+            EditorGUILayout.LabelField("Value: " + valueText, EditorStyles.helpBox);
+            
+        }
+
         EditorGUILayout.Separator();
 
         serializedObject.Update();
