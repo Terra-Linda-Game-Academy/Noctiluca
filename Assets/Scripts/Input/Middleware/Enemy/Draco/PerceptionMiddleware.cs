@@ -16,9 +16,7 @@ namespace Input.Middleware.Enemy.Draco {
 			                          ~LayerMask.GetMask("Player"))) {
 				inputData.PlayerPos = Player.Value.transform.position;
 				inputData.State     = DracoStates.Aggro;
-			} else {
-				inputData.State = DracoStates.Wander;
-			}
+			} else { inputData.State = DracoStates.Wander; }
 		}
 
 		public override void Init() { }

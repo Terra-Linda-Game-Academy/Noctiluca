@@ -13,7 +13,7 @@ namespace Input.Middleware.Enemy.Draco {
 		public float WaypointCooldown = 1.0f;
 
 		public float MaxAttackRange = 5.0f;
-		public float AttackCooldown = 2.0f;
+		public float AttackCooldown = 1.0f;
 
 		private Vector3 _waypoint;
 		private float   _waypointCountUp;
