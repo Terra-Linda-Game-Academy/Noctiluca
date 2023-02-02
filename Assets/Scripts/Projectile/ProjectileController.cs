@@ -34,25 +34,11 @@ public class ProjectileController : MonoBehaviour
 
         Instantiate(rig = prefab.GetComponent<Rigidbody>(), transform.position, transform.rotation  );
 
+        prefab.GetComponent<Rigidbody>().useGravity = true;
+
         prefab.GetComponent<Rigidbody>().AddForce(v3Force);
 
-        //Rigidbody instantiatedProjectile = Instantiate(,
-        //                                                  transform.position,
-        //                                                transform.rotation)
-        //   as Rigidbody;
-
-        //instantiatedProjectile.velocity = transform.TransformDirection(new Vector3(0, 0, speed));
-
-        //if (obeysGravity)
-        //{
-        //  rig.useGravity = true;
-        //rig.mass = weight;
-        //}
-        //else
-        //{
-        //rig.useGravity = false;
-
-        //}
+        Debug.Log("boobies");
 
     }
 }
