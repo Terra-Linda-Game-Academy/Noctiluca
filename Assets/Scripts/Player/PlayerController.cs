@@ -1,6 +1,4 @@
-using System;
 using AI;
-using Input;
 using Input.ConcreteInputProviders;
 using Input.Data;
 using UnityEngine;
@@ -42,7 +40,7 @@ namespace Player {
 			_perceptron.eyes = transform;
 
 			inputProvider.RequireInit(_perceptron);
-			inputProvider.Events.Interact += () => Debug.Log("interact club headed by randall baker");
+			inputProvider.Events.Interact += () => Debug.Log("player interact");
 		}
 
 		private void FixedUpdate() {
