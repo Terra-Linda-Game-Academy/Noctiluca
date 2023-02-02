@@ -4,25 +4,24 @@ using Input.Events.Enemy;
 using UnityEngine;
 using Util;
 
-namespace Input.Middleware.Enemy.Walking {
-	public class
-		PerceptionMiddleware : InputMiddleware<WalkingEnemyInput, WalkingEnemyInputEvents.Dispatcher> {
+namespace Input.Middleware.Enemy.Draco {
+	public class PerceptionMiddleware : InputMiddleware<DracoInput, DracoInputEvents.Dispatcher> {
 		public float MaxViewDistance = 20.0f;
-		public float MaxViewAngle    = 60.0f;
+		public float MaxViewAngle    = 100.0f;
 
 		public ScriptableVar<MonoBehaviour> Player;
 
-		public override void TransformInput(ref WalkingEnemyInput inputData) {
-			if (perceptron.VisionCone(Player.Value.gameObject, MaxViewDistance, MaxViewAngle / 2,
+		public override void TransformInput(ref DracoInput inputData) {
+			if (perceptron.VisionCone(Player.Value.gameObject, MaxViewDistance, MaxViewAngle,
 			                          ~LayerMask.GetMask("Player"))) {
 				inputData.PlayerPos = Player.Value.transform.position;
-				inputData.State     = WalkingEnemyState.Chase;
-			} else { inputData.State = WalkingEnemyState.Idle; }
+				inputData.State     = DracoStates.Aggro;
+			} else { inputData.State = DracoStates.Wander; }
 		}
 
 		public override void Init() { }
 
-		public override InputMiddleware<WalkingEnemyInput, WalkingEnemyInputEvents.Dispatcher> Clone() {
+		public override InputMiddleware<DracoInput, DracoInputEvents.Dispatcher> Clone() {
 			return new PerceptionMiddleware {
 				                                MaxViewDistance = MaxViewDistance,
 				                                MaxViewAngle    = MaxViewAngle,

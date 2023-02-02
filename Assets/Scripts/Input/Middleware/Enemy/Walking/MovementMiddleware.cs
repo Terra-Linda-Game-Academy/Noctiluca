@@ -1,4 +1,3 @@
-using System;
 using AI;
 using Input.Data.Enemy;
 using Input.Events.Enemy;
