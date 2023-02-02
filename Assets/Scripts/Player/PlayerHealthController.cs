@@ -17,5 +17,10 @@ namespace Player {
 
 		public Action<int> OnChange;
 		public Action      OnZero;
+
+		/// <summary>
+		/// Deals half a heart of damage, decreasing health by 1
+		/// </summary>
+		public void Damage() => Health--;
 	}
 }

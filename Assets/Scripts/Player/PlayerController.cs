@@ -24,6 +24,8 @@ namespace Player {
 
 		private Perceptron _perceptron;
 
+		private PlayerHealthController _healthController;
+
 		//Movement Vectors and Bools
 		private Vector3    _direction;
 		private Quaternion Rotation => Quaternion.LookRotation(RotationDirection);
@@ -37,7 +39,8 @@ namespace Player {
 
 		private void Start() {
 			_perceptron      = GetComponent<Perceptron>();
-			_perceptron.eyes = transform;
+
+			_healthController = GetComponent<PlayerHealthController>();
 
 			inputProvider.RequireInit(_perceptron);
 			inputProvider.Events.Interact += () => Debug.Log("player interact");

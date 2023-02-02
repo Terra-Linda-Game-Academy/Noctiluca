@@ -5,16 +5,21 @@ using UnityEngine;
 
 namespace Enemies.Walking {
 	[RequireComponent(typeof(Perceptron))]
+	[RequireComponent(typeof(EnemyHealthController))]
 	public class WalkingEnemyController : MonoBehaviour {
 		public  WalkingEnemyInputProvider providerTemplate;
 		private WalkingEnemyInputProvider _provider;
 
 		private Perceptron _perceptron;
+		
+		private EnemyHealthController _healthController;
 
 		public float speed;
 
 		private void OnEnable() {
 			_perceptron = GetComponent<Perceptron>();
+
+			_healthController = GetComponent<EnemyHealthController>();
 
 			_provider = (WalkingEnemyInputProvider) providerTemplate.Clone(_perceptron);
 		}
