@@ -18,7 +18,7 @@ namespace Enemies.Draco {
 
 			_provider = (DracoInputProvider) providerTemplate.Clone(_perceptron);
 
-			_provider.Events.Shoot += () => { Debug.Log("ah shoot"); };
+			_provider.Events.Shoot += () => { Debug.Log($"{this} shoots"); };
 		}
 
 		private void FixedUpdate() { HandleInput(_provider.GetInput()); }
