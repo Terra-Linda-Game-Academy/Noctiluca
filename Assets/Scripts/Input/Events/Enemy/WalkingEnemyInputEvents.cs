@@ -1,5 +1,4 @@
 using System;
-using AI;
 using Input.Data.Enemy;
 
 namespace Input.Events.Enemy {
@@ -9,8 +8,7 @@ namespace Input.Events.Enemy {
 		private void InvokeAttack() => Attack?.Invoke();
 
 		public Dispatcher GetDispatcher(Func<WalkingEnemyInput> inputFunc) {
-			Dispatcher dispatcher = new Dispatcher(inputFunc, InvokeAttack);
-			return dispatcher;
+			return new Dispatcher(inputFunc, InvokeAttack);
 		}
 
 		public class Dispatcher : EventDispatcher<WalkingEnemyInput> {
