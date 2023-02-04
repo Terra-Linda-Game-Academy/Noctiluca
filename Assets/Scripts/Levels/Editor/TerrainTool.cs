@@ -10,13 +10,10 @@ namespace Levels.Editor {
         public override void OnActivated() { base.OnActivated(); }
         public override void OnWillBeDeactivated() { base.OnWillBeDeactivated(); }
 
-        public override void OnToolGUI(EditorWindow window) {
-            
-            
+        public override void OnToolGUI(EditorWindow window) {     
         }
 
         public void OnDrawHandles() {
-            
         }
     }
 }
