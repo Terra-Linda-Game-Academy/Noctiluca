@@ -753,7 +753,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   distanceBetween: 0.6
   speed: 280
-  turnSpeed: 180
   bodyParts:
   - {fileID: 2360153186495315370, guid: 70f81aa0151ea52428e4fe7d958894bc, type: 3}
   - {fileID: 50230603380084766, guid: e2c7604c113da564d82a737c963a0d05, type: 3}
@@ -770,7 +769,7 @@ MonoBehaviour:
   - {fileID: 50230603380084766, guid: e2c7604c113da564d82a737c963a0d05, type: 3}
   - {fileID: 50230603380084766, guid: e2c7604c113da564d82a737c963a0d05, type: 3}
   - {fileID: 345924941520079245, guid: a20747868ac198c4db3223a2ae195990, type: 3}
-  rotationSpeed: 90
+  rotationSpeed: 0.5
   targetDestination: {fileID: 1357008732}
   waveFrequency: 1
   waveAmplitude: 5

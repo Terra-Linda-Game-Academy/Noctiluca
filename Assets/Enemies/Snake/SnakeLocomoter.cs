@@ -18,9 +18,21 @@ public class SnakeLocomoter : MonoBehaviour
 
     void Update()
     {
+
+
         Vector3 direction = (targetDestination.position - transform.position).normalized;
         Quaternion lookRotation = Quaternion.LookRotation(direction);
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
+        RaycastHit hit;
+        // Does the ray intersect any objects excluding the player layer
+        if (Physics.Raycast(transform.position, transform.forward, out hit, 20f))
+        {
+            //lookRotation = Quaternion.LookRotation(direction);
+            //transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(transform.up), Time.deltaTime * rotationSpeed * 3);
+        }
+
+        
+        
 
         float distance = Vector3.Distance(transform.position, targetDestination.position);
         if (distance > accuracy)
