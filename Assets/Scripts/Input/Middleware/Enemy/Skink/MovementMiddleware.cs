@@ -4,21 +4,21 @@ using Input.Data.Enemy;
 using Input.Events.Enemy;
 using UnityEngine;
 
-namespace Input.Middleware.Enemy.Walking {
+namespace Input.Middleware.Enemy.Skink {
 	public class
-		MovementMiddleware : InputMiddleware<WalkingEnemyInput, WalkingEnemyInputEvents.Dispatcher> {
+		MovementMiddleware : InputMiddleware<SkinkEnemyInput, SkinkEnemyInputEvents.Dispatcher> {
 		public float MinDistance = 1.0f;
 
-		public override void TransformInput(ref WalkingEnemyInput inputData) {
+		public override void TransformInput(ref SkinkEnemyInput inputData) {
 			switch (inputData.State) {
-				case WalkingEnemyState.Chase:
+				case SkinkEnemyState.Chase:
 					Vector3 toPlayer = inputData.PlayerPos - perceptron.transform.position;
 					inputData.Movement = toPlayer.magnitude > MinDistance
 						                     ? new Vector2(toPlayer.x, toPlayer.z).normalized
 						                     : Vector2.zero;
 
 					break;
-				case WalkingEnemyState.Idle:
+				case SkinkEnemyState.Idle:
 					inputData.Movement = Vector2.zero;
 					break;
 				default:
@@ -29,7 +29,7 @@ namespace Input.Middleware.Enemy.Walking {
 
 		public override void Init() { }
 
-		public override InputMiddleware<WalkingEnemyInput, WalkingEnemyInputEvents.Dispatcher> Clone() {
+		public override InputMiddleware<SkinkEnemyInput, SkinkEnemyInputEvents.Dispatcher> Clone() {
 			return new MovementMiddleware {MinDistance = MinDistance};
 		}
 	}

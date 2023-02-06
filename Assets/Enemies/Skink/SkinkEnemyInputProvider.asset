@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4a2b2dca6eec475b95eea72824e36a50, type: 3}
-  m_Name: Burrowing Enemy Input Provider
+  m_Name: SkinkEnemyInputProvider
   m_EditorClassIdentifier: 
   _middlewares:
   - rid: 5896140333831159813
