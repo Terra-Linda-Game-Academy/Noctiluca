@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6252399147015489539}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: TailSegment
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 5465602054413952465}
   - component: {fileID: 6314420232561103325}
   - component: {fileID: 8095370201009693965}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}

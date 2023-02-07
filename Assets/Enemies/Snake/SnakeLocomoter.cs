@@ -27,8 +27,8 @@ public class SnakeLocomoter : MonoBehaviour
         // Does the ray intersect any objects excluding the player layer
         if (Physics.Raycast(transform.position, transform.forward, out hit, 20f))
         {
-            //lookRotation = Quaternion.LookRotation(direction);
-            //transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(transform.up), Time.deltaTime * rotationSpeed * 3);
+            lookRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(transform.up), Time.deltaTime * rotationSpeed * 3);
         }
 
         
