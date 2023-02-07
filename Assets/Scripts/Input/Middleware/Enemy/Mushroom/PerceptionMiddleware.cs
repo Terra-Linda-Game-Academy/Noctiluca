@@ -16,8 +16,8 @@ namespace Input.Middleware.Enemy.Mushroom {
 			if (perceptron.VisionCone(Player.Value.gameObject, MaxViewDistance, MaxViewAngle / 2,
 			                          ~LayerMask.GetMask("Player"))) {
 				inputData.PlayerPos = Player.Value.transform.position;
-				inputData.State     = WalkingEnemyState.Chase;
-			} else { inputData.State = WalkingEnemyState.Idle; }
+				inputData.State     = MushroomEnemyStates.Chase;
+			} else { inputData.State = MushroomEnemyStates.Wander; }
 		}
 
 		public override void Init() { }

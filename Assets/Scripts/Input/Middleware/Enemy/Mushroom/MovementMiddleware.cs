@@ -6,19 +6,19 @@ using UnityEngine;
 namespace Input.Middleware.Enemy.Mushroom {
 	public class
 		MovementMiddleware : InputMiddleware<MushroomEnemyInput, MushroomEnemyInputEvents.Dispatcher> {
-		public float MinDistance = 1.0f;
+		public float MinDistance = 5.0f;
 
 		public override void TransformInput(ref MushroomEnemyInput inputData) {
 			switch (inputData.State) {
-				case WalkingEnemyState.Chase:
+				case MushroomEnemyStates.Chase:
 					Vector3 toPlayer = inputData.PlayerPos - perceptron.transform.position;
 					inputData.Movement = toPlayer.magnitude > MinDistance
 						                     ? new Vector2(toPlayer.x, toPlayer.z).normalized
 						                     : Vector2.zero;
 
 					break;
-				case WalkingEnemyState.Idle:
-					inputData.Movement = Vector2.zero;
+				case MushroomEnemyStates.Wander:
+					//wander through radius
 					break;
 				default:
 					inputData.Movement = Vector2.zero;
