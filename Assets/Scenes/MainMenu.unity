@@ -3928,9 +3928,9 @@ MonoBehaviour:
   speed: 10
   rotationSpeed: 25
   pathOffset: {x: 0, y: 1, z: 4.5}
-  enableBezier: 0
-  enableSine: 0
-  pathBlendDistanceIndex: 50
+  enableBezier: 1
+  enableSine: 1
+  pathBlendDistanceIndex: 10
   waveFrequency: 0.5
   waveAmplitide: 2
   endFadeBuffer: 10
