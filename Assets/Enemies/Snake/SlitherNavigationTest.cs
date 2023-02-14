@@ -363,7 +363,7 @@ public class SlitherNavigationTest : MonoBehaviour
             // Vector3[] sinPath = AddSinWave(bezier.GetSpline(0.1f), waveAmplitide, waveFrequency);
             // snakePath = new SnakePath(sinPath, GetTotalDistance(sinPath));
 
-            currentDistance = 0f;
+            currentDistance = (snakeBody.Count - 1) * Vector3.Distance(spawnSeperationOffset, Vector3.zero);
             snakeMoving = true;
         }
 
