@@ -6,7 +6,6 @@ using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
-using UnityEngine.Tilemaps;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -51,11 +50,10 @@ namespace Levels {
             }
         }
 
+        //private void OnEnable() => StartCoroutine(GenerateTerrainMesh());
+
         private void SetupTerrainRenderer() {
             meshRenderer.sharedMaterials = new Material[] { }; //todo: grab materials from Terrain
-        }
-
-        private void RefreshTerrainMesh() {
         }
 
         private void OnDestroy() {
@@ -70,93 +68,181 @@ namespace Levels {
         }
         #endif
         
-        [StructLayout(LayoutKind.Sequential)]
-        private struct Vertex {
-            public const int Stride = 3 * (3 + 3 + 2) * sizeof(float); 
-            
-            public Vector3 position;
-            public Vector3 normal;
-            public Vector2 uv;
-        }
-
-        private static readonly ComputeShader shader = Resources.Load<ComputeShader>("GenerateTerrain");
-
+        
+        
         private static readonly int tileMapShaderId = Shader.PropertyToID("TileMap");
 
-        private IEnumerable GenerateTerrainMesh() {
-            int dataKernel = shader.FindKernel("GenerateData"),
-                meshKernel = shader.FindKernel("GenerateMesh");
+        private void GenerateTerrainMesh() {
+            /*ComputeShader computeTerrain = Resources.Load<ComputeShader>("GenerateTerrain");
+            Mesh mesh = GetComponent<MeshFilter>().sharedMesh;
             
-            Vector3Int roomSize = room.Size;
-            int roomArea = roomSize.x * roomSize.z;
+            int dataKernel = computeTerrain.FindKernel("GenerateData"),
+                meshKernel = computeTerrain.FindKernel("GenerateMesh");
+            
+            int roomArea = room.Size.x * room.Size.z;
 
             ComputeBuffer tileBuffer = new ComputeBuffer(roomArea, Room.Tile.Stride, ComputeBufferType.Raw);
             tileBuffer.SetData(room.tileMap);
-            shader.SetBuffer(dataKernel, tileMapShaderId, tileBuffer);
-            shader.SetBuffer(dataKernel, tileMapShaderId, tileBuffer);
+            computeTerrain.SetBuffer(dataKernel, tileMapShaderId, tileBuffer);
+            computeTerrain.SetBuffer(meshKernel, tileMapShaderId, tileBuffer);
 
-            CommandBuffer cmd = CommandBufferPool.Get("Generate Terrain");
-            
-            cmd.DispatchCompute(shader, dataKernel, 0, 0, 0); //todo: not right, get next multiple of thread group size
-            var fence = cmd.CreateAsyncGraphicsFence();
-            cmd.WaitOnAsyncGraphicsFence(fence);
-            
-            cmd.DispatchCompute(shader, meshKernel, 0, 0, 0); //todo: use indirect args buffer
+            int vertexCount = 0; //todo: set these
+            int indexCount = 0;
 
+            //todo: check if target format is right??????
+            GraphicsBuffer vertexBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Vertex, vertexCount, Vertex.Stride); //todo: get actual vert count
+            GraphicsBuffer indexBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Index, indexCount, sizeof(uint));
+            //todo: set buffers on GPU, and allocate sum buffers for vertices and indices
+
+            var cmd = CommandBufferPool.Get("Generate Terrain");
+            cmd.DispatchCompute(computeTerrain, dataKernel, 1, 1, 1); //todo: not right, get next multiple of thread group size
+            var dataDone = cmd.CreateAsyncGraphicsFence();
+            cmd.WaitOnAsyncGraphicsFence(dataDone);
+            cmd.DispatchCompute(computeTerrain, meshKernel, 1, 1, 1); //todo: use indirect args buffer
+            var meshDone = cmd.CreateAsyncGraphicsFence();
             Graphics.ExecuteCommandBufferAsync(cmd, ComputeQueueType.Background);
-            
-            var vertReadback = AsyncGPUReadback.RequestIntoNativeArray() // 
-            
             CommandBufferPool.Release(cmd);
-            
-            /*shader.SetBuffer(dataKernel, "Triangles", triBuffer);
-            
-            shader.SetVector( "RoomDimensions", new Vector4(roomDimensions.x, roomDimensions.y, roomDimensions.z));            
-            shader.SetBuffer(idTerrainKernel, "HeightMap", heightBuffer);
+            yield return new WaitUntil(() => meshDone.passed);
 
-            heightBuffer.SetData(Array.ConvertAll(heightMap, e => (int) e));
+            NativeArray<Vertex> generatedVertices =
+                new NativeArray<Vertex>(vertexCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            NativeArray<ushort> generatedIndices =
+                new NativeArray<ushort>(indexCount, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            var vertexReadback = AsyncGPUReadback.RequestIntoNativeArray(ref generatedVertices, vertexBuffer);
+            var indexReadback = AsyncGPUReadback.RequestIntoNativeArray(ref generatedIndices, indexBuffer);
             
-            shader.Dispatch(
-                idTerrainKernel, 
-                Mathf.CeilToInt(roomDimensions.x / 16.0f), 
-                1,
-                Mathf.CeilToInt(roomDimensions.z / 16.0f)
+            yield return new WaitUntil(() => vertexReadback.done && indexReadback.done);
+
+            //todo: reduce data size
+            mesh.SetVertexBufferParams(vertexCount,
+                new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3),
+                new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, 3),
+                new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float32, 2)
             );
-            heightBuffer.Release();
-
-            var dataReq = AsyncGPUReadback.Request(triBuffer);
-            dataReq.WaitForCompletion();
-            NativeArray<Triangle> tris = dataReq.GetData<Triangle>();
-            triBuffer.Release();
+            mesh.SetVertexBufferData(generatedVertices, 0, 0, vertexCount, 0, MeshUpdateFlags.Default);
+            mesh.SetIndexBufferParams(indexCount, IndexFormat.UInt32);
+            mesh.SetIndexBufferData(generatedIndices, 0, 0, indexCount, MeshUpdateFlags.Default);*/
             
+            //--------------------------------------------------------------------------------------------------------//
             
-            Vector3[] verts = new Vector3[triCount * 3];
-            Vector3[] normals = new Vector3[triCount * 3];
-            int[] indices = new int[triCount * 3];
+            /*ComputeShader computeTerrain = Resources.Load<ComputeShader>("GenerateTerrain");
+            
+            int meshKernel = computeTerrain.FindKernel("GenerateMesh");
+            int roomArea = room.Size.x * room.Size.z;
+            
+            var cmd = CommandBufferPool.Get("Generate Terrain");
+            //cmd.SetExecutionFlags(CommandBufferExecutionFlags.AsyncCompute);
 
-            for (int i = 0; i < triCount; i++) {
-                int threeI = i * 3;
-                verts[threeI] = tris[i].a.position;
-                verts[threeI + 1] = tris[i].b.position;
-                verts[threeI + 2] = tris[i].c.position;
+            /*ComputeBuffer tileBuffer = new ComputeBuffer(roomArea, Room.Tile.Stride, ComputeBufferType.Raw);
+            tileBuffer.SetData(room.tileMap);
+            cmd.SetComputeBufferParam(computeTerrain, meshKernel, tileMapShaderId, tileBuffer);#1#
 
-                normals[threeI] = tris[i].a.normal;
-                normals[threeI + 1] = tris[i].b.normal;
-                normals[threeI + 2] = tris[i].c.normal;
-                
-                indices[threeI] = threeI;
-                indices[threeI + 1] = threeI + 1;
-                indices[threeI + 2] = threeI + 2;
-            }
+            int vertexCount = roomArea * 4; //todo: set these
+            int indexCount = roomArea * 6;
+
+            //todo: check if target format is right??????
+            GraphicsBuffer vertexBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Raw | GraphicsBuffer.Target.Vertex, vertexCount * 8, sizeof(uint)); //todo: get actual vert count
+            GraphicsBuffer indexBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Raw | GraphicsBuffer.Target.Index, indexCount, sizeof(uint));
+            cmd.SetComputeBufferParam(computeTerrain, meshKernel, "GeneratedVertices", vertexBuffer); //todo: use nameID
+            cmd.SetComputeBufferParam(computeTerrain, meshKernel, "GeneratedIndices", indexBuffer);
+            cmd.SetComputeIntParams(computeTerrain, "RoomDimensions", room.Size.x, room.Size.y, room.Size.z);
+            cmd.DispatchCompute(computeTerrain, meshKernel, 1, 1, 1); //todo: use indirect args buffer
+            //todo: set buffers on GPU, and allocate sum buffers for vertices and indices
+
+            //var meshDone = cmd.CreateAsyncGraphicsFence();
+            Graphics.ExecuteCommandBuffer/*Async#1#(cmd/*, ComputeQueueType.Background#1#);
+            CommandBufferPool.Release(cmd);
+
+            yield return null;
+            
+            var vertexReadback = AsyncGPUReadback.Request(vertexBuffer);
+            var indexReadback = AsyncGPUReadback.Request(indexBuffer);
+
+            yield return new WaitUntil(() => vertexReadback.done && indexReadback.done);
 
             Mesh mesh = new Mesh();
+            mesh.SetVertexBufferParams(vertexCount,
+                new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3),
+                new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, 3),
+                new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float32, 2)
+            );
+            mesh.SetVertexBufferData(
+                vertexReadback.GetData<Vertex>(), 
+                0, 0, vertexCount//, 0, 
+                //MeshUpdateFlags.DontValidateIndices | MeshUpdateFlags.DontRecalculateBounds
+            );
             
-            mesh.SetVertices(verts);
-            mesh.SetIndices(indices, MeshTopology.Triangles, 0);
+            mesh.SetIndexBufferParams(indexCount, IndexFormat.UInt32);
+            mesh.SetIndexBufferData(
+                indexReadback.GetData<uint>(), 
+                0, 0, indexCount//, 
+                //MeshUpdateFlags.DontValidateIndices | MeshUpdateFlags.DontRecalculateBounds
+            );
+            
+            mesh.subMeshCount = 1;
+            mesh.SetSubMesh(0, new SubMeshDescriptor(0, indexCount));
 
-            Debug.Log($"Finished Generating mesh with {triCount} triangles!");*/
+            //tileBuffer.Release();
+            vertexBuffer.Release();
+            indexBuffer.Release();
             
-            return mesh;
+            Debug.Log(GetComponent<MeshRenderer>().bounds);
+            
+            foreach(var vert in mesh.vertices) Debug.Log(vert);
+            /*mesh.bounds = new Bounds {
+                min = Vector3.zero,
+                max = room.Size
+            };#1#
+            
+            //mesh.Optimize();
+            GetComponent<MeshFilter>().mesh = mesh;*/
+            
+
+            List<Vertex> vertices = new List<Vertex>();
+            List<ushort> indices = new List<ushort>();
+
+            //start at -1 because we need to consider the boundaries of the room
+            for (int x = -1; x > room.Size.x; x++) {
+                for (int z = -1; z > room.Size.z; z++) {
+                    //todo: generate each tile here
+                    Room.Tile tile0 = room.GetTileAt(x, z);
+                    Room.Tile tile1 = room.GetTileAt(x + 1, z + 1);
+                    Room.Tile tile2 = room.GetTileAt(x, z);
+                    Room.Tile tile3 = room.GetTileAt(x + 1, z + 1);
+                    
+                    
+                }
+            }
+            /*var mesh = new Mesh();
+            
+            mesh.SetVertexBufferParams(vertexCount,
+                new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3),
+                new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, 3),
+                new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float32, 2)
+            );
+            mesh.SetVertexBufferData(
+                vertexReadback.GetData<Vertex>(), 
+                0, 0, vertexCount//, 0, 
+                //MeshUpdateFlags.DontValidateIndices | MeshUpdateFlags.DontRecalculateBounds
+            );
+            
+            mesh.SetIndexBufferParams(indexCount, IndexFormat.UInt32);
+            mesh.SetIndexBufferData(
+                indexReadback.GetData<uint>(), 
+                0, 0, indexCount//, 
+                //MeshUpdateFlags.DontValidateIndices | MeshUpdateFlags.DontRecalculateBounds
+            );
+            
+            mesh.subMeshCount = 1;
+            mesh.SetSubMesh(0, new SubMeshDescriptor(0, indexCount));
+            
+            mesh.Optimize();
+            GetComponent<MeshFilter>().mesh = mesh;*/
+
         }
+        
+        
+        
+        
     }
 }

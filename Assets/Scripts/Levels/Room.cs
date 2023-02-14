@@ -16,8 +16,10 @@ namespace Levels {
         public readonly struct Tile {
             public const int Stride = sizeof(TileFlags) + sizeof(ushort);
             
-            private readonly TileFlags flags;
-            private readonly ushort packedHeight;
+            public readonly TileFlags flags;
+            public readonly ushort packedHeight;
+
+            public float Height => Mathf.HalfToFloat(packedHeight);
 
             public Tile(TileFlags flags, float height) {
                 this.flags = flags;
@@ -30,9 +32,17 @@ namespace Levels {
 
         /// <Summary> lower half </Summary>
         [SerializeField] public Tile[] tileMap;
-
+        
         [SerializeField] private TileAsset[] tileAssets;
         [SerializeReference] private SimpleTile[] tiles;
+
+        public Tile GetTileAt(int x, int z) {
+            if (x < 0 || x >= size.x || z < 0 || z >= size.z) {
+                return new Tile(TileFlags.Wall, 0);
+            }
+            int linearIndex = z * size.x + x;
+            return tileMap[linearIndex];
+        }
 
         public IEnumerable<TileAsset> TileAssets {
             get { foreach (var ta in tileAssets) yield return ta; }
