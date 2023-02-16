@@ -15,10 +15,11 @@ public class SlitherNavigationTest : MonoBehaviour
     private NavMeshPath linearPath;
 
 
-    private float currentDistance = 0f;
+    public float currentDistance = 0f;
     private float totalDistanceTravelled = 0f;
 
     public float speed = 5f;
+    public float followLerpAccuracy = 0.1f;
     public float rotationSpeed = 5f;
     public Vector3 pathOffset;
 
@@ -35,6 +36,7 @@ public class SlitherNavigationTest : MonoBehaviour
     public float waveFrequency = 1f;
     public float waveAmplitide = 1f;
     public float endFadeBuffer = 2.5f;
+    public float obstacleBuffer = 1f;
 
     [Header("Debbuging")]
     public bool alwaysCalculatePath = false;
@@ -71,6 +73,8 @@ public class SlitherNavigationTest : MonoBehaviour
     
     public float segmentSize = 0.1f;
 
+    public float rotationSinFade = 0.001f;
+
     private SnakePath m_SnakePath = new SnakePath(new Vector3[0], new Vector3[0], 0f);
     public SnakePath snakePath
     {
@@ -89,14 +93,18 @@ public class SlitherNavigationTest : MonoBehaviour
     List<GameObject> snakeBody = new List<GameObject>();
     [SerializeField] Vector3 spawnSeperationOffset;
     [SerializeField] Vector3 offset;
+    [SerializeField] Vector3 rotationOffset;
 
 
-    bool snakeMoving = true;
+    public bool snakeMoving = true;
 
 
 
     [SerializeField] private float pathRecalculationTime = 1f;
     private float pathRecalculationTimer = 0f;
+
+
+    private float snakeLength;
     
 
     public static List<Vector3> PathAsSteps(Vector3[] path, float stepLength)
@@ -147,11 +155,12 @@ public class SlitherNavigationTest : MonoBehaviour
         navMeshAgent = GetComponent<NavMeshAgent>();
         linearPath = new NavMeshPath();
 
-
+        snakeLength = 0f;
         for(int i = 0; i < bodyParts.Count; i++) {
             if (bodyParts[i].scene.name == null)
             {
                 snakeBody.Add(Instantiate(bodyParts[i], transform.position + spawnSeperationOffset * i + offset, transform.rotation));
+                snakeLength+=spawnSeperationOffset.magnitude;
             } else
             {
                 snakeBody.Add(bodyParts[i]);
@@ -162,6 +171,8 @@ public class SlitherNavigationTest : MonoBehaviour
             //bodyParts.RemoveAt(0);
         }
         bodyParts.Clear();
+
+        
     }
    // NavMeshPathStatus navMeshPathStatus;
 
@@ -222,7 +233,7 @@ public class SlitherNavigationTest : MonoBehaviour
             ||
             (Vector3.Distance(snakeBody[0].transform.position, targetDestination.position) < pathRegenerationAccuracy))
 
-            && pathRecalculationTimer > pathRecalculationTime)
+            && pathRecalculationTimer > pathRecalculationTime && (snakePath.distance-currentDistance) > snakeLength)
             {
 
             
@@ -258,20 +269,22 @@ public class SlitherNavigationTest : MonoBehaviour
             Vector3[] currentSnakePositionPoints = new Vector3[0];
 
 
-
+            Vector3 headPoint = Vector3.zero;
             //float sinValueHead = Mathf.Sin(snakePath.distance * waveFrequency) * waveAmplitide * Mathf.Clamp01((currentDistance - snakePath.distance) / (endFadeBuffer));
             if (snakePath.splinePath.Length > 200)
             {
                 Vector3 tailPoint = GetIndexedPointAtDistance(snakePath.splinePath, currentDistance - (snakeBody.Count - 1) * Vector3.Distance(spawnSeperationOffset, Vector3.zero));
-                Vector3 headPoint = GetIndexedPointAtDistance(snakePath.splinePath, currentDistance);
+                headPoint = GetIndexedPointAtDistance(snakePath.splinePath, currentDistance);
                // Debug.Log($"tail:{tailPoint}, head:{headPoint}");
                 int tailIndex = Array.IndexOf(snakePath.splinePath, tailPoint);
                 int headIndex = Array.IndexOf(snakePath.splinePath, headPoint);
                 //int tailIndex = 0;
                 //int headIndex = Array.IndexOf(snakePath.splinePath, headPoint) - Array.IndexOf(snakePath.splinePath, tailPoint);
                // Debug.Log($"tail index:{tailIndex}, head index:{headIndex}");
-                currentSnakePositionPoints = snakePath.splinePath[tailIndex..headIndex];
-
+                if(headIndex+pathBlendDistanceIndex  < snakePath.splinePath.Length)
+                    currentSnakePositionPoints = snakePath.splinePath[tailIndex..(headIndex+pathBlendDistanceIndex)];
+                else
+                    currentSnakePositionPoints = snakePath.splinePath[tailIndex..headIndex];
                 //Debug.Log("SnakePos : " + currentSnakePositionPoints.Length);
                 /*
                 RaycastHit hit;
@@ -288,8 +301,8 @@ public class SlitherNavigationTest : MonoBehaviour
 
 
 
-                points[0] = snakeBody[0].transform.position; 
-                points[1] = snakeBody[0].transform.position + snakeBody[0].transform.forward*pathRegenerationBuffer;
+                points[0] = headPoint;
+                points[1] = headPoint + snakeBody[0].transform.forward*pathRegenerationBuffer;
 
 
                 for (int i = 1; i < linearPath.corners.Length; i++)
@@ -363,35 +376,38 @@ public class SlitherNavigationTest : MonoBehaviour
 
             
             bezierPath = newPath.ToArray();
-            Vector3[] sinPath = AddSinWave(newPath.ToArray(), waveAmplitide, waveFrequency, endFadeBuffer, totalDistanceTravelled - currentDistance);
+            Vector3[] sinePath = AddSineWave(newPath.ToArray(), waveAmplitide, waveFrequency, endFadeBuffer, obstacleBuffer, totalDistanceTravelled - currentDistance, rotationSinFade);
 
             
             //This code is resetting the position
             //----------------------------------------------------------------------------------------------------------------------------------
-            if(currentSnakePositionPoints.Length < sinPath.Length && currentSnakePositionPoints.Length > pathBlendDistanceIndex)
+            if(currentSnakePositionPoints.Length < sinePath.Length && currentSnakePositionPoints.Length > pathBlendDistanceIndex)
             {
-                List<Vector3> updatedSinPath = new List<Vector3>();
+                List<Vector3> updatedSinePath = new List<Vector3>();
                 //updatedSinPath.AddRange(currentSnakePositionPoints);
                 //updatedSinPath.AddRange(sinPath);
                 
 
 
                 
-                updatedSinPath.AddRange(currentSnakePositionPoints[0..(currentSnakePositionPoints.Length - pathBlendDistanceIndex)]);
+                updatedSinePath.AddRange(currentSnakePositionPoints[0..(currentSnakePositionPoints.Length - pathBlendDistanceIndex)]);
                 List<Vector3> blendedRegion = new List<Vector3>();
-                for (int i = 0; i < pathBlendDistanceIndex; i++)
+                int max = pathBlendDistanceIndex;
+                for (int i = 0; i < max; i++)
                 {
                     try
                     {
-                        blendedRegion.Add(((currentSnakePositionPoints[(currentSnakePositionPoints.Length - pathBlendDistanceIndex)..currentSnakePositionPoints.Length][i] / 2f) + (sinPath[i] / 2f)));
+                        blendedRegion.Add(Vector3.Lerp(currentSnakePositionPoints[currentSnakePositionPoints.Length - pathBlendDistanceIndex + i], sinePath[i], (float)i/(float)max));
                     }
                     catch (Exception e) { Debug.LogError(e.Message); }
                 }
-                updatedSinPath.AddRange(blendedRegion);
-                updatedSinPath.AddRange(sinPath[pathBlendDistanceIndex..sinPath.Length]);
+                updatedSinePath.AddRange(blendedRegion);
+                updatedSinePath.AddRange(sinePath[pathBlendDistanceIndex..sinePath.Length]);
 
 
-                sinPath = updatedSinPath.ToArray();
+                sinePath = updatedSinePath.ToArray();
+
+                currentDistance = (snakeBody.Count - 1) * Vector3.Distance(spawnSeperationOffset, Vector3.zero);
             }
 
 
@@ -409,7 +425,7 @@ public class SlitherNavigationTest : MonoBehaviour
             }
             */
 
-            snakePath = new SnakePath(sinPath, bezierPath, GetTotalDistance(sinPath));
+            snakePath = new SnakePath(sinePath, bezierPath, GetTotalDistance(sinePath));
 
 
 
@@ -420,7 +436,7 @@ public class SlitherNavigationTest : MonoBehaviour
             // Vector3[] sinPath = AddSinWave(bezier.GetSpline(0.1f), waveAmplitide, waveFrequency);
             // snakePath = new SnakePath(sinPath, GetTotalDistance(sinPath));
 
-            currentDistance = (snakeBody.Count - 1) * Vector3.Distance(spawnSeperationOffset, Vector3.zero);
+            
             snakeMoving = true;
         }
 
@@ -459,8 +475,10 @@ public class SlitherNavigationTest : MonoBehaviour
             {
                 currentDistance += Time.deltaTime * speed;
                 totalDistanceTravelled += Time.deltaTime * speed;
-                if (currentDistance > snakePath.distance) 
-                    currentDistance = snakePath.distance;
+                if (currentDistance > snakePath.distance-0.1f) 
+                    currentDistance = snakePath.distance-0.1f;
+
+                
 
                 //transform.position = GetPointAtDistance(snakePath.path, currentDistance) + pathOffset;
             }
@@ -468,20 +486,20 @@ public class SlitherNavigationTest : MonoBehaviour
             for(int i = 0; i < snakeBody.Count; i++) {
                 //snakeBody[i].transform.position = GetPointAtDistance(snakePath.splinePath, currentDistance - i*Vector3.Distance(spawnSeperationOffset, Vector3.zero)) + offset;
 
-                Quaternion targetLookDir = Quaternion.LookRotation(GetPointAtDistance(snakePath.splinePath, currentDistance - i*Vector3.Distance(spawnSeperationOffset, Vector3.zero) + 0.1f) - GetPointAtDistance(snakePath.splinePath, currentDistance - i*Vector3.Distance(spawnSeperationOffset, Vector3.zero)));
+                Quaternion targetLookDir = Quaternion.LookRotation(GetPointAtDistance(snakePath.splinePath, currentDistance - i*Vector3.Distance(spawnSeperationOffset, Vector3.zero) + 0.1f) - GetPointAtDistance(snakePath.splinePath, currentDistance - i*Vector3.Distance(spawnSeperationOffset, Vector3.zero)) + rotationOffset);
                 snakeBody[i].transform.rotation = Quaternion.Lerp(snakeBody[i].transform.rotation, targetLookDir, Time.deltaTime * rotationSpeed);
                 snakeBody[i].transform.position = Vector3.Lerp(snakeBody[i].transform.position, GetPointAtDistance(snakePath.splinePath, currentDistance - i * Vector3.Distance(spawnSeperationOffset, Vector3.zero)) + offset , speed * Time.deltaTime);
             }
 
             transform.position = snakeBody[0].transform.position;
         }
-        //snakeBody[0].transform.LookAt(targetDestination);
+        //snakeBody[0].transform.LookAt(targetDestination);addsin
 
         //transform.position = snakeBody[0].transform.position;
         
     }
 
-     public static Vector3[] AddSinWave(Vector3[] points, float waveHeight, float waveFrequency, float endFadeBuffer, float offset = 0f)
+     public static Vector3[] AddSineWave(Vector3[] points, float waveHeight, float waveFrequency, float endFadeBuffer, float obstacle = 0f, float offset = 0f, float rotationSinFade = 0.001f)
     {
         Vector3[] newPoints = new Vector3[points.Length];
 
@@ -494,7 +512,6 @@ public class SlitherNavigationTest : MonoBehaviour
 
         float pathDistance = GetTotalDistance(points);
 
-
         for (int i = 0; i < points.Length - 1; i++)
         {
             currentPoint = points[i];
@@ -503,20 +520,37 @@ public class SlitherNavigationTest : MonoBehaviour
 
             Vector3 direction = (nextPoint - currentPoint).normalized;
             Vector3 perpendicular = Vector3.Cross(direction, Vector3.up).normalized;
+            /*
+            Vector3[] sineChecks = new Vector3[]{};
+            foreach(Vector3 sineCheck in sineChecks) {
+                RaycastHit hit;
+                if (Physics.Raycast(new Ray(sineCheck, direction), out hit, pathRegenerationBuffer))
+                {
+                    Debug.Log("Return");
+                    //pathRecalculationTimer = 0f;
+                    //snakeBody[0].transform.Rotate(new Vector3(0, 5, 0));
+                    //FIX <-------------------------------------------------------------------
+                    if(!hit.collider.gameObject.CompareTag("Snake"))
+                        return;
+                }
+            }
+            */
 
             float segmentDistance = Vector3.Distance(currentPoint, nextPoint);
             totalDistance += segmentDistance;
 
-            float sinValue = Mathf.Sin((totalDistance + offset) * waveFrequency) * waveHeight *  Mathf.Clamp01((pathDistance - totalDistance) / (endFadeBuffer)); //* Mathf.Clamp01(((curveReductionTreshold - MathF.Abs((direction-lastDirection).magnitude) ) / curveReductionTreshold));
-            newPoints[i] = currentPoint + perpendicular * sinValue;
+            //(Mathf.Clamp01(Mathf.Abs((direction-lastDirection).magnitude/rotationSinFade)))
+            float sineValue = Mathf.Sin((totalDistance + offset) * waveFrequency) * waveHeight *  Mathf.Clamp01((pathDistance - totalDistance) / (endFadeBuffer)); //* Mathf.Clamp01(((curveReductionTreshold - MathF.Abs((direction-lastDirection).magnitude) ) / curveReductionTreshold));
+            newPoints[i] = currentPoint + perpendicular * sineValue;
 
             lastDirection = direction;
         }
 
+                   
+
         newPoints[points.Length - 1] = points[points.Length - 1];
         return newPoints;
     }
-
     public static Vector3 GetPointAtDistance(Vector3[] points, float distance)
     {
         float totalDistance = 0f;
