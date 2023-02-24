@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9735f589568b4ca28072e35eb1498b4b, type: 3}
   m_Name: Room
   m_EditorClassIdentifier: 
-  size: {x: 4, y: 1, z: 4}
+  size: {x: 8, y: 3, z: 8}
   tileMap: []
   tileAssets: []
   tiles: []

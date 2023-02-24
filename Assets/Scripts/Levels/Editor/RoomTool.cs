@@ -10,7 +10,7 @@ namespace Levels.Editor {
         private RoomController controller;
         private Room Room => controller.Room;
 
-        public override void OnActivated() {
+        private void OnEnable() {
             controller = (RoomController) target;
         }
 
@@ -50,7 +50,7 @@ namespace Levels.Editor {
         
 
         public void OnDrawHandles() {
-            /*using (new Handles.DrawingScope(Color.white, controller.transform.localToWorldMatrix)) {
+            using (new Handles.DrawingScope(Color.white, controller.transform.localToWorldMatrix)) {
                 if (Room is null) {
                     using (new Handles.DrawingScope(Color.red)) {
                         Vector3 half = new Vector3(0.5f, 0.5f, 0.5f);
@@ -70,7 +70,7 @@ namespace Levels.Editor {
                 for (int z = 1; z < Room.Size.z; z++) {
                     Handles.DrawLine(new Vector3(0, 0, z), new Vector3(Room.Size.x, 0, z), 1);
                 }
-            }*/
+            }
         }
     }
 }
