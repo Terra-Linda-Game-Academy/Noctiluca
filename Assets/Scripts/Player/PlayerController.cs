@@ -39,7 +39,7 @@ namespace Player {
 
 		private void Start() {
 			_perceptron      = GetComponent<Perceptron>();
-			_perceptron.eyes = transform;
+			//_perceptron.eyes = transform;
 
 			inputProvider.RequireInit(_perceptron);
 			inputProvider.Events.Interact += () => Debug.Log("interact club headed by randall baker");
