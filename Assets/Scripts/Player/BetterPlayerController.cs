@@ -17,17 +17,23 @@ public class BetterPlayerController : MonoBehaviour
     float maxGroundAngle = 25f; // Threshold to determine if ground below player is a valid to walk on, See: OnValidate()
     [SerializeField, Range(0, 5)]
     int maxAirJumps = 0;
+    [SerializeField, Range(100, 1000)]
+    public float maxRotationSpeed = 500f, maxAirRotationSpeed;
+    [SerializeField]
+    public float minVelocityThreshold = 0.1f;
+
 
     Rigidbody body;
     Vector3 contactNormal;
     Vector3 velocity, desiredVelocity;
     int groundContactCount;
+    int jumpPhase;
     bool OnGround => groundContactCount > 0;
     bool desiredJump;
     float minGroundDotProduct;
-    int jumpPhase;
     
-    
+
+
     void Awake () {
         //initialize some variables...
         body = GetComponent<Rigidbody>();
@@ -59,11 +65,12 @@ public class BetterPlayerController : MonoBehaviour
         // Check if the player has pressed the jump button
         desiredJump |= UnityEngine.Input.GetButtonDown("Jump");
     }
-
+    
     private void FixedUpdate()
     {
         UpdateState();
         AdjustVelocity();
+        RotatePlayer(desiredVelocity);
         if (desiredJump) {
             desiredJump = false;
             Jump();
@@ -132,6 +139,19 @@ public class BetterPlayerController : MonoBehaviour
          * that movement follows the slope of the ground instead of clipping into it.
          */
     }
+    
+    void RotatePlayer(Vector3 vector) //TODO: Change this method because its so bad
+    {
+        if (vector.magnitude > minVelocityThreshold)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(vector.normalized, Vector3.up);
+            targetRotation.x = 0f;
+            targetRotation.z = 0f;
+            float rotationSpeed = OnGround ? maxRotationSpeed : maxAirRotationSpeed;
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        }
+    }
+
     
     void OnCollisionEnter (Collision collision) {
         EvaluateCollision(collision);
