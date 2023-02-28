@@ -2,12 +2,12 @@ using UnityEngine;
 
 namespace Input.Data {
 	public struct PlayerInput : IInputBlockable {
-		public Vector2 aim;
-		public Vector2 movement;
+		public Vector2 Aim;
+		public Vector2 Movement;
 
 		public void Block() {
-			aim = Vector2.zero;
-			movement = Vector2.zero;
+			Aim = Vector2.zero;
+			Movement = Vector2.zero;
 		}
 	}
 }

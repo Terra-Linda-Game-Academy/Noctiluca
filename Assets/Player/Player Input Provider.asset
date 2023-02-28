@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: Player Input Provider
   m_EditorClassIdentifier: 
   _middlewares:
-  - rid: 3644405180793618432
+  - rid: 5896140367560966165
   references:
     version: 2
     RefIds:
-    - rid: 3644405180793618432
+    - rid: 5896140367560966165
       type: {class: PlayerInputMiddleware, ns: Input.Middleware, asm: Assembly-CSharp}
+      data:
+        perceptron: {fileID: 0}
