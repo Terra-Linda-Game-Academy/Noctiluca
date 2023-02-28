@@ -19,9 +19,11 @@ namespace Util {
             }
         }
 
-        public static Option<T> None() => new Option<T>(){ enabled = false };
-        public static Option<T> Some(T value) => new Option<T>(){ enabled = true, value = value };
+        public static Option<T> None() => new Option<T>() { enabled = false };
+        public static Option<T> Some(T value) => new Option<T>() { enabled = true, value = value };
 
         public void Empty() => enabled = false;
+
+        public T OrElse(T defaultVal) => enabled ? value : defaultVal;
     }
 }
