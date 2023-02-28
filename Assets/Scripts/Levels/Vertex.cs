@@ -6,8 +6,14 @@ namespace Levels {
     readonly struct Vertex {
         public const int Stride = (3 + 3 + 2) * sizeof(float); 
             
-        private readonly Vector3 position;
-        private readonly Vector3 normal;
-        private readonly Vector2 uv;
+        public readonly Vector3 position;
+        public readonly Vector3 normal;
+        public readonly Vector2 uv;
+
+        public Vertex(Vector3 position, Vector3 normal, Vector2 uv) {
+            this.position = position;
+            this.normal = normal;
+            this.uv = uv;
+        }
     }
 }

@@ -48,6 +48,8 @@ namespace Levels {
                 objTransform.position = tile.Position;
                 tile.Init(obj, RoomId);
             }
+            
+            GenerateTerrainMesh();
         }
 
         //private void OnEnable() => StartCoroutine(GenerateTerrainMesh());
@@ -68,9 +70,7 @@ namespace Levels {
         }
         #endif
         
-        
-        
-        private static readonly int tileMapShaderId = Shader.PropertyToID("TileMap");
+        //private static readonly int tileMapShaderId = Shader.PropertyToID("TileMap");
 
         private void GenerateTerrainMesh() {
             /*ComputeShader computeTerrain = Resources.Load<ComputeShader>("GenerateTerrain");
@@ -196,53 +196,8 @@ namespace Levels {
             
             //mesh.Optimize();
             GetComponent<MeshFilter>().mesh = mesh;*/
-            
 
-            List<Vertex> vertices = new List<Vertex>();
-            List<ushort> indices = new List<ushort>();
-
-            //start at -1 because we need to consider the boundaries of the room
-            for (int x = -1; x > room.Size.x; x++) {
-                for (int z = -1; z > room.Size.z; z++) {
-                    //todo: generate each tile here
-                    Room.Tile tile0 = room.GetTileAt(x, z);
-                    Room.Tile tile1 = room.GetTileAt(x + 1, z + 1);
-                    Room.Tile tile2 = room.GetTileAt(x, z);
-                    Room.Tile tile3 = room.GetTileAt(x + 1, z + 1);
-                    
-                    
-                }
-            }
-            /*var mesh = new Mesh();
-            
-            mesh.SetVertexBufferParams(vertexCount,
-                new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3),
-                new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, 3),
-                new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float32, 2)
-            );
-            mesh.SetVertexBufferData(
-                vertexReadback.GetData<Vertex>(), 
-                0, 0, vertexCount//, 0, 
-                //MeshUpdateFlags.DontValidateIndices | MeshUpdateFlags.DontRecalculateBounds
-            );
-            
-            mesh.SetIndexBufferParams(indexCount, IndexFormat.UInt32);
-            mesh.SetIndexBufferData(
-                indexReadback.GetData<uint>(), 
-                0, 0, indexCount//, 
-                //MeshUpdateFlags.DontValidateIndices | MeshUpdateFlags.DontRecalculateBounds
-            );
-            
-            mesh.subMeshCount = 1;
-            mesh.SetSubMesh(0, new SubMeshDescriptor(0, indexCount));
-            
-            mesh.Optimize();
-            GetComponent<MeshFilter>().mesh = mesh;*/
-
+            GetComponent<MeshFilter>().mesh = TerrainMesh.Generate(room);
         }
-        
-        
-        
-        
     }
 }

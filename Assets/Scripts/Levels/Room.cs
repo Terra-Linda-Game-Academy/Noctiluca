@@ -9,7 +9,8 @@ namespace Levels {
         [Serializable, Flags]
         public enum TileFlags : ushort {
             Wall = 0b0000000000000001,
-            Pit  = 0b0000000000000010
+            Pit  = 0b0000000000000010,
+            None = 0b0000000000000100
         }
 
         [Serializable, StructLayout(LayoutKind.Sequential)]
@@ -37,9 +38,14 @@ namespace Levels {
         [SerializeReference] private SimpleTile[] tiles;
 
         public Tile GetTileAt(int x, int z) {
-            if (x < 0 || x >= size.x || z < 0 || z >= size.z) {
+            /*if (x < 0 || x >= size.x || z < 0 || z >= size.z) { //todo: remove this
                 return new Tile(TileFlags.Wall, 0);
+            }*/
+            float height = Mathf.Sin(x) * Mathf.Sin(z) + 2;
+            if (x < 0 || z < 0 || x >= size.x || z >= size.z) { //todo: remove this
+                return new Tile(TileFlags.Wall, Mathf.Clamp(height, 0, size.y));
             }
+            return new Tile(height >= size.y ? TileFlags.Wall : TileFlags.None, Mathf.Clamp(height, 0, size.y));
             int linearIndex = z * size.x + x;
             return tileMap[linearIndex];
         }
