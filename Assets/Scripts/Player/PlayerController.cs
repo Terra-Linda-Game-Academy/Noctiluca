@@ -48,7 +48,24 @@ namespace Player {
 		private void FixedUpdate() {
 			PlayerInput input = inputProvider.GetInput();
 
-			_direction = new Vector3(input.Movement.x, 0, input.Movement.y);
+			var camera = UnityEngine.Camera.main;
+
+			//camera forward and right vectors:
+			var forward = camera.transform.forward;
+			var right = camera.transform.right;
+
+			//project forward and right vectors on the horizontal plane (y = 0)
+			forward.y = 0f;
+			right.y = 0f;
+			forward.Normalize();
+			right.Normalize();
+
+			Vector3 forwardRelative = input.Movement.x * forward;
+			Vector3 rightRelative = input.Movement.y * right;
+
+			Vector3 moveDir = forwardRelative + rightRelative;
+
+			_direction = new Vector3(moveDir.z, 0, moveDir.x);
 
 			transform.position += _direction * (movementSpeed * Time.deltaTime);
 			transform.rotation =  Rotation;

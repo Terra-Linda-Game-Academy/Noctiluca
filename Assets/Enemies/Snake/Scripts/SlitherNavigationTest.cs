@@ -77,6 +77,8 @@ namespace Snake
         [SerializeField] Vector3 offset;
         [SerializeField] Vector3 rotationOffset;
 
+        [SerializeField] NavMeshObstacle[] avoidanceAreas;
+
 
         public bool snakeMoving = true;
 
@@ -117,6 +119,15 @@ namespace Snake
             
         }
 
+        public void ToggleAvoidance(bool toggle)
+        {
+            foreach(NavMeshObstacle obstacle in avoidanceAreas)
+            {
+                Debug.Log("Setting Active: " + toggle);
+                obstacle.gameObject.SetActive(toggle);
+            }
+        }
+
 
 
         public void CalculatePath() {
@@ -136,22 +147,35 @@ namespace Snake
 
             transform.position = snakeBody[0].transform.position;
 
+
+            //spawn cubes to avoid insta 180
+            //ToggleAvoidance(true);
+
+            //navMeshAgent.setAreaCost
+
+
+
             navMeshAgent.CalculatePath(targetDestination.position, linearPath);
             calculatedSplinePath = false;
             snakeMoving = false;
 
             if(debugPathfinding)
                 Debug.Log("Calculating Path...");
+            //Debug.Break();
         }
 
         public void ConvertPath() {
-            calculatedSplinePath = true;
-                if(linearPath.corners.Length < 2)
+            //Debug.Log("Converting Path...");
+
+            if (linearPath.corners.Length < 2)
                     return;
 
+           // ToggleAvoidance(false);
+            calculatedSplinePath = true;
 
 
-                transform.position = snakeBody[0].transform.position;
+
+            transform.position = snakeBody[0].transform.position;
 
                 Vector3[] points = new Vector3[linearPath.corners.Length + 1];
 
