@@ -14,14 +14,12 @@ namespace Player {
 		[SerializeField, Range(0f, 100f)] //How fast the player can change direction, how snappy the control is.
 		float maxAcceleration = 10f, maxAirAcceleration = 1f; //acceleration should be more sluggish in the air.
 
-		[SerializeField, Range(0f, 100f)] float maxSpeed   = 10f;
-		[SerializeField, Range(0f, 10f)]  float jumpHeight = 2f;
+		[SerializeField, Range(0f, 100f)] float maxSpeed = 10f;
 
 		[SerializeField, Range(0f, 90f)] float
 			maxGroundAngle =
 				25f; // Threshold to determine if ground below player is a valid to walk on, See: OnValidate()
 
-		[SerializeField, Range(0, 5)]             int   maxAirJumps          = 0;
 		[SerializeField, Range(100, 1000)] public float maxRotationSpeed     = 500f, maxAirRotationSpeed;
 		[SerializeField]                   public float minVelocityThreshold = 0.1f;
 
@@ -29,10 +27,11 @@ namespace Player {
 		private Vector3   _contactNormal;
 		private Vector3   _velocity, _desiredVelocity;
 		private int       _groundContactCount;
-		private int       _jumpPhase;
 		private bool      OnGround => _groundContactCount > 0;
 		private bool      _desiredJump;
 		private float     _minGroundDotProduct;
+
+		private SwordAttack _attack;
 
 		private void OnEnable() { playerVar.Value = this; }
 
@@ -42,12 +41,12 @@ namespace Player {
 			//initialize some variables...
 			_body = GetComponent<Rigidbody>();
 			OnValidate();
-			
+
+			_attack = GetComponent<SwordAttack>();
+
 			inputProvider.RequireInit(GetComponent<Perceptron>());
-			inputProvider.Events.Interact += () => {
-				                                 Debug.Log("interact");
-				                                 Jump();
-			                                 };
+			inputProvider.Events.Interact += () => { Debug.Log("interact"); };
+			inputProvider.Events.Attack   += _attack.Attack;
 		}
 
 		private void OnValidate() {
@@ -59,26 +58,12 @@ namespace Player {
 		*/
 		}
 
-		/*private void Update() {
-			// Read the player's input from the horizontal and vertical axes
-			Vector2 playerInput = new Vector2(0f, 0f);
-			playerInput.x = UnityEngine.Input.GetAxis("Horizontal");
-			playerInput.y = UnityEngine.Input.GetAxis("Vertical");
-
-			// Limit the magnitude of the player's input vector to 1 to prevent diagonal movement from being faster
-			playerInput = Vector2.ClampMagnitude(playerInput, 1f);
-
-			// Convert the 2D player input into a 3D desired velocity vector
-			_desiredVelocity = new Vector3(playerInput.x, 0f, playerInput.y) * maxSpeed;
-
-			// Check if the player has pressed the jump button
-			_desiredJump |= UnityEngine.Input.GetButtonDown("Jump");
-		}*/
-
 		private void FixedUpdate() {
 			PlayerInput input = inputProvider.GetInput();
 
 			_desiredVelocity = new Vector3(input.Movement.x, 0f, input.Movement.y) * maxSpeed;
+
+			_attack.attackDir = new Vector3(input.Aim.x, 0f, input.Aim.y);
 
 			UpdateState();
 			AdjustVelocity();
@@ -91,7 +76,6 @@ namespace Player {
 		void UpdateState() {
 			_velocity = _body.velocity;
 			if (OnGround) {
-				_jumpPhase = 0;
 				if (_groundContactCount > 1) { _contactNormal.Normalize(); }
 			} else { _contactNormal = Vector3.up; }
 		}
@@ -119,17 +103,6 @@ namespace Player {
 			_velocity += xAxis * (newX - currentX) + zAxis * (newZ - currentZ);
 		}
 
-		void Jump() {
-			if (OnGround || _jumpPhase < maxAirJumps) {
-				_jumpPhase += 1;
-				float jumpSpeed    = Mathf.Sqrt(-2f * Physics.gravity.y * jumpHeight);
-				float alignedSpeed = Vector3.Dot(_velocity, _contactNormal);
-				if (alignedSpeed > 0f) { jumpSpeed = Mathf.Max(jumpSpeed - alignedSpeed, 0f); }
-
-				_velocity += _contactNormal * jumpSpeed;
-			}
-		}
-
 		void ClearState() {
 			_groundContactCount = 0;
 			_contactNormal      = Vector3.zero;
@@ -142,8 +115,9 @@ namespace Player {
 		 */
 		}
 
-		void RotatePlayer(Vector3 vector) //TODO: Change this method because its so bad
-		{
+		//TODO: Change this method because its so bad
+		// it is pretty funny tho - jackson r
+		void RotatePlayer(Vector3 vector) {
 			if (vector.magnitude > minVelocityThreshold) {
 				Quaternion targetRotation = Quaternion.LookRotation(vector.normalized, Vector3.up);
 				targetRotation.x = 0f;

@@ -12,6 +12,7 @@ namespace Input.Middleware {
 
 		public override void Init() {
 			App.InputManager.OnInteract += Dispatcher.Interact;
+			App.InputManager.OnAttack   += Dispatcher.Attack;
 		}
 
 		public override InputMiddleware<PlayerInput, PlayerInputEvents.Dispatcher> Clone() {
