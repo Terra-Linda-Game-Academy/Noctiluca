@@ -11,7 +11,8 @@ namespace Levels.Editor {
         private Room Room => controller.Room;
 
         public override void OnActivated() {
-            controller = (RoomController) target;
+            controller                                       = (RoomController) target;
+            controller.GetComponent<MeshFilter>().sharedMesh = TerrainMesh.Generate(controller.Room);
         }
 
         public override void OnToolGUI(EditorWindow window) {
@@ -44,7 +45,9 @@ namespace Levels.Editor {
             }
 
             size.vector3IntValue = sizeVal;
-            so.ApplyModifiedProperties();
+            if (so.ApplyModifiedProperties()) {
+                controller.GetComponent<MeshFilter>().sharedMesh = TerrainMesh.Generate(controller.Room);
+            }
             //todo: setup Editor3D and Property3D stuff, and call draw methods for each*/
         }
         
