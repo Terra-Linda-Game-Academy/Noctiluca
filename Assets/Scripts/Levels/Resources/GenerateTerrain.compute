@@ -1,0 +1,109 @@
+//#pragma kernel GenerateData;
+#pragma kernel GenerateMesh;
+
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
+
+CBUFFER_START(TerrainParams)
+    float heightSnap;
+    float maxSlope;
+CBUFFER_END
+
+#define TILE_FLAG_STRIDE 2
+#define WALL 1
+#define PIT 2
+
+struct TileData {
+    uint height16_flags16;
+
+    float Height() {
+        return f16tof32(height16_flags16);
+    }
+
+    uint Flags() {
+        return height16_flags16 >> 16u & 0xffff;
+    }
+};
+
+struct GeneratedTile {
+    uint position_encoded;
+    uint2 heights_encoded;
+    uint flags;
+
+    uint3 Position() {
+        return uint3(
+            position_encoded & 0xF,
+            position_encoded >> 8 & 0xF,
+            position_encoded >> 16 & 0xF
+        );
+    }
+
+    float4 Heights() {
+        return float4(
+            f16tof32(heights_encoded.x),
+            f16tof32(heights_encoded.x >> 16u),
+            f16tof32(heights_encoded.y),
+            f16tof32(heights_encoded.y >> 16u)
+        );
+    }
+
+    uint GetCornerFlags(const uint index) {
+        return (flags >> (index * TILE_FLAG_STRIDE)) & TILE_FLAG_STRIDE;
+    }
+
+    uint VertexCount() {
+        
+    }
+
+    uint TriCount() {
+        
+    }
+};
+
+uint3 RoomDimensions;
+ByteAddressBuffer Tiles;
+
+RWByteAddressBuffer GeneratedVertices;
+RWByteAddressBuffer GeneratedIndices;
+
+/*[numthreads(8, 1, 8)]
+void GenerateData(uint3 pos : SV_DispatchThreadID) {
+    if (any(pos > RoomDimensions)) return;
+    
+}
+
+[numthreads(64, 1, 1)]
+void GenerateMesh(uint index: SV_DispatchThreadID) {
+    
+}*/
+
+void WriteVertex(uint index, float3 pos, float3 normal, float2 uv) {
+    uint vertexStart = 8 * index;
+    uint normalStart = vertexStart + 3;
+    uint uvStart = normalStart + 3;
+
+    GeneratedVertices.Store3(vertexStart, asuint(pos));
+    GeneratedVertices.Store3(normalStart, asuint(normal));
+    GeneratedVertices.Store2(uvStart, asuint(uv));
+}
+
+[numthreads(8, 8, 1)]
+void GenerateMesh(uint2 pos: SV_DispatchThreadID) {
+    if (any(pos >= RoomDimensions.xz)) return;
+    
+    uint linearTileIndex = pos.y * RoomDimensions.x + pos.x;
+
+    uint vertIndexStart = linearTileIndex * 4;
+    uint indIndexStart = linearTileIndex * 6;
+
+    WriteVertex(vertIndexStart + 0, float3(pos.x + 0, 0, pos.y + 0), float3(0, 1, 0), float2(0, 0));
+    WriteVertex(vertIndexStart + 1, float3(pos.x + 1, 0, pos.y + 0), float3(0, 1, 0), float2(1, 0));
+    WriteVertex(vertIndexStart + 2, float3(pos.x + 0, 0, pos.y + 1), float3(0, 1, 0), float2(0, 1));
+    WriteVertex(vertIndexStart + 3, float3(pos.x + 1, 0, pos.y + 1), float3(0, 1, 0), float2(1, 1));
+
+    GeneratedIndices.Store(indIndexStart + 0, vertIndexStart + 0);
+    GeneratedIndices.Store(indIndexStart + 1, vertIndexStart + 1);
+    GeneratedIndices.Store(indIndexStart + 2, vertIndexStart + 2);
+    GeneratedIndices.Store(indIndexStart + 3, vertIndexStart + 0);
+    GeneratedIndices.Store(indIndexStart + 4, vertIndexStart + 3);
+    GeneratedIndices.Store(indIndexStart + 5, vertIndexStart + 2);
+}
