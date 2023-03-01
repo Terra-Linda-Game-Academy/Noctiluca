@@ -53,6 +53,13 @@ namespace Levels.Editor {
 
 			_settings = Settings.Height;
 		}
+		
+		private void SetMeshes() {
+			Mesh mesh = TerrainMesh.Generate(_controller.Room);
+
+			_controller.GetComponent<MeshFilter>().sharedMesh   = mesh;
+			_controller.GetComponent<MeshCollider>().sharedMesh = mesh;
+		}
 
 		public override void OnToolGUI(EditorWindow window) {
 			if (Room is null) return;
@@ -92,8 +99,7 @@ namespace Levels.Editor {
 
 				switch (_settings) {
 					case Settings.Height:
-						_currentHeight = 0; //todo: replace w/ getting actual tile height (doesn't work cuz no room tile rn)
-						//_currentHeight = Room.GetTileAt((int) _center.Value.x, (int) _center.Value.y).Height;
+						_currentHeight = Room.GetTileAt((int) _center.Value.x, (int) _center.Value.y).Height;
 						break;
 					case Settings.Wall:
 						if (_leftClick) PaintWalls();
@@ -102,8 +108,6 @@ namespace Levels.Editor {
 						if (_leftClick) PaintHoles();
 						break;
 				}
-				
-				
 			} else {
 				_center.Empty();
 				_highlightedTiles.Clear();
@@ -149,15 +153,15 @@ namespace Levels.Editor {
 
 		private void PaintWalls() {
 			foreach (Vector2Int tile in _highlightedTiles) {
-				Debug.Log("painting walls"); //todo: actually set walls, but tiles don't exist yet (& also aren't writable??)
-				//Room.GetTileAt(tile.x, tile.y) = new Room.Tile(Room.TileFlags.Wall, 0);
+				Room.SetTileAt(new Room.Tile(Room.TileFlags.Wall, 0f), tile.x, tile.y);
+				SetMeshes();
 			}
 		}
 
 		private void PaintHoles() {
 			foreach (Vector2Int tile in _highlightedTiles) {
-				Debug.Log("painting holes"); //todo: actually set holes, but tiles don't exist yet (& also aren't writable??)
-				//Room.GetTileAt(tile.x, tile.y) = new Room.Tile(Room.TileFlags.Pit, 0);
+				Room.SetTileAt(new Room.Tile(Room.TileFlags.Pit, 0f), tile.x, tile.y);
+				SetMeshes();
 			}
 		}
 
@@ -171,7 +175,7 @@ namespace Levels.Editor {
 					CalculateHighlightedTiles();
 					break;
 				case EventType.MouseDown:
-					if (e.button  == 0) _leftClick = true;
+					if (e.button == 0) _leftClick = true;
 					break;
 				case EventType.MouseUp:
 					if (e.button == 0) _leftClick = false;
@@ -183,23 +187,25 @@ namespace Levels.Editor {
 			using (new Handles.DrawingScope(_controller.transform.localToWorldMatrix)) {
 				Handles.color = GetTileColor();
 				foreach (Vector2Int tile in _highlightedTiles) {
-					Vector3 centerPos = new Vector3(tile.x + 0.5f, _controller.transform.position.y, tile.y + 0.5f);
+					Vector3 centerPos = new Vector3(tile.x + 0.5f,
+					                                _controller.transform.position.y
+					                              + Room.GetTileAt(tile.x, tile.y).Height, tile.y + 0.5f);
 					Handles.DrawSolidDisc(centerPos, _controller.transform.up, 0.4f);
 				}
 
 				if (_center.Enabled) {
 					Handles.color = GetRingColor();
-					Vector3 centerPos = new Vector3(_center.Value.x, _controller.transform.position.y, _center.Value.y);
+					Vector3 centerPos = new Vector3(_center.Value.x, _controller.transform.position.y + _currentHeight,
+					                                _center.Value.y);
 					Handles.DrawWireDisc(centerPos, _controller.transform.up, _highlightRadius);
 
 					if (e.shift && _settings == Settings.Height) {
 						Handles.color = Handles.xAxisColor;
-						Vector3 handlePos = centerPos + Vector3.up * _currentHeight;
 						_currentHeight = Handles.ScaleSlider(
-							                 _currentHeight + 1, handlePos,
+							                 _currentHeight + 1, centerPos,
 							                 _controller.transform.up,
 							                 Quaternion.identity,
-							                 HandleUtility.GetHandleSize(handlePos), 0
+							                 HandleUtility.GetHandleSize(centerPos), 0
 						                 )
 						               - 1;
 					}

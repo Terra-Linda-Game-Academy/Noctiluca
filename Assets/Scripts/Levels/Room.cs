@@ -29,7 +29,15 @@ namespace Levels {
         }
 
         [SerializeField] private Vector3Int size;
-        public Vector3Int Size => size;
+
+        public Vector3Int Size {
+            get => size;
+            set {
+                Vector3Int oldSize = size;
+                
+                size = value;
+            }
+        }
 
         /// <Summary> lower half </Summary>
         [SerializeField] public Tile[] tileMap;
@@ -38,16 +46,30 @@ namespace Levels {
         [SerializeReference] private SimpleTile[] tiles;
 
         public Tile GetTileAt(int x, int z) {
-            /*if (x < 0 || x >= size.x || z < 0 || z >= size.z) { //todo: remove this
+            if (tileMap.Length <= 0) UpdateTiles();
+
+            if (x < 0 || x >= size.x || z < 0 || z >= size.z) { //todo: remove this
                 return new Tile(TileFlags.Wall, 0);
-            }*/
-            float height = Mathf.Sin(x) * Mathf.Sin(z) + 2;
+            }
+            /*float height = Mathf.Sin(x) * Mathf.Sin(z) + 2;
             if (x < 0 || z < 0 || x >= size.x || z >= size.z) { //todo: remove this
                 return new Tile(TileFlags.Wall, Mathf.Clamp(height, 0, size.y));
             }
-            return new Tile(height >= size.y ? TileFlags.Wall : TileFlags.None, Mathf.Clamp(height, 0, size.y));
+            return new Tile(height >= size.y ? TileFlags.Wall : TileFlags.None, Mathf.Clamp(height, 0, size.y));*/
             int linearIndex = z * size.x + x;
             return tileMap[linearIndex];
+        }
+
+        public bool SetTileAt(Tile tile, int x, int z) {
+            if (tileMap.Length <= 0) UpdateTiles();
+            
+            if (x < 0 || x >= size.x || z < 0 || z >= size.z) {
+                return false;
+            }
+            
+            int linearIndex = z * size.x + x;
+            tileMap[linearIndex] = tile;
+            return true;
         }
 
         public IEnumerable<TileAsset> TileAssets {
@@ -63,6 +85,23 @@ namespace Levels {
                 foreach (var ta in tileAssets) yield return ta; 
                 foreach (var t in tiles) yield return t;
             }
+        }
+
+        public void UpdateTiles() {
+            /*if (tileMap.Length <= 0)*/ {
+                //reset whole tile array
+                tileMap = new Tile[size.x * size.z];
+
+                for (int i = 0; i < size.x; i++) {
+                    for (int j = 0; j < size.z; j++) { SetTileAt(new Tile(TileFlags.None, 0f), i, j); }
+                }
+            }
+
+            
+        }
+
+        private void UpdateSize(Vector3Int oldSize) {
+            
         }
     }
 }
