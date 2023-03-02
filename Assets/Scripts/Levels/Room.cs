@@ -48,14 +48,18 @@ namespace Levels {
         public Tile GetTileAt(int x, int z) {
             if (tileMap.Length <= 0) UpdateTiles();
 
-            if (x < 0 || x >= size.x || z < 0 || z >= size.z) { //todo: remove this
+            /*if (x < 0 || x >= size.x || z < 0 || z >= size.z) { //todo: remove this
                 return new Tile(TileFlags.Wall, 0);
-            }
-            /*float height = Mathf.Sin(x) * Mathf.Sin(z) + 2;
+            }*/
+
+            float height = 0;
+            if (z > 6) height = 1;
+            if (x > 10) height = 2;
+            height += 0.2f * Mathf.Sin(x) * Mathf.Sin(z);
             if (x < 0 || z < 0 || x >= size.x || z >= size.z) { //todo: remove this
                 return new Tile(TileFlags.Wall, Mathf.Clamp(height, 0, size.y));
             }
-            return new Tile(height >= size.y ? TileFlags.Wall : TileFlags.None, Mathf.Clamp(height, 0, size.y));*/
+            return new Tile(height >= size.y ? TileFlags.Wall : TileFlags.None, Mathf.Clamp(height, 0, size.y));
             int linearIndex = z * size.x + x;
             return tileMap[linearIndex];
         }
