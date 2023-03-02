@@ -12,7 +12,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd2a4454ad44f0c4f8d05267e7ca6d6f, type: 3}
   m_Name: Salamander Input Provider
   m_EditorClassIdentifier: 
-  _middlewares: []
+  _middlewares:
+  - rid: 7892472653307707393
+  - rid: 7892472738440544256
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 7892472653307707393
+      type: {class: PerceptionMiddleware, ns: Input.Middleware.Enemy.Salamander, asm: Assembly-CSharp}
+      data:
+        perceptron: {fileID: 0}
+        MaxViewDistance: 30
+        MaxViewAngle: 240
+        Player:
+          useConstant: 0
+          variable: {fileID: 11400000, guid: 771557aef5fdc44c9988a4d5e27e3180, type: 2}
+          constant: {fileID: 0}
+    - rid: 7892472738440544256
+      type: {class: MovementMiddleware, ns: Input.Middleware.Enemy.Salamander, asm: Assembly-CSharp}
+      data:
+        perceptron: {fileID: 0}
+        MinDistance: 1
+        MinWander: 1.5
+        MaxWander: 10

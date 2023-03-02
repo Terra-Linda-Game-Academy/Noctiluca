@@ -1,7 +1,9 @@
 using System;
 
-namespace Main {
-    public class AppInitException : Exception {
+namespace Main
+{
+    public class AppInitException : Exception
+    {
         private readonly string msg;
         public override string Message => $"App failed to initialize: {msg}";
 

@@ -1,20 +1,22 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Util.Editor {
+namespace Util.Editor
+{
     //copied entirely from Unite2017's talk "Game Architecture with ScriptableObjects"
     // -- will rewrite with VisualElements soon
     [CustomPropertyDrawer(typeof(ScriptableVar<>))]
-    public class ScriptableVarDrawer : PropertyDrawer {
+    public class ScriptableVarDrawer : PropertyDrawer
+    {
         /*public override VisualElement CreatePropertyGUI(SerializedProperty property) {
             Debug.Log("amongus");
             return new PropertyField(property.FindPropertyRelative("useConstant"));
         }*/
-        
+
         /// <summary>
         /// Options to display in the popup to select constant or variable.
         /// </summary>
-        private readonly string[] popupOptions = 
+        private readonly string[] popupOptions =
             { "Use Constant", "Use Variable" };
 
         /// <summary> Cached style to use to draw the popup button. </summary>
@@ -30,7 +32,7 @@ namespace Util.Editor {
 
             label = EditorGUI.BeginProperty(position, label, property);
             position = EditorGUI.PrefixLabel(position, label);
-            
+
             EditorGUI.BeginChangeCheck();
 
             // Get properties
@@ -52,8 +54,8 @@ namespace Util.Editor {
 
             useConstant.boolValue = result == 0;
 
-            EditorGUI.PropertyField(position, 
-                useConstant.boolValue ? constantValue : variable, 
+            EditorGUI.PropertyField(position,
+                useConstant.boolValue ? constantValue : variable,
                 GUIContent.none);
 
             if (EditorGUI.EndChangeCheck())

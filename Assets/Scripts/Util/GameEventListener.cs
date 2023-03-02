@@ -1,8 +1,10 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Util {
-    public class GameEventListener : MonoBehaviour {
+namespace Util
+{
+    public class GameEventListener : MonoBehaviour
+    {
         [SerializeField] private GameEvent gameEvent;
         [SerializeField] private UnityEvent response;
 

@@ -1,7 +1,9 @@
 using UnityEngine;
 
-namespace Main {
-    public class SaveManager : MonoBehaviour {
-        
+namespace Main
+{
+    public class SaveManager : MonoBehaviour
+    {
+
     }
 }

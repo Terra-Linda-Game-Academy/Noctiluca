@@ -1,5 +1,7 @@
-namespace GameModes {
-    public class MainMenuMode {
-        
+namespace GameModes
+{
+    public class MainMenuMode
+    {
+
     }
 }

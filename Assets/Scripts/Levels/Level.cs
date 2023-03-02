@@ -1,8 +1,9 @@
-using UnityEditor;
 using UnityEngine;
 
-namespace Levels {
+namespace Levels
+{
     [CreateAssetMenu(fileName = "Level", menuName = "Levels/Level", order = 1)]
-    public class Level : ScriptableObject {
+    public class Level : ScriptableObject
+    {
     }
 }

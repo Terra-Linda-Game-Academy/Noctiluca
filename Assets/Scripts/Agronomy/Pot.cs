@@ -1,11 +1,12 @@
 using UnityEngine;
 
-namespace Agronomy {
+namespace Agronomy
+{
     public class Pot : MonoBehaviour
     {
         public Plant plant;
         public float stagesGrown;
-        public bool  harvestable;
+        public bool harvestable;
 
         void Start()
         {

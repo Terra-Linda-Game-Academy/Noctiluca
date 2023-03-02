@@ -1,5 +1,7 @@
-namespace GameModes {
-    public class OverworldMode {
-        
+namespace GameModes
+{
+    public class OverworldMode
+    {
+
     }
 }

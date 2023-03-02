@@ -1,5 +1,7 @@
-namespace Input.Data {
-    public interface IInputBlockable {
+namespace Input.Data
+{
+    public interface IInputBlockable
+    {
         public void Block();
     }
 }

@@ -1,10 +1,12 @@
-using System;
 using Input;
 using Input.Data;
+using System;
 using UnityEngine;
 
-namespace Main {
-    public class InputManager : MonoBehaviour {
+namespace Main
+{
+    public class InputManager : MonoBehaviour
+    {
         private InputActions _inputActions;
 
         private PlayerInput playerInput;
@@ -13,7 +15,8 @@ namespace Main {
 
         public Action OnInteract;
 
-        private void Awake() {
+        private void Awake()
+        {
             _inputActions = new InputActions();
             _inputActions.Enable();
 

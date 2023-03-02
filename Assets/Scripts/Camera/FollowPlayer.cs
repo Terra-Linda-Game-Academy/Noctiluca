@@ -1,6 +1,7 @@
 using UnityEngine;
 
-namespace Camera {
+namespace Camera
+{
     public class FollowPlayer : MonoBehaviour
     {
 

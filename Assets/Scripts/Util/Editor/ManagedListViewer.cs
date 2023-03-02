@@ -6,206 +6,231 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using PopupWindow = UnityEditor.PopupWindow;
 
-namespace Util.Editor {
-	public class ManagedListViewer<T> : VisualElement where T : new() {
-		private SerializedProperty _serializedList;
+namespace Util.Editor
+{
+    public class ManagedListViewer<T> : VisualElement where T : new()
+    {
+        private SerializedProperty _serializedList;
 
-		private VisualElement _body;
-		private VisualElement _listSizeContainer;
+        private VisualElement _body;
+        private VisualElement _listSizeContainer;
 
-		private readonly Options _options;
+        private readonly Options _options;
 
-		[Flags]
-		public enum Options {
-			None         = 0,
-			ListSize     = 1,
-			AddButton    = 2,
-			RemoveButton = 4,
-			MoveButtons  = 8,
-			NoSize       = AddButton | RemoveButton | MoveButtons,
-			Default      = ListSize  | AddButton    | RemoveButton | MoveButtons
-		}
+        [Flags]
+        public enum Options
+        {
+            None = 0,
+            ListSize = 1,
+            AddButton = 2,
+            RemoveButton = 4,
+            MoveButtons = 8,
+            NoSize = AddButton | RemoveButton | MoveButtons,
+            Default = ListSize | AddButton | RemoveButton | MoveButtons
+        }
 
-		private void Init(SerializedProperty list, Action addButtonEvt) {
-			_serializedList = list;
+        private void Init(SerializedProperty list, Action addButtonEvt)
+        {
+            _serializedList = list;
 
-			VisualTreeAsset tree =
-				AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Scripts/Util/Editor/ManagedListViewer.uxml");
-			tree.CloneTree(this);
+            VisualTreeAsset tree =
+                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Scripts/Util/Editor/ManagedListViewer.uxml");
+            tree.CloneTree(this);
 
-			this.Q<Foldout>("header").text = ObjectNames.NicifyVariableName(_serializedList.name);
+            this.Q<Foldout>("header").text = ObjectNames.NicifyVariableName(_serializedList.name);
 
-			_body          = this.Q<VisualElement>("body");
-			_listSizeContainer = new VisualElement {style = {flexGrow = 1}};
-			ElementAt(0).Q<VisualElement>(className: "unity-base-field__input").Add(_listSizeContainer);
+            _body = this.Q<VisualElement>("body");
+            _listSizeContainer = new VisualElement { style = { flexGrow = 1 } };
+            ElementAt(0).Q<VisualElement>(className: "unity-base-field__input").Add(_listSizeContainer);
 
-			if ((_options & Options.AddButton) != 0) {
-				VisualElement addButtonContainer = this.Q<VisualElement>("add-button-container");
+            if ((_options & Options.AddButton) != 0)
+            {
+                VisualElement addButtonContainer = this.Q<VisualElement>("add-button-container");
 
-				Button addButton = new Button(addButtonEvt) {text = "Add"};
+                Button addButton = new Button(addButtonEvt) { text = "Add" };
 
-				addButtonContainer.Add(addButton);
-			}
+                addButtonContainer.Add(addButton);
+            }
 
-			Regenerate();
-		}
+            Regenerate();
+        }
 
-		public ManagedListViewer(SerializedProperty list, Options options = Options.Default) {
-			_options = options;
-			Init(list, () => { AddItem(new T()); });
-		}
+        public ManagedListViewer(SerializedProperty list, Options options = Options.Default)
+        {
+            _options = options;
+            Init(list, () => { AddItem(new T()); });
+        }
 
-		public ManagedListViewer(SerializedProperty list, Type[] creationTypes, Options options = Options.Default) {
-			_options = options;
-			Init(list, () => {
-				           AddItemPopup addItemPopup =
-					           new AddItemPopup(creationTypes.Select(t => t.Name).ToArray());
-				           addItemPopup.OnSelect += i => { AddItem(Activator.CreateInstance(creationTypes[i])); };
-				           PopupWindow.Show(worldBound, addItemPopup);
-			           });
-		}
+        public ManagedListViewer(SerializedProperty list, Type[] creationTypes, Options options = Options.Default)
+        {
+            _options = options;
+            Init(list, () =>
+            {
+                AddItemPopup addItemPopup =
+                    new AddItemPopup(creationTypes.Select(t => t.Name).ToArray());
+                addItemPopup.OnSelect += i => { AddItem(Activator.CreateInstance(creationTypes[i])); };
+                PopupWindow.Show(worldBound, addItemPopup);
+            });
+        }
 
-		private void Regenerate() {
-			_body.Clear();
+        private void Regenerate()
+        {
+            _body.Clear();
 
-			if ((_options & Options.ListSize) != 0) {
-				_listSizeContainer.Clear();
-				
-				_listSizeContainer.Add(new TextField {value = $"{_serializedList.arraySize}", isReadOnly = true, style = { paddingLeft = 10}});
-			}
+            if ((_options & Options.ListSize) != 0)
+            {
+                _listSizeContainer.Clear();
 
-			for (int i = 0; i < _serializedList.arraySize; i++) {
-				SerializedProperty listItem = _serializedList.GetArrayElementAtIndex(i);
+                _listSizeContainer.Add(new TextField { value = $"{_serializedList.arraySize}", isReadOnly = true, style = { paddingLeft = 10 } });
+            }
 
-				int localI = i;
+            for (int i = 0; i < _serializedList.arraySize; i++)
+            {
+                SerializedProperty listItem = _serializedList.GetArrayElementAtIndex(i);
 
-				Action[] actions = {
-					                   () => { ShiftUp(localI); },
-					                   () => { ShiftDown(localI); },
-					                   () => { RemoveItem(localI); }
-				                   };
+                int localI = i;
 
-				string fullTypeName =
-					ObjectNames.NicifyVariableName(
-						listItem.managedReferenceFullTypename.Split('.').Last());
+                Action[] actions = {
+                                       () => { ShiftUp(localI); },
+                                       () => { ShiftDown(localI); },
+                                       () => { RemoveItem(localI); }
+                                   };
 
-				HeadedFoldout foldout = new HeadedFoldout(fullTypeName,
-				                                          actions,
-				                                          (_options & Options.RemoveButton) != 0,
-				                                          (_options & Options.MoveButtons)  != 0);
+                string fullTypeName =
+                    ObjectNames.NicifyVariableName(
+                        listItem.managedReferenceFullTypename.Split('.').Last());
 
-				PropertyField propertyField = new PropertyField(listItem, "Data");
+                HeadedFoldout foldout = new HeadedFoldout(fullTypeName,
+                                                          actions,
+                                                          (_options & Options.RemoveButton) != 0,
+                                                          (_options & Options.MoveButtons) != 0);
 
-				foldout.Add(propertyField);
+                PropertyField propertyField = new PropertyField(listItem, "Data");
 
-				_body.Add(foldout);
-			}
+                foldout.Add(propertyField);
 
-			_body.Bind(_serializedList.serializedObject);
-		}
+                _body.Add(foldout);
+            }
 
-		private void AddItem(object newItem) {
-			_serializedList.arraySize++;
-			_serializedList.GetArrayElementAtIndex(_serializedList.arraySize - 1).managedReferenceValue = newItem;
-			_serializedList.serializedObject.ApplyModifiedProperties();
+            _body.Bind(_serializedList.serializedObject);
+        }
 
-			Regenerate();
-		}
+        private void AddItem(object newItem)
+        {
+            _serializedList.arraySize++;
+            _serializedList.GetArrayElementAtIndex(_serializedList.arraySize - 1).managedReferenceValue = newItem;
+            _serializedList.serializedObject.ApplyModifiedProperties();
 
-		private void RemoveItem(int index) {
-			_serializedList.GetArrayElementAtIndex(index).managedReferenceValue = null;
+            Regenerate();
+        }
 
-			for (int i = index + 1; i < _serializedList.arraySize; i++) {
-				_serializedList.GetArrayElementAtIndex(i - 1).managedReferenceValue =
-					_serializedList.GetArrayElementAtIndex(i).managedReferenceValue;
-			}
+        private void RemoveItem(int index)
+        {
+            _serializedList.GetArrayElementAtIndex(index).managedReferenceValue = null;
 
-			_serializedList.arraySize--;
+            for (int i = index + 1; i < _serializedList.arraySize; i++)
+            {
+                _serializedList.GetArrayElementAtIndex(i - 1).managedReferenceValue =
+                    _serializedList.GetArrayElementAtIndex(i).managedReferenceValue;
+            }
 
-			_serializedList.serializedObject.ApplyModifiedProperties();
+            _serializedList.arraySize--;
 
-			Regenerate();
-		}
+            _serializedList.serializedObject.ApplyModifiedProperties();
 
-		private void ShiftUp(int index) {
-			if (index <= 0) return;
+            Regenerate();
+        }
 
-			object storage = _serializedList.GetArrayElementAtIndex(index - 1).managedReferenceValue;
-			_serializedList.GetArrayElementAtIndex(index - 1).managedReferenceValue =
-				_serializedList.GetArrayElementAtIndex(index).managedReferenceValue;
-			_serializedList.GetArrayElementAtIndex(index).managedReferenceValue = storage;
+        private void ShiftUp(int index)
+        {
+            if (index <= 0) return;
 
-			_serializedList.serializedObject.ApplyModifiedProperties();
+            object storage = _serializedList.GetArrayElementAtIndex(index - 1).managedReferenceValue;
+            _serializedList.GetArrayElementAtIndex(index - 1).managedReferenceValue =
+                _serializedList.GetArrayElementAtIndex(index).managedReferenceValue;
+            _serializedList.GetArrayElementAtIndex(index).managedReferenceValue = storage;
 
-			Regenerate();
-		}
+            _serializedList.serializedObject.ApplyModifiedProperties();
 
-		private void ShiftDown(int index) {
-			if (index >= _serializedList.arraySize - 1) return;
+            Regenerate();
+        }
 
-			object storage = _serializedList.GetArrayElementAtIndex(index + 1).managedReferenceValue;
-			_serializedList.GetArrayElementAtIndex(index + 1).managedReferenceValue =
-				_serializedList.GetArrayElementAtIndex(index).managedReferenceValue;
-			_serializedList.GetArrayElementAtIndex(index).managedReferenceValue = storage;
+        private void ShiftDown(int index)
+        {
+            if (index >= _serializedList.arraySize - 1) return;
 
-			_serializedList.serializedObject.ApplyModifiedProperties();
+            object storage = _serializedList.GetArrayElementAtIndex(index + 1).managedReferenceValue;
+            _serializedList.GetArrayElementAtIndex(index + 1).managedReferenceValue =
+                _serializedList.GetArrayElementAtIndex(index).managedReferenceValue;
+            _serializedList.GetArrayElementAtIndex(index).managedReferenceValue = storage;
 
-			Regenerate();
-		}
+            _serializedList.serializedObject.ApplyModifiedProperties();
 
-		class HeadedFoldout : Foldout {
-			public HeadedFoldout(string labelText, Action[] actions, bool useRemove, bool useMove) {
-				VisualElement header = new VisualElement {style = {flexDirection = FlexDirection.Row, flexGrow = 1}};
+            Regenerate();
+        }
 
-				Label label = new Label(labelText);
+        class HeadedFoldout : Foldout
+        {
+            public HeadedFoldout(string labelText, Action[] actions, bool useRemove, bool useMove)
+            {
+                VisualElement header = new VisualElement { style = { flexDirection = FlexDirection.Row, flexGrow = 1 } };
 
-				VisualElement buttonContainer =
-					new VisualElement {style = {flexDirection = FlexDirection.Row, flexGrow = 1}};
+                Label label = new Label(labelText);
 
-				if (useMove) {
-					Button upButton   = new Button(actions[0]) {text = " ↑"};
-					Button downButton = new Button(actions[1]) {text = " ↓"};
+                VisualElement buttonContainer =
+                    new VisualElement { style = { flexDirection = FlexDirection.Row, flexGrow = 1 } };
 
-					buttonContainer.Add(upButton);
-					buttonContainer.Add(downButton);
-				}
+                if (useMove)
+                {
+                    Button upButton = new Button(actions[0]) { text = " ↑" };
+                    Button downButton = new Button(actions[1]) { text = " ↓" };
 
-				VisualElement buttonSpacer = new VisualElement {style = {flexGrow = 1}};
-				buttonContainer.Add(buttonSpacer);
+                    buttonContainer.Add(upButton);
+                    buttonContainer.Add(downButton);
+                }
 
-				if (useRemove) {
-					Button removeButton = new Button(actions[2]) {text = "  X"};
-					buttonContainer.Add(removeButton);
-				}
+                VisualElement buttonSpacer = new VisualElement { style = { flexGrow = 1 } };
+                buttonContainer.Add(buttonSpacer);
 
-				header.Add(label);
-				header.Add(buttonContainer);
+                if (useRemove)
+                {
+                    Button removeButton = new Button(actions[2]) { text = "  X" };
+                    buttonContainer.Add(removeButton);
+                }
 
-				VisualElement target = this.Query<VisualElement>(className: "unity-base-field__input").First();
-				target.Add(header);
-			}
-		}
+                header.Add(label);
+                header.Add(buttonContainer);
 
-		class AddItemPopup : PopupWindowContent {
-			public Action<int> OnSelect;
+                VisualElement target = this.Query<VisualElement>(className: "unity-base-field__input").First();
+                target.Add(header);
+            }
+        }
 
-			private readonly string[] _options;
+        class AddItemPopup : PopupWindowContent
+        {
+            public Action<int> OnSelect;
 
-			public AddItemPopup(string[] options) { _options = options; }
+            private readonly string[] _options;
 
-			public override void OnGUI(Rect rect) { }
+            public AddItemPopup(string[] options) { _options = options; }
 
-			public override Vector2 GetWindowSize() { return new Vector2(200, 100); }
+            public override void OnGUI(Rect rect) { }
 
-			public override void OnOpen() {
-				for (int i = 0; i < _options.Length; i++) {
-					var localI = i;
-					editorWindow.rootVisualElement.Add(new Button(() => {
-						                                              OnSelect.Invoke(localI);
-						                                              editorWindow.Close();
-					                                              }) {text = _options[localI]});
-				}
-			}
-		}
-	}
+            public override Vector2 GetWindowSize() { return new Vector2(200, 100); }
+
+            public override void OnOpen()
+            {
+                for (int i = 0; i < _options.Length; i++)
+                {
+                    var localI = i;
+                    editorWindow.rootVisualElement.Add(new Button(() =>
+                    {
+                        OnSelect.Invoke(localI);
+                        editorWindow.Close();
+                    })
+                    { text = _options[localI] });
+                }
+            }
+        }
+    }
 }

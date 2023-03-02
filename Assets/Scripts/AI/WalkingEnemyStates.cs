@@ -1,6 +1,8 @@
-namespace AI {
-	public enum WalkingEnemyState {
-		Idle,
-		Chase
-	}
+namespace AI
+{
+    public enum WalkingEnemyState
+    {
+        Idle,
+        Chase
+    }
 }

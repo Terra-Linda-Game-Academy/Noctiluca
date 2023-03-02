@@ -1,10 +1,13 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Util.Editor {
+namespace Util.Editor
+{
     [CustomEditor(typeof(GameEvent), true)]
-    public class GameEventEditor : UnityEditor.Editor {
-        public override void OnInspectorGUI() {
+    public class GameEventEditor : UnityEditor.Editor
+    {
+        public override void OnInspectorGUI()
+        {
             base.OnInspectorGUI();
             GUI.enabled = Application.isPlaying;
             GameEvent e = target as GameEvent;
