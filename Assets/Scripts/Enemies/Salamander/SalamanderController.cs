@@ -14,9 +14,7 @@ namespace Enemies.Salamander
 
         private Perceptron _perceptron;
 
-        public NavMeshAgent agent;
-
-        public Vector3 targetPos;
+        [SerializeField] private NavMeshAgent agent;
 
         void OnEnable()
         {

@@ -7,6 +7,7 @@ namespace Input.Data.Enemy
     {
         public Vector3 TargetPos;
         public Vector3 PlayerPos;
+        public float PlayerSpeed;
 
         public bool looking;
 

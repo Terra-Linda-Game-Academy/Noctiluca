@@ -8,12 +8,12 @@ namespace Input.Middleware.Enemy.Salamander
 {
     public class MovementMiddleware : InputMiddleware<SalamanderInput, SalamanderInputEvents.Dispatcher>
     {
-        public float MinDistance = 1.0f;
-        public float MaxWander = 5.0f;
-        public float MaxWanderPause = 10.0f;
-        public float AttackCooldown = 3;
-        public float FlippedTime = 6;
-        public float projectileSpeed = 5f;
+        [SerializeField] private float MinDistance = 1.0f;
+        [SerializeField] private float MaxWander = 5.0f;
+        [SerializeField] private float MaxWanderPause = 10.0f;
+        [SerializeField] private float AttackCooldown = 3;
+        [SerializeField] private float FlippedTime = 6;
+        [SerializeField] private float projectileSpeed = 5f;
 
         SalamanderState lastState;
         float WaitTime = 0;
@@ -113,12 +113,22 @@ namespace Input.Middleware.Enemy.Salamander
                     {
                         bool predicted = false;
                         Vector3 predictedLocation = new Vector3();
-                        int t = 0;
+                        float t = 0;
                         while(!predicted)
                         {
-                            
+                            predictedLocation = inputData.PlayerPos;
+                            if((t * projectileSpeed) - Vector3.Distance(MyPos, predictedLocation) <= 0.5f)
+                            {
+                                TargetPos = predictedLocation;
+                                predicted = true;
+                            }
+                            if (t >= 5000)
+                            {
+                                predictedLocation = inputData.PlayerPos;
+                                predicted = true;
+                            }
+                            t += 0.1f;
                         }
-                        TargetPos = new Vector3(inputData.PlayerPos.x, perceptron.transform.position.y, inputData.PlayerPos.z);
 
                     }
                     break;

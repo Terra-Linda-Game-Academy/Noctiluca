@@ -18,7 +18,7 @@ namespace Player
         /// </summary>
 
         //Just a Couple Movement paramaters
-        [SerializeField] private float movementSpeed = 3;
+        [SerializeField] public float movementSpeed { get; private set; } = 3;
 
         [SerializeField] private float rotationSpeed = 10;
         [SerializeField] private PlayerInputProvider inputProvider;
