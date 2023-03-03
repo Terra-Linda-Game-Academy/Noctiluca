@@ -16,7 +16,7 @@ namespace Enemies.ChargeMob {
 
 
 		private void Awake() {
-			base.Awake();
+			updateFunctions += WanderAround;
 			updateFunctions += DetectPlayer;
 			updateFunctions += ChargeUpdate;
 		}

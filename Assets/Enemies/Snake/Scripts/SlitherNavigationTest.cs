@@ -10,7 +10,7 @@ namespace Snake
     {
         private NavMeshAgent navMeshAgent;
 
-        [SerializeField] private Transform targetDestination;
+        public Vector3 targetDestination;
         private Vector3 lastDestination = Vector3.zero;
 
 
@@ -155,7 +155,7 @@ namespace Snake
 
 
 
-            navMeshAgent.CalculatePath(targetDestination.position, linearPath);
+            navMeshAgent.CalculatePath(targetDestination, linearPath);
             calculatedSplinePath = false;
             snakeMoving = false;
 
@@ -289,13 +289,13 @@ namespace Snake
             //timer is at top in case of error cascade
             pathRecalculationTimer += Time.deltaTime;
 
-            if( ((Vector3.Distance(snakeBody[0].transform.position, targetDestination.position) > pathRegenerationAccuracy) &&
-                Vector3.Distance(lastDestination, targetDestination.position) > pathRegenerationAccuracy )
+            if( ((Vector3.Distance(snakeBody[0].transform.position, targetDestination) > pathRegenerationAccuracy) &&
+                Vector3.Distance(lastDestination, targetDestination) > pathRegenerationAccuracy )
             
 
                 && pathRecalculationTimer > pathRecalculationTime)
                 {
-                    lastDestination = targetDestination.position;
+                    lastDestination = targetDestination;
                     pathRecalculationTimer = 0f;
                     
                     CalculatePath();

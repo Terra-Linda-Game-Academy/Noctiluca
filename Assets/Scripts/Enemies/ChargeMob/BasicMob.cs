@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 namespace Enemies.ChargeMob {
-	public class BasicMob : MonoBehaviour {
+	public abstract class BasicMob : MonoBehaviour {
 		public float wanderRadius;
 		public float wanderTimer;
 
@@ -17,15 +17,13 @@ namespace Enemies.ChargeMob {
 			Timer = wanderTimer;
 		}
 
-		protected void Awake() { updateFunctions += WanderAround; }
-
 		protected delegate void UpdateFunctions();
 
 		protected UpdateFunctions updateFunctions;
 
 		void Update() { updateFunctions(); }
-
-		void WanderAround() {
+		 
+		protected void WanderAround() {
 			if (IsWandering) {
 				Timer += Time.deltaTime;
 
