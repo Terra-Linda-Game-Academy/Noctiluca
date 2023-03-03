@@ -27,14 +27,12 @@ namespace Input.Middleware.Enemy.Walking
 
         public override void Init() { }
 
-        public override InputMiddleware<WalkingEnemyInput, WalkingEnemyInputEvents.Dispatcher> Clone()
-        {
-            return new PerceptionMiddleware
-            {
-                MaxViewDistance = MaxViewDistance,
-                MaxViewAngle = MaxViewAngle,
-                Player = Player
-            };
-        }
-    }
+		public override InputMiddleware<WalkingEnemyInput, WalkingEnemyInputEvents.Dispatcher> Clone() {
+			return new PerceptionMiddleware {
+				                                MaxViewDistance = MaxViewDistance,
+				                                MaxViewAngle    = MaxViewAngle,
+				                                Player          = Player
+			                                };
+		}
+	}
 }

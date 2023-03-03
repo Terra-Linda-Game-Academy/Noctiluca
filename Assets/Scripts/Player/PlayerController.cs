@@ -26,9 +26,11 @@ namespace Player
 
         private Perceptron _perceptron;
 
-        //Movement Vectors and Bools
-        private Vector3 _direction;
-        private Quaternion Rotation => Quaternion.LookRotation(RotationDirection);
+		private PlayerHealthController _healthController;
+
+		//Movement Vectors and Bools
+		private Vector3    _direction;
+		private Quaternion Rotation => Quaternion.LookRotation(RotationDirection);
 
         private Vector3 RotationDirection =>
             Vector3.RotateTowards(transform.forward, _direction, rotationSpeed * Time.deltaTime, 0);
@@ -37,14 +39,14 @@ namespace Player
 
         private void OnDisable() { playerVar.Value = null; }
 
-        private void Start()
-        {
-            _perceptron = GetComponent<Perceptron>();
-            _perceptron.eyes = transform;
+		private void Start() {
+			_perceptron      = GetComponent<Perceptron>();
 
-            inputProvider.RequireInit(_perceptron);
-            inputProvider.Events.Interact += () => Debug.Log("interact club headed by randall baker");
-        }
+			_healthController = GetComponent<PlayerHealthController>();
+
+			inputProvider.RequireInit(_perceptron);
+			inputProvider.Events.Interact += () => Debug.Log("player interact");
+		}
 
         private void FixedUpdate()
         {
