@@ -21,6 +21,8 @@ namespace Input.Middleware.Enemy.Salamander
 
         NavMeshAgent agent;
 
+
+
         Vector3 TargetPos;
 
         bool flipped = false;
@@ -160,6 +162,7 @@ namespace Input.Middleware.Enemy.Salamander
         public override void Init()
         {
             agent = perceptron.GetComponentInParent<NavMeshAgent>();
+             
             TargetPos = perceptron.transform.position;
         }
 
