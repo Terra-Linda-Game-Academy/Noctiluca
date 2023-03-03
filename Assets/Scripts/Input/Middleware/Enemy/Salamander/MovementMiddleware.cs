@@ -13,11 +13,11 @@ namespace Input.Middleware.Enemy.Salamander
         public float MaxWanderPause = 10.0f;
         public float AttackCooldown = 3;
         public float FlippedTime = 6;
+        public float projectileSpeed = 5f;
 
         SalamanderState lastState;
         float WaitTime = 0;
         bool Waiting = false;
-        bool Looking = false;
 
         NavMeshAgent agent;
 
@@ -31,8 +31,7 @@ namespace Input.Middleware.Enemy.Salamander
             if(lastState != inputData.State)
             {
                 Waiting = false;
-                Looking = false;
-                WaitTime = Time.time + 3;
+                WaitTime = Time.time + 0.5f;
                 lastState = inputData.State;
             }
 
@@ -112,7 +111,15 @@ namespace Input.Middleware.Enemy.Salamander
                     //Pew Pew!
                     if (WaitTime <= Time.time)
                     {
+                        bool predicted = false;
+                        Vector3 predictedLocation = new Vector3();
+                        int t = 0;
+                        while(!predicted)
+                        {
+                            
+                        }
                         TargetPos = new Vector3(inputData.PlayerPos.x, perceptron.transform.position.y, inputData.PlayerPos.z);
+
                     }
                     break;
 
