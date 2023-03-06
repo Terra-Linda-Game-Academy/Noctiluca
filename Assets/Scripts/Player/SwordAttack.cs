@@ -19,8 +19,7 @@ namespace Player {
 			for (int i = 0; i < numColliders; i++) {
 				Collider col = hitColliders[i];
 				
-				//todo: make sure this works with levels (not merged yet)
-				if (col.gameObject == gameObject || col.CompareTag("Room")) continue;
+				if (col.gameObject == gameObject || col.gameObject.layer == LayerMask.NameToLayer("Room")) continue;
 
 				// check if the collider is within the attack cone
 				Vector3 directionToCollider = (col.transform.position - transform.position).normalized;
