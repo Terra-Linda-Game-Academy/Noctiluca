@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.EditorTools;
@@ -15,13 +16,14 @@ namespace Levels.Editor {
 		enum Settings {
 			Height,
 			Wall,
-			Hole
+			Hole,
+			Reset
 		}
 
 		private Settings _settings;
 
 		private const float SettingsBoxWidth  = 100f;
-		private const float SettingsBoxHeight = 100f;
+		private const float SettingsBoxHeight = 120f;
 
 		private readonly Color _heightRingColor = new(0, 1, 0, 1);
 		private readonly Color _heightTileColor = new(0, 1, 0, .2f);
@@ -32,9 +34,14 @@ namespace Levels.Editor {
 		private readonly Color _holeRingColor = new(1, 0, 0, 1);
 		private readonly Color _holeTileColor = new(1, 0, 0, .2f);
 
+		private readonly Color _resetRingColor = new(1, 1, 0, 1);
+		private readonly Color _resetTileColor = new(1, 1, 0, .2f);
+
 		private const float HighlightRadiusScale = 0.1f;
 		private const float HighlightRadiusMin   = 0.5f;
 		private const float HighlightRadiusMax   = 5.0f;
+
+		private const float MinimumHeightModEpsilon = 0.1f;
 
 		private float _highlightRadius = HighlightRadiusMin;
 
@@ -53,7 +60,7 @@ namespace Levels.Editor {
 
 			_settings = Settings.Height;
 		}
-		
+
 		private void SetMeshes() {
 			Mesh mesh = TerrainMesh.Generate(_controller.Room);
 
@@ -99,13 +106,17 @@ namespace Levels.Editor {
 
 				switch (_settings) {
 					case Settings.Height:
-						_currentHeight = Room.GetTileAt((int) _center.Value.x, (int) _center.Value.y).Height;
+						//_currentHeight = Room.GetTileAt((int) _center.Value.x, (int) _center.Value.y).Height;
+						SetCurrentHeight(Room.GetTileAt((int) _center.Value.x, (int) _center.Value.y).Height, true);
 						break;
 					case Settings.Wall:
 						if (_leftClick) PaintWalls();
 						break;
 					case Settings.Hole:
 						if (_leftClick) PaintHoles();
+						break;
+					case Settings.Reset:
+						if (_leftClick) PaintReset();
 						break;
 				}
 			} else {
@@ -115,21 +126,23 @@ namespace Levels.Editor {
 		}
 
 		private Color GetRingColor() {
-			switch (_settings) {
-				case Settings.Height: return _heightRingColor;
-				case Settings.Wall:   return _wallRingColor;
-				case Settings.Hole:   return _holeRingColor;
-				default:              return Color.magenta;
-			}
+			return _settings switch {
+				       Settings.Height => _heightRingColor,
+				       Settings.Wall   => _wallRingColor,
+				       Settings.Hole   => _holeRingColor,
+				       Settings.Reset  => _resetRingColor,
+				       _               => Color.magenta
+			       };
 		}
 
 		private Color GetTileColor() {
-			switch (_settings) {
-				case Settings.Height: return _heightTileColor;
-				case Settings.Wall:   return _wallTileColor;
-				case Settings.Hole:   return _holeTileColor;
-				default:              return Color.magenta;
-			}
+			return _settings switch {
+				       Settings.Height => _heightTileColor,
+				       Settings.Wall   => _wallTileColor,
+				       Settings.Hole   => _holeTileColor,
+				       Settings.Reset  => _resetTileColor,
+				       _               => Color.magenta
+			       };
 		}
 
 		private void CalculateHighlightedTiles() {
@@ -161,6 +174,13 @@ namespace Levels.Editor {
 		private void PaintHoles() {
 			foreach (Vector2Int tile in _highlightedTiles) {
 				Room.SetTileAt(new Room.Tile(Room.TileFlags.Pit, 0f), tile.x, tile.y);
+				SetMeshes();
+			}
+		}
+
+		private void PaintReset() {
+			foreach (Vector2Int tile in _highlightedTiles) {
+				Room.SetTileAt(new Room.Tile(Room.TileFlags.None, 0f), tile.x, tile.y);
 				SetMeshes();
 			}
 		}
@@ -201,22 +221,37 @@ namespace Levels.Editor {
 
 					if (e.shift && _settings == Settings.Height) {
 						Handles.color = Handles.xAxisColor;
-						_currentHeight = Handles.ScaleSlider(
+						SetCurrentHeight(Handles.ScaleSlider(
 							                 _currentHeight + 1, centerPos,
 							                 _controller.transform.up,
 							                 Quaternion.identity,
 							                 HandleUtility.GetHandleSize(centerPos), 0
 						                 )
-						               - 1;
+						               - 1, false);
 					}
 				}
 			}
 		}
 
+		private void SetCurrentHeight(float value, bool initial) {
+			Undo.RecordObject(Room, $"Changed height values of {Room.name}");
+			
+			if (!initial && Math.Abs(_currentHeight - value) > MinimumHeightModEpsilon) {
+				foreach (Vector2Int tile in _highlightedTiles) {
+					Room.SetTileAt(new Room.Tile(Room.TileFlags.None, value), tile.x, tile.y);
+				}
+				
+				SetMeshes();
+				
+				EditorUtility.SetDirty(Room);
+			}
+			_currentHeight = value;
+		}
+
 		private void DrawGUI(EditorWindow window) {
 			Handles.BeginGUI();
 
-			const float buttonHeight = SettingsBoxHeight * .8f / 3;
+			const float buttonHeight = SettingsBoxHeight * .8f / 4;
 
 			const float screenBottomOffset = 30f;
 
@@ -226,16 +261,20 @@ namespace Levels.Editor {
 				"Terrain Options");
 
 			if (GUI.Button(
-				    new Rect(0, window.position.height - buttonHeight * 3 - screenBottomOffset, SettingsBoxWidth,
+				    new Rect(0, window.position.height - buttonHeight * 4 - screenBottomOffset, SettingsBoxWidth,
 				             buttonHeight), "Height - G")) { _settings = Settings.Height; }
 
 			if (GUI.Button(
-				    new Rect(0, window.position.height - buttonHeight * 2 - screenBottomOffset, SettingsBoxWidth,
+				    new Rect(0, window.position.height - buttonHeight * 3 - screenBottomOffset, SettingsBoxWidth,
 				             buttonHeight), "Wall - B")) { _settings = Settings.Wall; }
 
 			if (GUI.Button(
-				    new Rect(0, window.position.height - buttonHeight * 1 - screenBottomOffset, SettingsBoxWidth,
+				    new Rect(0, window.position.height - buttonHeight * 2 - screenBottomOffset, SettingsBoxWidth,
 				             buttonHeight), "Hole - R")) { _settings = Settings.Hole; }
+
+			if (GUI.Button(
+				    new Rect(0, window.position.height - buttonHeight * 1 - screenBottomOffset, SettingsBoxWidth,
+				             buttonHeight), "Reset - Y")) { _settings = Settings.Reset; }
 
 			Handles.EndGUI();
 		}

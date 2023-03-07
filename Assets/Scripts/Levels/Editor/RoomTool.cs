@@ -12,7 +12,6 @@ namespace Levels.Editor {
 
 		private void OnEnable() {
 			controller = (RoomController) target;
-			controller.Room.UpdateTiles();
 			SetMeshes();
 		}
 
@@ -57,10 +56,10 @@ namespace Levels.Editor {
 
 			size.vector3IntValue = sizeVal;
 			if (so.ApplyModifiedProperties()) {
-				controller.Room.UpdateTiles();
+				controller.Room.ResetTiles();
 				SetMeshes();
 			}
-			//todo: setup Editor3D and Property3D stuff, and call draw methods for each*/
+			//todo: setup Editor3D and Property3D stuff, and call draw methods for each
 		}
 
 
