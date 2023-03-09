@@ -165,24 +165,36 @@ namespace Levels.Editor {
 		}
 
 		private void PaintWalls() {
+			Undo.RecordObject(Room, $"Painted walls of {Room.name}");
+			
 			foreach (Vector2Int tile in _highlightedTiles) {
 				Room.SetTileAt(new Room.Tile(Room.TileFlags.Wall, 0f), tile.x, tile.y);
 				SetMeshes();
 			}
+			
+			EditorUtility.SetDirty(Room);
 		}
 
 		private void PaintHoles() {
+			Undo.RecordObject(Room, $"Painted holes of {Room.name}");
+
 			foreach (Vector2Int tile in _highlightedTiles) {
 				Room.SetTileAt(new Room.Tile(Room.TileFlags.Pit, 0f), tile.x, tile.y);
 				SetMeshes();
 			}
+			
+			EditorUtility.SetDirty(Room);
 		}
 
 		private void PaintReset() {
+			Undo.RecordObject(Room, $"Painted tile resets of {Room.name}");
+
 			foreach (Vector2Int tile in _highlightedTiles) {
 				Room.SetTileAt(new Room.Tile(Room.TileFlags.None, 0f), tile.x, tile.y);
 				SetMeshes();
 			}
+			
+			EditorUtility.SetDirty(Room);
 		}
 
 		private void CheckInputs(Event e) {

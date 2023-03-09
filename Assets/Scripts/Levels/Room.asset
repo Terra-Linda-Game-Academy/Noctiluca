@@ -198,7 +198,7 @@ MonoBehaviour:
     packedHeight: 0
   - flags: 4
     packedHeight: 0
-  - flags: 4
+  - flags: 1
     packedHeight: 0
   - flags: 4
     packedHeight: 12895
@@ -228,8 +228,8 @@ MonoBehaviour:
     packedHeight: 0
   - flags: 4
     packedHeight: 0
-  - flags: 4
-    packedHeight: 15436
+  - flags: 1
+    packedHeight: 0
   - flags: 4
     packedHeight: 15436
   - flags: 4
@@ -258,10 +258,10 @@ MonoBehaviour:
     packedHeight: 0
   - flags: 4
     packedHeight: 0
-  - flags: 4
-    packedHeight: 15436
-  - flags: 4
-    packedHeight: 15436
+  - flags: 1
+    packedHeight: 0
+  - flags: 1
+    packedHeight: 0
   - flags: 4
     packedHeight: 14602
   - flags: 4
