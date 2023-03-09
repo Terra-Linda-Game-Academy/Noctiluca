@@ -240,12 +240,12 @@ namespace Levels.Editor {
 				foreach (Vector2Int tile in _highlightedTiles) {
 					Room.SetTileAt(new Room.Tile(Room.TileFlags.None, value), tile.x, tile.y);
 				}
+				_currentHeight = value;
 				
 				SetMeshes();
 				
 				EditorUtility.SetDirty(Room);
 			}
-			_currentHeight = value;
 		}
 
 		private void DrawGUI(EditorWindow window) {

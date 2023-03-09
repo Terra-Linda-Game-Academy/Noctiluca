@@ -14,11 +14,11 @@ namespace Levels {
 		}
 
 		[Serializable, StructLayout(LayoutKind.Sequential)]
-		public readonly struct Tile {
+		public struct Tile {
 			public const int Stride = sizeof(TileFlags) + sizeof(ushort);
 
-			public readonly TileFlags flags;
-			public readonly ushort    packedHeight;
+			public TileFlags flags;
+			public ushort    packedHeight;
 
 			public float Height => Mathf.HalfToFloat(packedHeight);
 
@@ -65,7 +65,7 @@ namespace Levels {
 		}
 
 		public bool SetTileAt(Tile tile, int x, int z) {
-			if (tileMap.Length <= 0) ResetTiles();
+			//if (tileMap.Length <= 0) ResetTiles();
 
 			if (x < 0 || x >= size.x || z < 0 || z >= size.z) { return false; }
 

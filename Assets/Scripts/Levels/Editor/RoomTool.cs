@@ -56,8 +56,10 @@ namespace Levels.Editor {
 
 			size.vector3IntValue = sizeVal;
 			if (so.ApplyModifiedProperties()) {
+				Undo.RecordObject(Room, "Resetting tile array on room resize");
 				controller.Room.ResetTiles();
 				SetMeshes();
+				EditorUtility.SetDirty(Room);
 			}
 			//todo: setup Editor3D and Property3D stuff, and call draw methods for each
 		}
