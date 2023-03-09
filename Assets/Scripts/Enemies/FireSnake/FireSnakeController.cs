@@ -18,6 +18,8 @@ namespace Enemies.Snake
 
 		public float speed;
 
+		public Vector3 lastDestination = Vector3.zero;
+
 		private void OnEnable()
 		{
 			_perceptron = GetComponent<Perceptron>();
@@ -29,7 +31,12 @@ namespace Enemies.Snake
 
 		private void HandleInput(FireSnakeInput inputData)
 		{
-			slitherNavigationTest.targetDestination = inputData.TargetDestination;
+			if(inputData.TargetDestination != null && inputData.TargetDestination != lastDestination)
+            {
+				slitherNavigationTest.targetDestination = inputData.TargetDestination;
+				lastDestination = inputData.TargetDestination;
+			}
+			
 			//transform.position += new Vector3(inputData.Movement.x, 0.0f, inputData.Movement.y) * speed;
 			//if (inputData.PlayerPos != Vector3.zero)
 				//transform.LookAt(new Vector3(inputData.PlayerPos.x, transform.position.y, inputData.PlayerPos.z));

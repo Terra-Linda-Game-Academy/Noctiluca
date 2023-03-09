@@ -10,22 +10,45 @@ namespace Input.Middleware.Enemy.FireSnake
 	public class
 		MovementMiddleware : InputMiddleware<FireSnakeInput, FireSnakeInputEvents.Dispatcher>
 	{
-		public float WanderRadius = 10.0f;
-		float waitTime;
+		public const float WanderRadius = 100.0f;
+		public const float WaitTime = 5f;
+		private float WaitTimer = Mathf.Infinity;
+
+		public const float regenerationProximity = 10f;
+
+		public Vector3 lastDestination;
 
 		public override void TransformInput(ref FireSnakeInput inputData)
 		{
+			//Debug.Log("Player Pos: " + inputData.PlayerPos);
 			switch(inputData.State)
             {
 				case FireSnakeState.Chase:
 					inputData.TargetDestination = inputData.PlayerPos;
+					lastDestination = inputData.TargetDestination;
 					break;
 				case FireSnakeState.Wander:
-					inputData.TargetDestination = RandomNavSphere(perceptron.transform.position, WanderRadius, -1);
+					//Debug.Log("Wait Time: " + WaitTime + ", Wait Timer: " + WaitTimer);
+					//Debug.Log("Wander: " + Vector3.Distance(perceptron.transform.position, lastDestination));
+					if (WaitTimer >= WaitTime || Vector3.Distance(perceptron.transform.position, lastDestination) < regenerationProximity)
+                    {
+						WaitTimer = 0f;
+						//Debug.Log("Generate!");
+						inputData.TargetDestination = RandomNavSphere(perceptron.transform.position, WanderRadius, -1);
+						//GameObject.CreatePrimitive(PrimitiveType.Cube).transform.position = inputData.TargetDestination;
+						lastDestination = inputData.TargetDestination;
+					}
+					
 					break;
 
 
 			}
+
+			inputData.TargetDestination = lastDestination;
+
+			WaitTimer += Time.fixedDeltaTime;
+
+			//Debug.Log("Target Destination: " + inputData.TargetDestination);
 		}
 
 		public override void Init() { }
@@ -33,8 +56,8 @@ namespace Input.Middleware.Enemy.FireSnake
 		public override InputMiddleware<FireSnakeInput, FireSnakeInputEvents.Dispatcher> Clone()
 		{
 			return new MovementMiddleware {
-				WanderRadius = WanderRadius,
-				waitTime = waitTime
+				WaitTimer = WaitTimer,
+				lastDestination = lastDestination,
 			};
 		}
 

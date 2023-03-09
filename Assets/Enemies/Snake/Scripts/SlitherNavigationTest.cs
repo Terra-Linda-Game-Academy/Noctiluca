@@ -10,7 +10,7 @@ namespace Snake
     {
         private NavMeshAgent navMeshAgent;
 
-        public Vector3 targetDestination;
+        public Vector3 targetDestination = Vector3.zero;
         private Vector3 lastDestination = Vector3.zero;
 
 
