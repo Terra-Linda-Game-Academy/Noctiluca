@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.EditorTools;
@@ -45,7 +44,8 @@ namespace Levels.Editor {
 
 		private float _highlightRadius = HighlightRadiusMin;
 
-		private float _currentHeight;
+		private float _raycastTileHeight;
+		private float _editedTileHeight;
 
 		private Option<Vector2> _center;
 
@@ -106,8 +106,9 @@ namespace Levels.Editor {
 
 				switch (_settings) {
 					case Settings.Height:
-						//_currentHeight = Room.GetTileAt((int) _center.Value.x, (int) _center.Value.y).Height;
-						SetCurrentHeight(Room.GetTileAt((int) _center.Value.x, (int) _center.Value.y).Height, true);
+						//SetCurrentHeight(Room.GetTileAt((int) _center.Value.x, (int) _center.Value.y).Height, true);
+						_raycastTileHeight = Room.GetTileAt((int) _center.Value.x, (int) _center.Value.y).Height;
+						_editedTileHeight  = _raycastTileHeight;
 						break;
 					case Settings.Wall:
 						if (_leftClick) PaintWalls();
@@ -166,12 +167,12 @@ namespace Levels.Editor {
 
 		private void PaintWalls() {
 			Undo.RecordObject(Room, $"Painted walls of {Room.name}");
-			
+
 			foreach (Vector2Int tile in _highlightedTiles) {
 				Room.SetTileAt(new Room.Tile(Room.TileFlags.Wall, 0f), tile.x, tile.y);
 				SetMeshes();
 			}
-			
+
 			EditorUtility.SetDirty(Room);
 		}
 
@@ -182,7 +183,7 @@ namespace Levels.Editor {
 				Room.SetTileAt(new Room.Tile(Room.TileFlags.Pit, 0f), tile.x, tile.y);
 				SetMeshes();
 			}
-			
+
 			EditorUtility.SetDirty(Room);
 		}
 
@@ -193,7 +194,7 @@ namespace Levels.Editor {
 				Room.SetTileAt(new Room.Tile(Room.TileFlags.None, 0f), tile.x, tile.y);
 				SetMeshes();
 			}
-			
+
 			EditorUtility.SetDirty(Room);
 		}
 
@@ -227,36 +228,40 @@ namespace Levels.Editor {
 
 				if (_center.Enabled) {
 					Handles.color = GetRingColor();
-					Vector3 centerPos = new Vector3(_center.Value.x, _controller.transform.position.y + _currentHeight,
+					Vector3 centerPos = new Vector3(_center.Value.x, _controller.transform.position.y + _editedTileHeight,
 					                                _center.Value.y);
 					Handles.DrawWireDisc(centerPos, _controller.transform.up, _highlightRadius);
 
 					if (e.shift && _settings == Settings.Height) {
 						Handles.color = Handles.xAxisColor;
-						SetCurrentHeight(Handles.ScaleSlider(
-							                 _currentHeight + 1, centerPos,
+						/*SetCurrentHeight(Handles.ScaleSlider(
+							                 _raycastTileHeight + 1, centerPos,
 							                 _controller.transform.up,
 							                 Quaternion.identity,
 							                 HandleUtility.GetHandleSize(centerPos), 0
 						                 )
-						               - 1, false);
+						               - 1, false);*/
+						_editedTileHeight = Handles.ScaleSlider(
+							                    _editedTileHeight + 1, centerPos,
+							                    _controller.transform.up,
+							                    Quaternion.identity,
+							                    HandleUtility.GetHandleSize(centerPos), 0
+						                    )
+						                  - 1;
+
+						if (Mathf.Abs(_editedTileHeight - _raycastTileHeight) > MinimumHeightModEpsilon) {
+							Undo.RecordObject(Room, $"Changed height values of {Room.name}");
+							
+							foreach (Vector2Int tile in _highlightedTiles) {
+								Room.SetTileAt(new Room.Tile(Room.TileFlags.None, _editedTileHeight), tile.x, tile.y);
+							}
+							
+							SetMeshes();
+							
+							EditorUtility.SetDirty(Room);
+						}
 					}
 				}
-			}
-		}
-
-		private void SetCurrentHeight(float value, bool initial) {
-			Undo.RecordObject(Room, $"Changed height values of {Room.name}");
-			
-			if (!initial && Math.Abs(_currentHeight - value) > MinimumHeightModEpsilon) {
-				foreach (Vector2Int tile in _highlightedTiles) {
-					Room.SetTileAt(new Room.Tile(Room.TileFlags.None, value), tile.x, tile.y);
-				}
-				_currentHeight = value;
-				
-				SetMeshes();
-				
-				EditorUtility.SetDirty(Room);
 			}
 		}
 
@@ -265,7 +270,7 @@ namespace Levels.Editor {
 
 			const float buttonHeight = SettingsBoxHeight * .8f / 4;
 
-			const float screenBottomOffset = 30f;
+			const float screenBottomOffset = 30f + 40f;
 
 			GUI.Box(
 				new Rect(0, window.position.height - SettingsBoxHeight - screenBottomOffset, SettingsBoxWidth,
@@ -287,6 +292,9 @@ namespace Levels.Editor {
 			if (GUI.Button(
 				    new Rect(0, window.position.height - buttonHeight * 1 - screenBottomOffset, SettingsBoxWidth,
 				             buttonHeight), "Reset - Y")) { _settings = Settings.Reset; }
+			
+			if (GUI.Button(new Rect(0, window.position.height - 30 - 30, 100, 30),
+			               "Reset Mesh")) { SetMeshes(); }
 
 			Handles.EndGUI();
 		}

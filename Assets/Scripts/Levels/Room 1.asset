@@ -12,8 +12,136 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9735f589568b4ca28072e35eb1498b4b, type: 3}
   m_Name: Room 1
   m_EditorClassIdentifier: 
-  size: {x: 8, y: 2, z: 8}
-  tileMap: []
+  size: {x: 8, y: 3, z: 8}
+  tileMap:
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 10498
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 41214
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 15531
+  - flags: 4
+    packedHeight: 14449
+  - flags: 4
+    packedHeight: 14449
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 15531
+  - flags: 4
+    packedHeight: 15531
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
   tileAssets: []
   tiles: []
   references:

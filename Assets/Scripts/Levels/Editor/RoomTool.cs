@@ -24,14 +24,16 @@ namespace Levels.Editor {
 
 		public override void OnToolGUI(EditorWindow window) {
 			if (Room is null) return;
-			var so      = new SerializedObject(Room);
-			var size    = so.FindProperty("size");
-			var sizeVal = size.vector3IntValue;
+
+			DrawGUI(window);
+
+			Vector3Int sizeVal = Room.Size;
+			Vector3Int newSize = new Vector3Int();
 
 			using (new Handles.DrawingScope(controller.transform.localToWorldMatrix)) {
 				Handles.color = Handles.xAxisColor;
 				var xHandlePos = new Vector3(sizeVal.x, 0, 0);
-				sizeVal.x = Mathf.FloorToInt(Mathf.Max(1, Handles.ScaleSlider(
+				newSize.x = Mathf.FloorToInt(Mathf.Max(1, Handles.ScaleSlider(
 					                                       sizeVal.x, xHandlePos, Vector3.right,
 					                                       Quaternion.identity, HandleUtility.GetHandleSize(xHandlePos),
 					                                       1
@@ -39,7 +41,7 @@ namespace Levels.Editor {
 
 				Handles.color = Handles.yAxisColor;
 				var yHandlePos = new Vector3(0, sizeVal.y, 0);
-				sizeVal.y = Mathf.FloorToInt(Mathf.Max(1, Handles.ScaleSlider(
+				newSize.y = Mathf.FloorToInt(Mathf.Max(1, Handles.ScaleSlider(
 					                                       sizeVal.y, yHandlePos, Vector3.up,
 					                                       Quaternion.identity, HandleUtility.GetHandleSize(yHandlePos),
 					                                       1
@@ -47,20 +49,20 @@ namespace Levels.Editor {
 
 				Handles.color = Handles.zAxisColor;
 				var zHandlePos = new Vector3(0, 0, sizeVal.z);
-				sizeVal.z = Mathf.FloorToInt(Mathf.Max(1, Handles.ScaleSlider(
+				newSize.z = Mathf.FloorToInt(Mathf.Max(1, Handles.ScaleSlider(
 					                                       sizeVal.z, zHandlePos, Vector3.forward,
 					                                       Quaternion.identity, HandleUtility.GetHandleSize(zHandlePos),
 					                                       1
 				                                       )));
 			}
 
-			size.vector3IntValue = sizeVal;
-			if (so.ApplyModifiedProperties()) {
-				Undo.RecordObject(Room, "Resetting tile array on room resize");
-				controller.Room.ResetTiles();
+			if (newSize != Room.Size) {
+				Undo.RecordObject(Room, $"Resizing {Room.name}");
+				Room.UpdateSize(newSize);
 				SetMeshes();
 				EditorUtility.SetDirty(Room);
 			}
+
 			//todo: setup Editor3D and Property3D stuff, and call draw methods for each
 		}
 
@@ -95,6 +97,15 @@ namespace Levels.Editor {
 					}
 				}
 			}
+		}
+
+		private void DrawGUI(EditorWindow window) {
+			Handles.BeginGUI();
+
+			if (GUI.Button(new Rect(0, window.position.height - 30 - 30, 100, 30),
+			               "Reset Mesh")) { SetMeshes(); }
+
+			Handles.EndGUI();
 		}
 	}
 }

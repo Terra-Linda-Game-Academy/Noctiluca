@@ -30,14 +30,7 @@ namespace Levels {
 
 		[SerializeField] private Vector3Int size;
 
-		public Vector3Int Size {
-			get => size;
-			set {
-				Vector3Int oldSize = size;
-
-				size = value;
-			}
-		}
+		public Vector3Int Size => size;
 
 		/// <Summary> lower half </Summary>
 		[SerializeField] public Tile[] tileMap;
@@ -101,6 +94,29 @@ namespace Levels {
 			}
 		}
 
-		private void UpdateSize(Vector3Int oldSize) { }
+		public void UpdateSize(Vector3Int newSize) {
+			Tile[] newArray = new Tile[newSize.x * newSize.z];
+			
+			for (int i = 0; i < newSize.x; i++) {
+				for (int j = 0; j < newSize.z; j++) {
+					int oldLinearIndex = GetLinearIndex(size, i, j);
+					int newLinearIndex = GetLinearIndex(newSize, i, j);
+					
+					if (i >= size.x || j >= size.z) {
+						newArray[newLinearIndex] = new Tile(TileFlags.None, 0f);
+						continue;
+					}
+
+					newArray[newLinearIndex] = tileMap[oldLinearIndex];
+				}
+			}
+
+			tileMap = newArray;
+			size    = newSize;
+		}
+
+		private int GetLinearIndex(Vector3Int roomSize, int x, int y) {
+			return y * roomSize.x + x;
+		}
 	}
 }
