@@ -170,8 +170,9 @@ namespace Levels.Editor {
 
 			foreach (Vector2Int tile in _highlightedTiles) {
 				Room.SetTileAt(new Room.Tile(Room.TileFlags.Wall, 0f), tile.x, tile.y);
-				SetMeshes();
 			}
+			
+			SetMeshes();
 
 			EditorUtility.SetDirty(Room);
 		}
@@ -181,8 +182,9 @@ namespace Levels.Editor {
 
 			foreach (Vector2Int tile in _highlightedTiles) {
 				Room.SetTileAt(new Room.Tile(Room.TileFlags.Pit, 0f), tile.x, tile.y);
-				SetMeshes();
 			}
+			
+			SetMeshes();
 
 			EditorUtility.SetDirty(Room);
 		}
@@ -192,8 +194,9 @@ namespace Levels.Editor {
 
 			foreach (Vector2Int tile in _highlightedTiles) {
 				Room.SetTileAt(new Room.Tile(Room.TileFlags.None, 0f), tile.x, tile.y);
-				SetMeshes();
 			}
+			
+			SetMeshes();
 
 			EditorUtility.SetDirty(Room);
 		}
