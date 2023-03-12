@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.EditorTools;
@@ -49,14 +50,19 @@ namespace Levels.Editor {
 
 		private Option<Vector2> _center;
 
-		private List<Vector2Int> _highlightedTiles;
-
 		private bool _leftClick;
+		private bool _shiftLastFrame;
+		private bool _drawHeightHandle;
+
+		struct Selection {
+			public BitArray TileMask;
+			public float    StartingHeight;
+		}
+
+		private Selection _currentSelection;
 
 		private void OnEnable() {
 			_controller = (RoomController) target;
-
-			_highlightedTiles = new List<Vector2Int>();
 
 			_settings = Settings.Height;
 		}
@@ -91,8 +97,6 @@ namespace Levels.Editor {
 			Vector2 mousePos = e.mousePosition;
 			Ray     ray      = HandleUtility.GUIPointToWorldRay(mousePos);
 
-			if (e.shift && _settings == Settings.Height) return;
-
 			if (Physics.Raycast(ray, out RaycastHit hit, maxDistance: 100, layerMask: LayerMask.GetMask("Room"))) {
 				if (hit.transform != _controller.transform) return;
 
@@ -101,28 +105,45 @@ namespace Levels.Editor {
 				Vector3 localPos = _controller.transform.InverseTransformPoint(hit.point);
 
 				_center.Value = new Vector2(localPos.x, localPos.z);
-
-				CalculateHighlightedTiles();
-
 				switch (_settings) {
 					case Settings.Height:
-						//SetCurrentHeight(Room.GetTileAt((int) _center.Value.x, (int) _center.Value.y).Height, true);
 						_raycastTileHeight = Room.GetTileAt((int) _center.Value.x, (int) _center.Value.y).Height;
-						_editedTileHeight  = _raycastTileHeight;
 						break;
 					case Settings.Wall:
-						if (_leftClick) PaintWalls();
+						if (_leftClick) Paint(Room.TileFlags.Wall, 0);
 						break;
 					case Settings.Hole:
-						if (_leftClick) PaintHoles();
+						if (_leftClick) Paint(Room.TileFlags.Pit, 0);
 						break;
 					case Settings.Reset:
-						if (_leftClick) PaintReset();
+						if (_leftClick) Paint(Room.TileFlags.None, 0);
 						break;
 				}
-			} else {
-				_center.Empty();
-				_highlightedTiles.Clear();
+			} else { _center.Empty(); }
+		}
+
+		private void Paint(Room.TileFlags flags, float height) {
+			List<Vector2Int> changedTiles = new List<Vector2Int>();
+			bool             changes      = false;
+
+			for (int i = 0; i < _currentSelection.TileMask.Length; i++) {
+				if (_currentSelection.TileMask[i]
+				 && (Room.tileMap[i].flags != flags || Room.tileMap[i].flags == Room.TileFlags.None)) {
+					changedTiles.Add(Room.FromLinearIndex(i));
+					changes = true;
+				}
+			}
+
+			if (changes) {
+				Undo.RecordObject(Room, $"Painted walls on {Room.name}");
+
+				foreach (Vector2Int tile in changedTiles) {
+					Room.SetTileAt(new Room.Tile(flags, height), tile.x, tile.y);
+				}
+
+				SetMeshes();
+
+				EditorUtility.SetDirty(Room);
 			}
 		}
 
@@ -146,10 +167,66 @@ namespace Levels.Editor {
 			       };
 		}
 
-		private void CalculateHighlightedTiles() {
+		private void CheckInputs(Event e) {
+			if (e.shift) {
+				switch (e.type) {
+					case EventType.ScrollWheel:
+						_highlightRadius -= e.delta.x * HighlightRadiusScale;
+						_highlightRadius =  Mathf.Clamp(_highlightRadius, HighlightRadiusMin, HighlightRadiusMax);
+						break;
+					case EventType.MouseDown:
+						if (e.button == 0) _leftClick = true;
+						break;
+					case EventType.MouseUp:
+						if (e.button == 0) _leftClick = false;
+						break;
+				}
+
+				if (!_shiftLastFrame) {
+					_currentSelection = new Selection {
+						                                  TileMask       = new BitArray(Room.tileMap.Length),
+						                                  StartingHeight = _raycastTileHeight
+					                                  };
+					_drawHeightHandle = false;
+				}
+
+				if (_currentSelection.TileMask == null) return;
+
+				switch (_settings) {
+					case Settings.Height:
+						if (_leftClick) {
+							foreach (int i in GetHighlightedTileIndices()) { _currentSelection.TileMask[i] = true; }
+						}
+
+						break;
+					default:
+						_currentSelection.TileMask.SetAll(false);
+						foreach (int i in GetHighlightedTileIndices()) { _currentSelection.TileMask[i] = true; }
+
+						break;
+				}
+			} else if (_shiftLastFrame && _currentSelection.TileMask != null) {
+				switch (_settings) {
+					case Settings.Height:
+						_editedTileHeight = _currentSelection.StartingHeight;
+						_drawHeightHandle = true;
+						break;
+					default:
+						_currentSelection.TileMask.SetAll(false);
+						break;
+				}
+			}
+
+			_shiftLastFrame = e.shift;
+		}
+
+		private List<int> GetHighlightedTileIndices() {
+			List<int> indices = new List<int>();
+
+			if (!_center.Enabled) return indices;
+
 			Vector2Int localCoords = new Vector2Int((int) _center.Value.x, (int) _center.Value.y);
 
-			_highlightedTiles.Clear();
 			int tileSearchDist = Mathf.CeilToInt(_highlightRadius);
 
 			for (int i = localCoords.x - tileSearchDist; i <= localCoords.x + tileSearchDist; i++) {
@@ -160,107 +237,74 @@ namespace Levels.Editor {
 					float dy   = _center.Value.y - (j + 0.5f);
 					float dist = Mathf.Sqrt(dx * dx + dy * dy);
 
-					if (dist <= _highlightRadius) _highlightedTiles.Add(new Vector2Int(i, j));
+					if (dist <= _highlightRadius) { indices.Add(Room.ToLinearIndex(i, j)); }
 				}
 			}
-		}
 
-		private void PaintWalls() {
-			Undo.RecordObject(Room, $"Painted walls of {Room.name}");
-
-			foreach (Vector2Int tile in _highlightedTiles) {
-				Room.SetTileAt(new Room.Tile(Room.TileFlags.Wall, 0f), tile.x, tile.y);
-			}
-			
-			SetMeshes();
-
-			EditorUtility.SetDirty(Room);
-		}
-
-		private void PaintHoles() {
-			Undo.RecordObject(Room, $"Painted holes of {Room.name}");
-
-			foreach (Vector2Int tile in _highlightedTiles) {
-				Room.SetTileAt(new Room.Tile(Room.TileFlags.Pit, 0f), tile.x, tile.y);
-			}
-			
-			SetMeshes();
-
-			EditorUtility.SetDirty(Room);
-		}
-
-		private void PaintReset() {
-			Undo.RecordObject(Room, $"Painted tile resets of {Room.name}");
-
-			foreach (Vector2Int tile in _highlightedTiles) {
-				Room.SetTileAt(new Room.Tile(Room.TileFlags.None, 0f), tile.x, tile.y);
-			}
-			
-			SetMeshes();
-
-			EditorUtility.SetDirty(Room);
-		}
-
-		private void CheckInputs(Event e) {
-			if (!e.shift) return;
-
-			switch (e.type) {
-				case EventType.ScrollWheel:
-					_highlightRadius -= e.delta.x * HighlightRadiusScale;
-					_highlightRadius =  Mathf.Clamp(_highlightRadius, HighlightRadiusMin, HighlightRadiusMax);
-					CalculateHighlightedTiles();
-					break;
-				case EventType.MouseDown:
-					if (e.button == 0) _leftClick = true;
-					break;
-				case EventType.MouseUp:
-					if (e.button == 0) _leftClick = false;
-					break;
-			}
+			return indices;
 		}
 
 		private void DrawHandles(Event e) {
 			using (new Handles.DrawingScope(_controller.transform.localToWorldMatrix)) {
 				Handles.color = GetTileColor();
-				foreach (Vector2Int tile in _highlightedTiles) {
-					Vector3 centerPos = new Vector3(tile.x + 0.5f,
-					                                _controller.transform.position.y
-					                              + Room.GetTileAt(tile.x, tile.y).Height, tile.y + 0.5f);
-					Handles.DrawSolidDisc(centerPos, _controller.transform.up, 0.4f);
+
+				List<Vector2Int> tiles = new List<Vector2Int>();
+
+				if (_currentSelection.TileMask != null) {
+					for (int i = 0; i < _currentSelection.TileMask.Length; i++) {
+						if (_currentSelection.TileMask[i]) {
+							Vector2Int tile = Room.FromLinearIndex(i);
+							tiles.Add(tile);
+							Vector3 centerPos = new Vector3(tile.x + 0.5f,
+							                                _controller.transform.position.y
+							                              + Room.GetTileAt(tile.x, tile.y).Height, tile.y + 0.5f);
+							Handles.DrawSolidDisc(centerPos, _controller.transform.up, 0.4f);
+						}
+					}
 				}
 
 				if (_center.Enabled) {
 					Handles.color = GetRingColor();
-					Vector3 centerPos = new Vector3(_center.Value.x, _controller.transform.position.y + _editedTileHeight,
-					                                _center.Value.y);
-					Handles.DrawWireDisc(centerPos, _controller.transform.up, _highlightRadius);
 
-					if (e.shift && _settings == Settings.Height) {
+					float x = 0;
+					float z = 0;
+					foreach (Vector2Int tile in tiles) {
+						x += tile.x;
+						z += tile.y;
+					}
+
+					x /= tiles.Count;
+					z /= tiles.Count;
+
+					Vector3 roomPos        = _controller.transform.position;
+					Vector3 tileAveragePos = new Vector3(x, roomPos.y + _editedTileHeight, z);
+
+					if (e.shift) {
+						Vector3 discPos = new Vector3(_center.Value.x,
+						                              roomPos.y + _raycastTileHeight,
+						                              _center.Value.y);
+						Handles.DrawWireDisc(discPos, _controller.transform.up, _highlightRadius);
+					}
+
+					if (_drawHeightHandle) {
 						Handles.color = Handles.xAxisColor;
-						/*SetCurrentHeight(Handles.ScaleSlider(
-							                 _raycastTileHeight + 1, centerPos,
-							                 _controller.transform.up,
-							                 Quaternion.identity,
-							                 HandleUtility.GetHandleSize(centerPos), 0
-						                 )
-						               - 1, false);*/
 						_editedTileHeight = Handles.ScaleSlider(
-							                    _editedTileHeight + 1, centerPos,
+							                    _editedTileHeight + 1, tileAveragePos,
 							                    _controller.transform.up,
 							                    Quaternion.identity,
-							                    HandleUtility.GetHandleSize(centerPos), 0
+							                    HandleUtility.GetHandleSize(tileAveragePos), 0
 						                    )
 						                  - 1;
 
 						if (Mathf.Abs(_editedTileHeight - _raycastTileHeight) > MinimumHeightModEpsilon) {
 							Undo.RecordObject(Room, $"Changed height values of {Room.name}");
-							
-							foreach (Vector2Int tile in _highlightedTiles) {
+
+							foreach (Vector2Int tile in tiles) {
 								Room.SetTileAt(new Room.Tile(Room.TileFlags.None, _editedTileHeight), tile.x, tile.y);
 							}
-							
+
 							SetMeshes();
-							
+
 							EditorUtility.SetDirty(Room);
 						}
 					}
@@ -295,7 +339,7 @@ namespace Levels.Editor {
 			if (GUI.Button(
 				    new Rect(0, window.position.height - buttonHeight * 1 - screenBottomOffset, SettingsBoxWidth,
 				             buttonHeight), "Reset - Y")) { _settings = Settings.Reset; }
-			
+
 			if (GUI.Button(new Rect(0, window.position.height - 30 - 30, 100, 30),
 			               "Reset Mesh")) { SetMeshes(); }
 

@@ -53,8 +53,7 @@ namespace Levels {
 			    return new Tile(TileFlags.Wall, Mathf.Clamp(height, 0, size.y));
 			}
 			return new Tile(height >= size.y ? TileFlags.Wall : TileFlags.None, Mathf.Clamp(height, 0, size.y));*/
-			int linearIndex = z * size.x + x;
-			return tileMap[linearIndex];
+			return tileMap[ToLinearIndex(x, z)];
 		}
 
 		public bool SetTileAt(Tile tile, int x, int z) {
@@ -62,8 +61,7 @@ namespace Levels {
 
 			if (x < 0 || x >= size.x || z < 0 || z >= size.z) { return false; }
 
-			int linearIndex = z * size.x + x;
-			tileMap[linearIndex] = tile;
+			tileMap[ToLinearIndex(x, z)] = tile;
 			return true;
 		}
 
@@ -99,8 +97,8 @@ namespace Levels {
 			
 			for (int i = 0; i < newSize.x; i++) {
 				for (int j = 0; j < newSize.z; j++) {
-					int oldLinearIndex = GetLinearIndex(size, i, j);
-					int newLinearIndex = GetLinearIndex(newSize, i, j);
+					int oldLinearIndex = ToLinearIndex(i, j);
+					int newLinearIndex = ToLinearIndex(i, j);
 					
 					if (i >= size.x || j >= size.z) {
 						newArray[newLinearIndex] = new Tile(TileFlags.None, 0f);
@@ -115,8 +113,13 @@ namespace Levels {
 			size    = newSize;
 		}
 
-		private int GetLinearIndex(Vector3Int roomSize, int x, int y) {
-			return y * roomSize.x + x;
+		public int ToLinearIndex(int x, int z) {
+			return z * size.x + x;
+		}
+
+		public Vector2Int FromLinearIndex(int i) {
+			int z = Math.DivRem(i, size.x, out int x);
+			return new Vector2Int(x, z);
 		}
 	}
 }

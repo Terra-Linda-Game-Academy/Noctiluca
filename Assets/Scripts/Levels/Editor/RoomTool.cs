@@ -85,7 +85,10 @@ namespace Levels.Editor {
 				//todo: draw all preview things of room tiles
 				for (int x = 0; x < Room.Size.x; x++) {
 					for (int z = 0; z < Room.Size.z; z++) {
-						float height = Room.GetTileAt(x, z).Height;
+						Room.Tile tile = Room.GetTileAt(x, z);
+						if (tile.flags != Room.TileFlags.None) continue;
+
+						float height = tile.Height;
 
 						Handles.DrawPolyLine(
 							new Vector3(x, height, z),
