@@ -49,7 +49,30 @@ public class DungeonGenerator : MonoBehaviour
         
 
         DungeonRoom lastRoom = dungeonRooms[UnityEngine.Random.Range(0, rooms.Length)];
+
+       // int rN = ((90 / 90) - (0 / 90)  + 4) % 4;
+        //Debug.Log("rotaion: " + rN);
+
+        /*
+        List<List<VoxelData>> door = GetChunks(lastRoom.voxelMatrix, entranceId);
+        List<Vector3Int> doorPos = door[UnityEngine.Random.Range(0, door.Count)].ConvertAll<Vector3Int>((x) => x.position);
+
+        //lastRoom
+
         LoadDungeonRoom(lastRoom);
+
+        lastRoom.voxelMatrix = RotateMatrixY(lastRoom.voxelMatrix, doorPos[0]);
+        LoadDungeonRoom(lastRoom);
+
+        lastRoom.voxelMatrix = RotateMatrixY(lastRoom.voxelMatrix, doorPos[0]);
+        LoadDungeonRoom(lastRoom);
+
+        lastRoom.voxelMatrix = RotateMatrixY(lastRoom.voxelMatrix, doorPos[0]);
+        LoadDungeonRoom(lastRoom);
+        */
+
+
+
 
         for (int room = 0; room < numberOfRooms; room++) {
 
@@ -75,24 +98,32 @@ public class DungeonGenerator : MonoBehaviour
                 VoxelData exitVoxel = lastRoom.voxelMatrix[room1exit[0]].Find((x) => x.voxelItem.id == exitId);
                 VoxelData entranceVoxel = newRoom.voxelMatrix[room2entrance[room2entrance.Count-1]].Find((x) => x.voxelItem.id == entranceId);
 
-                int rotationsNeeded = ((exitVoxel.rotation.y/90) - (entranceVoxel.rotation.y/90) + 4) % 4;
+                int rotationsNeeded = ((exitVoxel.rotation.y / 90) - (entranceVoxel.rotation.y / 90) + 4) % 4;
                 for(int i = 0; i < rotationsNeeded; i++)
                     newRoom.voxelMatrix = RotateMatrixY(newRoom.voxelMatrix, room2entrance[0]);
 
-                LoadDungeonRoom(newRoom);
-                lastRoom = newRoom;
+                    LoadDungeonRoom(newRoom);
+                    lastRoom = newRoom;
+
+               // if (!CheckBoundingBoxCollision(newRoom.voxelMatrix, lastRoom.voxelMatrix))
+               // {
+                //    LoadDungeonRoom(newRoom);
+                //    lastRoom = newRoom;
+                //}
+                    
             }
         }
-                    
-
         
-    
 
-         // if(!CheckBoundingBoxCollision(dungeonRooms[0].voxelMatrix, dungeonRooms[1].voxelMatrix))
-                    //  {
-                    //     LoadDungeonRoom(newRoom);
-                    //     break;
-                    //  }
+
+
+
+
+        // if(!CheckBoundingBoxCollision(dungeonRooms[0].voxelMatrix, dungeonRooms[1].voxelMatrix))
+        //  {
+        //     LoadDungeonRoom(newRoom);
+        //     break;
+        //  }
 
         // foreach(List<VoxelData> chunk in ) {
         //     foreach(VoxelData voxelData in chunk) {

@@ -225,7 +225,7 @@ public class VoxelSceneEditor : MonoBehaviour {
         Vector3 mousePosition = Event.current.mousePosition;
 
         float perPixel = UnityEditor.EditorGUIUtility.pixelsPerPoint;
-        mousePosition.y = cam.pixelHeight - mousePosition.y * perPixel;
+        mousePosition.y = UnityEngine.Camera.current.pixelHeight - mousePosition.y * perPixel;
         mousePosition.x *= perPixel;
 
         Ray ray = UnityEngine.Camera.current.ScreenPointToRay(mousePosition);

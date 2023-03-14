@@ -166,6 +166,8 @@ public static class VoxelTools {
             List<VoxelDataWrapper> voxels = new List<VoxelDataWrapper>();
             foreach (VoxelData voxelData in entry.Value)
             {
+                voxelData.rotation.y = Mathf.RoundToInt(voxelData.rotation.y / 90) * 90;
+
                 VoxelDataWrapper voxel = new VoxelDataWrapper
                 {
                     id = voxelData.voxelItem.id,

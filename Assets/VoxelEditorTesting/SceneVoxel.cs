@@ -133,15 +133,20 @@ public class SceneVoxel : MonoBehaviour
     private void Init() {
         
         meshRenderer = GetComponent<MeshRenderer>();
-        material = new Material(Shader.Find("Standard"));
+        material = new Material(Shader.Find("Universal Render Pipeline/Lit"));
         meshRenderer.material = material;
 
-        if(voxelItem == null)
-            ChangeMaterialColor(Color.magenta);
-        else if(previewPlaceMode) {
+
+
+        if (previewPlaceMode) {
             ChangeMaterialColor(new Color(0f, 1f, 0f, 0.4f));
             GetComponent<Collider>().enabled = false;
-        } else {
+        }
+
+        else if (voxelItem == null)
+            ChangeMaterialColor(Color.magenta);
+            
+        else {
             
             GeneratePreview(true);
             
@@ -234,35 +239,31 @@ public class SceneVoxel : MonoBehaviour
 
 
     void ChangeMaterialColor(Color color)
-{
-    // Check if the color is transparent
-    if (color.a < 1.0f)
     {
-        // Set the material's color and enable transparency
-        material.SetColor("_Color", new Color(color.r, color.g, color.b, color.a));
-        material.SetFloat("_Mode", 3.0f);
-        material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        material.SetInt("_ZWrite", 0);
-        material.DisableKeyword("_ALPHATEST_ON");
-        material.EnableKeyword("_ALPHABLEND_ON");
-        material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-        material.renderQueue = 3000;
+        // Check if the color is transparent
+        if (color.a < 1.0f)
+        {
+            // Set the material's color and enable transparency
+            material.SetColor("_BaseColor", new Color(color.r, color.g, color.b, color.a));
+            material.SetFloat("_Surface", 1.0f);
+            material.SetFloat("_Blend", 1.0f);
+            material.SetInt("_ZWrite", 0);
+            material.SetInt("_AlphaClip", 1);
+            material.renderQueue = 3000;
+        }
+        else
+        {
+            // Set the material's color without transparency
+            material.SetColor("_BaseColor", color);
+            material.SetFloat("_Surface", 0.0f);
+            material.SetFloat("_Blend", 0.0f);
+            material.SetInt("_ZWrite", 1);
+            material.SetInt("_AlphaClip", 0);
+            material.renderQueue = -1;
+        }
     }
-    else
-    {
-        // Set the material's color without transparency
-        material.SetColor("_Color", color);
-        material.SetFloat("_Mode", 0.0f);
-        material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
-        material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
-        material.SetInt("_ZWrite", 1);
-        material.DisableKeyword("_ALPHATEST_ON");
-        material.DisableKeyword("_ALPHABLEND_ON");
-        material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-        material.renderQueue = -1;
-    }
-}
+
+
 
 
 
