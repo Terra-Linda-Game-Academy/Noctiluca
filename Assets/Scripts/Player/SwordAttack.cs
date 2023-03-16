@@ -30,6 +30,11 @@ namespace Player {
 			// do something with the colliders inside the cone, like apply damage or knockback
 			foreach (Collider col in collidersInCone) {
 				Debug.Log(col.gameObject.name + " is inside the attack cone!");
+				
+				if (col.gameObject.CompareTag("Boulder")) {
+					Vector3 direction = (col.transform.position - transform.position).normalized;
+					col.GetComponent<MoveBoulder>().Knockback(direction);
+				}
 			}
 		}
 
