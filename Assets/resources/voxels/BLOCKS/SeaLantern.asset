@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SeaLantern
   m_EditorClassIdentifier: 
   _voxelCategory: 1
-  _icon: {fileID: 2800000, guid: 2a3daea46c599324e873f935ab08000a, type: 3}
+  _icon: {fileID: 2800000, guid: 7b321111113005b45a0b313f6bdb2529, type: 3}
   _color: {r: 0.0047169924, g: 0.8272552, b: 1, a: 1}
   _id: 7014
   _prefab: {fileID: 7532445603843471130, guid: f7ff045f9f4921e46be3663296b5f250, type: 3}

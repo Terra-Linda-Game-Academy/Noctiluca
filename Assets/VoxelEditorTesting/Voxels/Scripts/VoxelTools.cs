@@ -133,6 +133,20 @@ public static class VoxelTools {
         public List<VoxelGroupWrapper> voxelGroups;
     }
 
+    public static int RotationToInt(Vector3 rotation)
+    {
+        int pitch = Mathf.RoundToInt(rotation.x / 90.0f) % 4;
+        int yaw = Mathf.RoundToInt(rotation.y / 90.0f) % 4;
+        return pitch * 4 + yaw;
+    }
+
+    public static Vector3 IntToRotation(int rotationInt)
+    {
+        int pitch = rotationInt / 4;
+        int yaw = rotationInt % 4;
+        return new Vector3(pitch * 90, yaw * 90, 0);
+    }
+
     public static void SaveSceneVoxelsToFile(Dictionary<Vector3Int, List<VoxelData>> voxelMatrix, string path)
     {
 

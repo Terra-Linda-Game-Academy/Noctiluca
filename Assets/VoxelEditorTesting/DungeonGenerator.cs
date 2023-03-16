@@ -6,24 +6,39 @@ using UnityEngine;
 
 public class DungeonRoom {
     public Dictionary<Vector3Int, List<VoxelData>> voxelMatrix;
-    //0 - 3
     public int rotation = 0;
-
     public Vector3Int position = Vector3Int.zero;
 
+    public RoomInfo roomInfo;
 
-    public DungeonRoom(Dictionary<Vector3Int, List<VoxelData>> voxelMatrix) {
+    public DungeonRoom(Dictionary<Vector3Int, List<VoxelData>> voxelMatrix, RoomInfo roomInfo) {
         this.voxelMatrix = voxelMatrix;
+        this.roomInfo = roomInfo;
     }
 }
 
+
+public class DungeonRoomData {
+    public Dictionary<Vector3Int, List<VoxelData>> voxelMatrix;
+    public RoomInfo roomInfo;
+
+    public DungeonRoomData(Dictionary<Vector3Int, List<VoxelData>> voxelMatrix, RoomInfo roomInfo) {
+        this.voxelMatrix = voxelMatrix;
+        this.roomInfo = roomInfo;
+    }
+}
+
+
+
+
 public class DungeonGenerator : MonoBehaviour
 {
-    public TextAsset[] rooms;
+    public RoomInfo[] roomInfos;
 
     private List<GameObject> instantiatedRooms = new List<GameObject>();
 
     private List<DungeonRoom> dungeonRooms = new List<DungeonRoom>();
+    private List<DungeonRoomData> dungeonRoomsData = new List<DungeonRoomData>();
 
 
     int exitId = 8492;
@@ -33,53 +48,54 @@ public class DungeonGenerator : MonoBehaviour
     public int numberOfRooms = 15;
 
 
+    
+
+
     private void LoadDungeonRoom(DungeonRoom dungeonRoom) {
         VoxelTools.LoadVoxelBuildFromFile(dungeonRoom.voxelMatrix, dungeonRoom.position, Vector3.zero);
     }
 
+
+
+
+
     private void Start()
     {
+        Debug.Log(VoxelTools.IntToRotation(VoxelTools.RotationToInt(new Vector3(0, 90, 0))));
+
         // Generate the first room
         VoxelPalette.InitCategories();
 
-        foreach(TextAsset textAsset in rooms) {
-            dungeonRooms.Add(new DungeonRoom(VoxelTools.LoadSceneVoxelsFromFile(AssetDatabase.GetAssetPath(textAsset))));
+        // foreach(RoomInfo roomInfo in roomInfos) {
+        //     dungeonRoomsData.Add(new DungeonRoomData(VoxelTools.LoadSceneVoxelsFromFile(AssetDatabase.GetAssetPath(roomInfo.file)), roomInfo));
+        // }
+        foreach(RoomInfo roomInfo in roomInfos) {
+            dungeonRooms.Add(new DungeonRoom(VoxelTools.LoadSceneVoxelsFromFile(AssetDatabase.GetAssetPath(roomInfo.file)), roomInfo));
         }
         
         
 
-        DungeonRoom lastRoom = dungeonRooms[UnityEngine.Random.Range(0, rooms.Length)];
-
-       // int rN = ((90 / 90) - (0 / 90)  + 4) % 4;
-        //Debug.Log("rotaion: " + rN);
-
-        /*
-        List<List<VoxelData>> door = GetChunks(lastRoom.voxelMatrix, entranceId);
-        List<Vector3Int> doorPos = door[UnityEngine.Random.Range(0, door.Count)].ConvertAll<Vector3Int>((x) => x.position);
-
-        //lastRoom
-
-        LoadDungeonRoom(lastRoom);
-
-        lastRoom.voxelMatrix = RotateMatrixY(lastRoom.voxelMatrix, doorPos[0]);
-        LoadDungeonRoom(lastRoom);
-
-        lastRoom.voxelMatrix = RotateMatrixY(lastRoom.voxelMatrix, doorPos[0]);
-        LoadDungeonRoom(lastRoom);
-
-        lastRoom.voxelMatrix = RotateMatrixY(lastRoom.voxelMatrix, doorPos[0]);
-        LoadDungeonRoom(lastRoom);
-        */
-
-
+        DungeonRoom lastRoom = dungeonRooms[UnityEngine.Random.Range(0, dungeonRooms.Count)];
 
 
         for (int room = 0; room < numberOfRooms; room++) {
 
             DungeonRoom newRoom = null;
             int attempts = 0;
-            while (newRoom == null || newRoom == lastRoom) {
-                newRoom = dungeonRooms[UnityEngine.Random.Range(0, rooms.Length)];
+            while (newRoom == null) {
+                newRoom = dungeonRooms.Find((x) => x.roomInfo==lastRoom.roomInfo.nextRooms[UnityEngine.Random.Range(0, lastRoom.roomInfo.nextRooms.Length)]);
+                if(newRoom == null)
+                {
+                    Debug.Log("Null How?!");
+                    continue;
+                }
+                if(UnityEngine.Random.Range(0f,1f) > newRoom.roomInfo.rarity) {
+                    newRoom = null;
+                    continue;
+                }
+
+                //newRoom = dungeonRooms[UnityEngine.Random.Range(0,dungeonRooms.Count)];
+
                 attempts++;
 
                 if (attempts > 10) {
@@ -87,6 +103,9 @@ public class DungeonGenerator : MonoBehaviour
                     return;
                 }
             }
+
+            //Debug.Log(newRoom == null);
+            newRoom.rotation = 0;
 
             List<List<VoxelData>> room1exits = GetChunks(lastRoom.voxelMatrix, exitId);
             List<List<VoxelData>> room2entrances = GetChunks(newRoom.voxelMatrix, entranceId);
@@ -104,35 +123,10 @@ public class DungeonGenerator : MonoBehaviour
 
                     LoadDungeonRoom(newRoom);
                     lastRoom = newRoom;
-
-               // if (!CheckBoundingBoxCollision(newRoom.voxelMatrix, lastRoom.voxelMatrix))
-               // {
-                //    LoadDungeonRoom(newRoom);
-                //    lastRoom = newRoom;
-                //}
                     
             }
         }
-        
-
-
-
-
-
-        // if(!CheckBoundingBoxCollision(dungeonRooms[0].voxelMatrix, dungeonRooms[1].voxelMatrix))
-        //  {
-        //     LoadDungeonRoom(newRoom);
-        //     break;
-        //  }
-
-        // foreach(List<VoxelData> chunk in ) {
-        //     foreach(VoxelData voxelData in chunk) {
-        //         GameObject b= GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        //         b.transform.position = voxelData.position;
-        //         b.transform.localScale = new Vector3(2,2,2);
-        //     }
-        // }
-    }
+   }
 
 
 
