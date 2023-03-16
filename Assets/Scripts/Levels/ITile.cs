@@ -12,7 +12,7 @@ namespace Levels {
         /// <summary>
         /// Where to place the created GameObject
         /// </summary>
-        public Vector3Int Position { get; }
+        public Vector2Int Position { get; }
         
         /// <summary>
         /// Initialize the given GameObject

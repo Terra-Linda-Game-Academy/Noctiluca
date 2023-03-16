@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using Unity.Collections;
 using UnityEngine;
@@ -22,7 +23,6 @@ namespace Levels {
         public Guid RoomId { get; private set; }
         
         private MeshRenderer meshRenderer;
-        private MeshFilter meshFilter;
 
         private void Awake() {
             #if UNITY_EDITOR 
@@ -30,14 +30,14 @@ namespace Levels {
             #endif
             RoomId = new Guid();
             meshRenderer = GetComponent<MeshRenderer>();
-            meshFilter = GetComponent<MeshFilter>();
             
             foreach (var tile in room.TileAssets) {
                 if (!tile.CreateGameObject) return;
                 GameObject obj = new GameObject(tile.Name);
                 Transform objTransform = obj.transform;
                 objTransform.parent = transform;
-                objTransform.position = tile.Position;
+                int x = tile.Position.x, z = tile.Position.y;
+                objTransform.position = new Vector3(x, room.GetTileAt(x, z).Height, z);
                 tile.Init(obj, RoomId);
             }
 
@@ -45,7 +45,8 @@ namespace Levels {
                 GameObject obj = new GameObject(tile.Name);
                 Transform objTransform = obj.transform;
                 objTransform.parent = transform;
-                objTransform.position = tile.Position;
+                int x = tile.Position.x, z = tile.Position.y;
+                objTransform.position = new Vector3(x, room.GetTileAt(x, z).Height, z);
                 tile.Init(obj, RoomId);
             }
             
