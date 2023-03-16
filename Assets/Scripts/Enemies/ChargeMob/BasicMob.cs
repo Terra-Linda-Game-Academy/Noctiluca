@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 namespace Enemies.ChargeMob {
-	public class BasicMob : MonoBehaviour {
+	public abstract class BasicMob : MonoBehaviour {
 		public float wanderRadius;
 		public float wanderTimer;
 
