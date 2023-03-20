@@ -11,14 +11,14 @@ namespace Levels.Tiles {
         
         [SerializeField, Tooltip("By default, will use the name of the prefab")]
         private Option<string> name;
-        
-        [SerializeField, HideInInspector] 
-        private BoundsInt bounds;
-        
-        public override string Name => name.OrElse(prefab.name);
-        public override Vector3Int Position => bounds.min;
 
-        public override void Init(GameObject obj) {
+        [SerializeField, Tooltip("Where the tile should be located in the room")] 
+        private Vector2Int position;
+
+        public override string Name => name.OrElse(prefab.name);
+        public override Vector2Int Position => position;
+
+        public override void Init(GameObject obj, Room room) {
             Object.Instantiate(prefab, obj.transform);
         }
     }
