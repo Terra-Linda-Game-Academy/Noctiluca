@@ -38,7 +38,7 @@ namespace Levels {
                 objTransform.parent = transform;
                 int x = tile.Position.x, z = tile.Position.y;
                 objTransform.position = new Vector3(x, room.GetTileAt(x, z).Height, z);
-                tile.Init(obj, RoomId);
+                tile.Init(obj, RoomId, Room);
             }
 
             foreach (var tile in room.Tiles) {
@@ -47,7 +47,7 @@ namespace Levels {
                 objTransform.parent = transform;
                 int x = tile.Position.x, z = tile.Position.y;
                 objTransform.position = new Vector3(x, room.GetTileAt(x, z).Height, z);
-                tile.Init(obj, RoomId);
+                tile.Init(obj, RoomId, Room);
             }
             
             GenerateTerrainMesh();

@@ -6,6 +6,6 @@ namespace Levels {
         public abstract string Name { get; }
         public abstract Vector2Int Position { get; }
         public abstract bool CreateGameObject { get; }
-        public abstract void Init(GameObject obj, Guid roomId);
+        public abstract void Init(GameObject obj, Guid roomId, Room room);
     }
 }

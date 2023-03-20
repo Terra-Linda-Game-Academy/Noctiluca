@@ -18,7 +18,7 @@ namespace Levels.Tiles {
         public override string Name => name.OrElse(prefab.name);
         public override Vector2Int Position => position;
 
-        public override void Init(GameObject obj) {
+        public override void Init(GameObject obj, Room room) {
             Object.Instantiate(prefab, obj.transform);
         }
     }
