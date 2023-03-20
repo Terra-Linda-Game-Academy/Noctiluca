@@ -16,7 +16,17 @@ namespace Levels {
             for (int x = 0; x < room.Size.x; x++) { //todo: change back to <= when making full generation
                 for (int z = 0; z < room.Size.z; z++) {
                     Room.Tile tile = room.GetTileAt(x, z);
-                    if (tile.flags.HasFlag(Room.TileFlags.Wall | Room.TileFlags.Pit)) break;
+                    if (tile.flags.HasFlag(Room.TileFlags.Wall)) {
+                        AddIndices(sideIndices, vertices.Count,0, 2, 1,  1, 2, 3);
+                        vertices.Add(new Vertex(new Vector3(x, room.Size.y, z), Vector3.up, Vector2.zero));
+                        vertices.Add(new Vertex(new Vector3(x + 1, room.Size.y, z), Vector3.up, Vector2.zero));
+                        vertices.Add(new Vertex(new Vector3(x, room.Size.y, z + 1), Vector3.up, Vector2.zero));
+                        vertices.Add(new Vertex(new Vector3(x + 1, room.Size.y, z + 1), Vector3.up, Vector2.zero));
+                        continue;
+                    }
+
+                    
+                    if (tile.flags.HasFlag(Room.TileFlags.Pit)) continue;
 
                     void AddIndices(List<ushort> indices, int c, params ushort[] offsets) {
                         foreach (var o in offsets) indices.Add((ushort) (c + o));

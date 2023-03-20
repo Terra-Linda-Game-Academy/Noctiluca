@@ -14,11 +14,11 @@ namespace Levels {
 		}
 
 		[Serializable, StructLayout(LayoutKind.Sequential)]
-		public readonly struct Tile {
+		public struct Tile {
 			public const int Stride = sizeof(TileFlags) + sizeof(ushort);
 
-			public readonly TileFlags flags;
-			public readonly ushort    packedHeight;
+			public TileFlags flags;
+			public ushort    packedHeight;
 
 			public float Height => Mathf.HalfToFloat(packedHeight);
 
@@ -30,14 +30,7 @@ namespace Levels {
 
 		[SerializeField] private Vector3Int size;
 
-		public Vector3Int Size {
-			get => size;
-			set {
-				Vector3Int oldSize = size;
-
-				size = value;
-			}
-		}
+		public Vector3Int Size => size;
 
 		/// <Summary> lower half </Summary>
 		[SerializeField] public Tile[] tileMap;
@@ -48,29 +41,15 @@ namespace Levels {
 		public Tile GetTileAt(int x, int z) {
 			if (tileMap.Length <= 0) ResetTiles();
 
-			if (x < 0 || x >= size.x || z < 0 || z >= size.z) { //todo: remove this
-				return new Tile(TileFlags.Wall, 0);
-			}
+			if (x < 0 || x >= size.x || z < 0 || z >= size.z) return new Tile(TileFlags.Wall, 0);
 
-			/*float height = 0;
-			if (z > 6) height = 1;
-			if (x > 10) height = 2;
-			height += 0.2f * Mathf.Sin(x) * Mathf.Sin(z);
-			if (x < 0 || z < 0 || x >= size.x || z >= size.z) { //todo: remove this
-			    return new Tile(TileFlags.Wall, Mathf.Clamp(height, 0, size.y));
-			}
-			return new Tile(height >= size.y ? TileFlags.Wall : TileFlags.None, Mathf.Clamp(height, 0, size.y));*/
-			int linearIndex = z * size.x + x;
-			return tileMap[linearIndex];
+			return tileMap[ToLinearIndex(x, z)];
 		}
 
 		public bool SetTileAt(Tile tile, int x, int z) {
-			if (tileMap.Length <= 0) ResetTiles();
-
 			if (x < 0 || x >= size.x || z < 0 || z >= size.z) { return false; }
 
-			int linearIndex = z * size.x + x;
-			tileMap[linearIndex] = tile;
+			tileMap[ToLinearIndex(x, z)] = tile;
 			return true;
 		}
 
@@ -101,6 +80,32 @@ namespace Levels {
 			}
 		}
 
-		private void UpdateSize(Vector3Int oldSize) { }
+		public void UpdateSize(Vector3Int newSize) {
+			Tile[] newArray = new Tile[newSize.x * newSize.z];
+
+			for (int i = 0; i < newSize.x; i++) {
+				for (int j = 0; j < newSize.z; j++) {
+					int oldLinearIndex = ToLinearIndex(i, j);
+					int newLinearIndex = ToLinearIndex(i, j);
+
+					if (i >= size.x || j >= size.z) {
+						newArray[newLinearIndex] = new Tile(TileFlags.None, 0f);
+						continue;
+					}
+
+					newArray[newLinearIndex] = tileMap[oldLinearIndex];
+				}
+			}
+
+			tileMap = newArray;
+			size    = newSize;
+		}
+
+		public int ToLinearIndex(int x, int z) { return z * size.x + x; }
+
+		public Vector2Int FromLinearIndex(int i) {
+			int z = Math.DivRem(i, size.x, out int x);
+			return new Vector2Int(x, z);
+		}
 	}
 }
