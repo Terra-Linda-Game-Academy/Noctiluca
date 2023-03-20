@@ -14,15 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _middlewares:
   - rid: 5896140367560966165
-  - rid: 5785514289840259072
+  - rid: 7234529448381644800
   references:
     version: 2
     RefIds:
-    - rid: 5785514289840259072
-      type: {class: PlayerAimModMiddleware, ns: Input.Middleware, asm: Assembly-CSharp}
-      data:
-        perceptron: {fileID: 0}
     - rid: 5896140367560966165
       type: {class: PlayerInputMiddleware, ns: Input.Middleware, asm: Assembly-CSharp}
+      data:
+        perceptron: {fileID: 0}
+    - rid: 7234529448381644800
+      type: {class: PlayerCamModMiddleware, ns: Input.Middleware, asm: Assembly-CSharp}
       data:
         perceptron: {fileID: 0}
