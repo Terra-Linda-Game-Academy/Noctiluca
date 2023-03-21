@@ -3,10 +3,18 @@ using System.Collections.Generic;
 using Levels;
 using UnityEngine;
 
-public class IceFloeController : MonoBehaviour//<E, C> : MonoBehaviour 
-   // where E : TileEntity<E, C> 
-    //where C : TileEntityController<E, C>
+public class IceFloeController// : TileEntityController
 {
+
+
+
+
+
+
+}
+
+
+    /*
     // Start is called before the first frame update
     public int size = 5; // size of the square
 
@@ -137,3 +145,4 @@ public class VoronoiNoise {
 
 
 
+    */
