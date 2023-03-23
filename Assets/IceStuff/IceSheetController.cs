@@ -8,20 +8,14 @@ public class IceSheetController : MonoBehaviour
     public DelaunayTriangulationTester delaunayTriangulationTester;
     public PolygonCollider2D shape;
 
-    public static IceSheetController Instance;
 
     public List<FrostPoint> frostPoints = new List<FrostPoint>();
 
     public float maxParticleLife = 5f;
 
-    public GameObject meshObject;
+    public MeshFilter meshFilter;
 
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        Instance = this;
-    }
 
     public void AddPointToShape(Vector3 point)
     {
@@ -39,22 +33,22 @@ public class IceSheetController : MonoBehaviour
     {
         if (frostPoints.Count > 2)
         {
-            meshObject.SetActive(true);
+            meshFilter.gameObject.SetActive(true);
             shape.points = frostPoints.ConvertAll<Vector2>((fp) => new Vector2(fp.position.x, fp.position.z)).ToArray();
             delaunayTriangulationTester.RunTestPolygonColliders();
         } else
         {
-            meshObject.SetActive(false);
+            meshFilter.gameObject.SetActive(false);
         }
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         bool updatePoints = false;
         foreach (FrostPoint frostPoint in frostPoints)
         {
-            frostPoint.currentLifeTime += Time.deltaTime;
+            frostPoint.currentLifeTime += Time.fixedDeltaTime;
 
             if(frostPoint.currentLifeTime >= maxParticleLife)
             {

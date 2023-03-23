@@ -67,7 +67,11 @@ public class DelaunayTriangulationTester : MonoBehaviour
         m_triangulation.Triangulate(pointsToTriangulate, TesselationMaximumTriangleArea, constrainedEdgePoints);
         m_triangulation.GetTrianglesDiscardingHoles(m_outputTriangles);
 
-        VisualRepresentation.mesh = CreateMeshFromTriangles(m_outputTriangles);
+        Mesh mesh = CreateMeshFromTriangles(m_outputTriangles);
+       // mesh.
+        VisualRepresentation.mesh = mesh;
+
+
 
        // Debug.Log("Test finished.");
     }
