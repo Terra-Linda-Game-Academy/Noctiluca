@@ -13,6 +13,14 @@ namespace Levels {
 			None = 0b0000000000000100
 		}
 
+		[Serializable]
+		public enum Direction : byte {
+			North = 0,
+			East = 1,
+			South = 2,
+			West = 3
+		}
+
 		[Serializable, StructLayout(LayoutKind.Sequential)]
 		public struct Tile {
 			public const int Stride = sizeof(TileFlags) + sizeof(ushort);
@@ -28,6 +36,12 @@ namespace Levels {
 			}
 		}
 
+		[Serializable, StructLayout(LayoutKind.Sequential)]
+		public struct ConnectionPoint {
+			public byte coordinate;
+			public Direction direction;
+		}
+
 		[SerializeField] private Vector3Int size;
 
 		public Vector3Int Size => size;
@@ -37,6 +51,8 @@ namespace Levels {
 
 		[SerializeField]     private TileAsset[]  tileAssets;
 		[SerializeReference] private SimpleTile[] tiles;
+
+		[SerializeField] public List<ConnectionPoint> hallwayConnections;
 
 		public Tile GetTileAt(int x, int z) {
 			if (tileMap.Length <= 0) ResetTiles();

@@ -52,7 +52,7 @@ namespace Util.Editor {
 
 		public ManagedListViewer(SerializedProperty list, Options options = Options.Default) {
 			_options = options;
-			Init(list, () => { AddItem(new T()); });
+			Init(list, () => { AddItem(Activator.CreateInstance(typeof(T))); });
 		}
 
 		public ManagedListViewer(SerializedProperty list, Type[] creationTypes, Options options = Options.Default) {
