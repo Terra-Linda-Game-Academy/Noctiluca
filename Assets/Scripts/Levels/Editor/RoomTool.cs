@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.EditorTools;
 using UnityEngine;
@@ -7,19 +9,29 @@ namespace Levels.Editor {
 	public class RoomTool : EditorTool, IDrawSelectedHandles {
 		public override GUIContent toolbarIcon => new GUIContent("Room Tool", "Use this to edit room objects");
 
-		private RoomController controller;
-		private Room           Room => controller.Room;
+		private RoomController _controller;
+		private Room           Room => _controller.Room;
+
+		private Type[] _simpleTileTypes;
+		private Type[] _assetTileTypes;
+		private Rect   _typeWindow;
 
 		private void OnEnable() {
-			controller = (RoomController) target;
+			_controller = (RoomController) target;
+
+			//_simpleTileTypes  = AssignTileTypes().ToArray();
+			AssignTileTypes();
+			
+			_typeWindow = new Rect(50, 20, Mathf.Max(GetTypeWindowWidth(), 40f), 80);
+
 			SetMeshes();
 		}
 
 		private void SetMeshes() {
-			Mesh mesh = TerrainMesh.Generate(controller.Room);
+			Mesh mesh = TerrainMesh.Generate(_controller.Room);
 
-			controller.GetComponent<MeshFilter>().sharedMesh   = mesh;
-			controller.GetComponent<MeshCollider>().sharedMesh = mesh;
+			_controller.GetComponent<MeshFilter>().sharedMesh   = mesh;
+			_controller.GetComponent<MeshCollider>().sharedMesh = mesh;
 		}
 
 		public override void OnToolGUI(EditorWindow window) {
@@ -30,7 +42,7 @@ namespace Levels.Editor {
 			Vector3Int sizeVal = Room.Size;
 			Vector3Int newSize = new Vector3Int();
 
-			using (new Handles.DrawingScope(controller.transform.localToWorldMatrix)) {
+			using (new Handles.DrawingScope(_controller.transform.localToWorldMatrix)) {
 				Handles.color = Handles.xAxisColor;
 				var xHandlePos = new Vector3(sizeVal.x, 0, 0);
 				newSize.x = Mathf.FloorToInt(Mathf.Max(1, Handles.ScaleSlider(
@@ -68,7 +80,7 @@ namespace Levels.Editor {
 
 
 		public void OnDrawHandles() {
-			using (new Handles.DrawingScope(Color.white, controller.transform.localToWorldMatrix)) {
+			using (new Handles.DrawingScope(Color.white, _controller.transform.localToWorldMatrix)) {
 				if (Room is null) {
 					using (new Handles.DrawingScope(Color.red)) {
 						Vector3 half = new Vector3(0.5f, 0.5f, 0.5f);
@@ -105,10 +117,61 @@ namespace Levels.Editor {
 		private void DrawGUI(EditorWindow window) {
 			Handles.BeginGUI();
 
+			_typeWindow = GUI.Window(0, _typeWindow, DrawTileTypesWindow, "Tile Entities");
+
 			if (GUI.Button(new Rect(0, window.position.height - 30 - 30, 100, 30),
 			               "Reset Mesh")) { SetMeshes(); }
 
 			Handles.EndGUI();
+		}
+
+		private void DrawTileTypesWindow(int _) {
+			float buttonX = 10;
+			
+			foreach (Type tileType in _simpleTileTypes) {
+				string typeName = tileType.Name;
+				
+				if (GUI.Button(new Rect(buttonX, 30, GetButtonWidth(typeName.Length), 20), tileType.Name)) {
+					Debug.Log($"clicked {tileType.Name}");
+				}
+
+				buttonX += GetButtonWidth(typeName.Length) + 10;
+			}
+			
+			foreach (Type tileType in _assetTileTypes) {
+				string typeName = tileType.Name;
+				
+				if (GUI.Button(new Rect(buttonX, 30, GetButtonWidth(typeName.Length), 20), tileType.Name)) {
+					Debug.Log($"clicked {tileType.Name}");
+				}
+
+				buttonX += GetButtonWidth(typeName.Length) + 10;
+			}
+
+			GUI.DragWindow();
+		}
+
+		private void AssignTileTypes() {
+			_simpleTileTypes = TypeCache.GetTypesDerivedFrom<SimpleTile>().ToArray();
+			_assetTileTypes  = TypeCache.GetTypesDerivedFrom<TileAsset>().ToArray();
+		}
+
+		private static float GetButtonWidth(int charCount) {
+			return charCount * 8f;
+		}
+
+		private float GetTypeWindowWidth() {
+			float width = 10 * 1;
+
+			foreach (Type type in _simpleTileTypes) {
+				width += GetButtonWidth(type.Name.Length) + 10;
+			}
+			
+			foreach (Type type in _assetTileTypes) {
+				width += GetButtonWidth(type.Name.Length) + 10;
+			}
+
+			return width;
 		}
 	}
 }
