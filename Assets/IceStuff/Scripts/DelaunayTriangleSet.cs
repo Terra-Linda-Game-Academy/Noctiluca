@@ -461,7 +461,7 @@ namespace Game.Utils.Triangulation
 
             if(checkedTriangles >= TriangleCount && TriangleCount > 1)
             {
-                Debug.LogError("Unable to find a triangle that contains the point (" + point.ToString("F6") + "), starting at triangle " + startTriangle + ". Are you generating very small triangles?");
+               // Debug.LogError("Unable to find a triangle that contains the point (" + point.ToString("F6") + "), starting at triangle " + startTriangle + ". Are you generating very small triangles?");
             }
 
             return triangleIndex;

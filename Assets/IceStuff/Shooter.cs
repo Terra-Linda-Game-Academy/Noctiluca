@@ -48,6 +48,7 @@ public class Shooter : MonoBehaviour
                 for (int i = 0; i < count; i++)
                 {
                     GameObject instantiatedProjectile = Instantiate(projectile, spawnTransform.position, spawnTransform.rotation);
+                    Destroy(instantiatedProjectile, 5);
                     instantiatedProjectile.GetComponent<IceProjectile>().targetIceSheet = currentIceSheet.iceSheetController;
                     Rigidbody rigidbody = instantiatedProjectile.GetComponent<Rigidbody>();
                     rigidbody.AddForce((spawnTransform.forward + new Vector3(UnityEngine.Random.Range(-randomness, randomness), UnityEngine.Random.Range(-randomness, randomness), UnityEngine.Random.Range(-randomness, randomness))) * shootSpeed, ForceMode.Impulse);
@@ -59,6 +60,9 @@ public class Shooter : MonoBehaviour
         } else
         {
             shooting = false;
+            if(currentIceSheet != null)
+                currentIceSheet.growing = false;
+            currentIceSheet = null;
         }
 
     }

@@ -35,7 +35,8 @@ public class IceFloeManager : MonoBehaviour
 
         foreach(IceSheetInstance iceSheet in iceSheetInstances)
         {
-            iceSheet.lifeTime += Time.fixedDeltaTime;
+            if(!iceSheet.growing)
+                iceSheet.lifeTime += Time.fixedDeltaTime;
 
             if(iceSheet.lifeTime > iceSheet.maxLifeTime)
             {
@@ -50,15 +51,24 @@ public class IceFloeManager : MonoBehaviour
 
     void DestroyIceSheet(IceSheetInstance iceSheetInstance)
     {
-        for (int v = 0; v < iceSheetInstance.iceSheetController.meshFilter.mesh.vertices.Length; v += 3)
+        for (int v = 0; v < iceSheetInstance.iceSheetController.meshFilter.mesh.vertices.Length; v += iceSheetInstance.iceSheetController.meshFilter.mesh.vertices.Length/25)
         {
-            Vector3 particlePos = iceSheetInstance.iceSheetController.meshFilter.mesh.vertices[v] + iceSheetInstance.iceSheetController.transform.position;
+            Vector3 localPosition = iceSheetInstance.iceSheetController.meshFilter.mesh.vertices[v];
+            Vector3 localRotatedPosition = RotatePointAroundPivot(localPosition, iceSheetInstance.iceSheetController.transform.position, iceSheetInstance.iceSheetController.transform.rotation.eulerAngles);
+            Vector3 particlePos = localRotatedPosition + iceSheetInstance.iceSheetController.transform.position;
 
             Destroy(Instantiate(iceSheetDestroyParticles, particlePos, Quaternion.identity), 3f);
         }
 
         Destroy(iceSheetInstance.iceSheetController.gameObject);
     }
+
+    Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles) {
+        Vector3 dir = point - pivot; // get point direction relative to pivot
+        dir = Quaternion.Euler(angles)* dir; // rotate it
+        point = dir + pivot; // calculate rotated point
+        return point; // return it
+     }
 }
 
     
@@ -70,6 +80,8 @@ public class IceSheetInstance
     public float lifeTime = 0;
 
     public float maxLifeTime = 10f;
+
+    public bool growing = true;
     public IceSheetInstance(IceSheetController iceSheetController, float maxLifeTime)
     {
         this.iceSheetController = iceSheetController;

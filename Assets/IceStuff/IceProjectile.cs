@@ -16,5 +16,9 @@ public class IceProjectile : MonoBehaviour
             targetIceSheet.AddPointToShape(transform.position);
             Destroy(gameObject);
         }
+        else if(collision.other.CompareTag("Ground"))
+        {
+            Destroy(gameObject);
+        }
     }
 }

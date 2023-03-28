@@ -68,7 +68,12 @@ public class DelaunayTriangulationTester : MonoBehaviour
         m_triangulation.GetTrianglesDiscardingHoles(m_outputTriangles);
 
         Mesh mesh = CreateMeshFromTriangles(m_outputTriangles);
-       // mesh.
+        /*
+        for(int v = 0; v < mesh.vertices.Length; v+=2)
+        {
+            mesh.vertices[v] = mesh.vertices[v] + new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), 0);
+        }
+        */
         VisualRepresentation.mesh = mesh;
 
 
