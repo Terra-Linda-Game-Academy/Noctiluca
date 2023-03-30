@@ -10,7 +10,7 @@ namespace Levels
         private GameObject enemy;
 
         [SerializeField]
-        private EnemyPool enemyPool;
+        public List<EnemyPool> enemyPool;
 
         [SerializeField]
         private int singleEnemySpawnCount;
@@ -27,15 +27,29 @@ namespace Levels
         [SerializeField]
         private float roomHeight;
 
-        
-
 
         //can i get uhhhhhhhhhh weight calc?
-        
+
+        public interface IEnemyDefinition<E> where E : ScriptableObject, IEnemyDefinition<E>
+        {
+            GameObject InitEnemy();
+        }
+
+        public class EnemyDefinition : ScriptableObject, IEnemyDefinition<EnemyDefinition>
+        {
+            [SerializeField]
+            private GameObject enemyPrefab;
+
+            public GameObject InitEnemy()
+            {
+                return Instantiate(enemyPrefab);
+            }
+        }
+
         //Define the enemy, define its position, and then initialize the enemy at the spawn position parenting the controller.
         public void SpawnSingleEnemy()
         {
-            EnemyDefinition enemyDefinition = enemyPool.GetRandomEnemyDefinition();
+            EnemyDefinition enemyDefinition = EnemyPool.GetRandomEnemyDefinition();
             Vector3 spawnPosition = GetValidEnemyPosition();
             Init(enemy);
         }
