@@ -101,8 +101,8 @@ namespace Levels {
 
 			for (int i = 0; i < newSize.x; i++) {
 				for (int j = 0; j < newSize.z; j++) {
-					int oldLinearIndex = ToLinearIndex(i, j);
-					int newLinearIndex = ToLinearIndex(i, j);
+					int oldLinearIndex = ToLinearIndex(i, j, size);
+					int newLinearIndex = ToLinearIndex(i, j, newSize);
 
 					if (i >= size.x || j >= size.z) {
 						newArray[newLinearIndex] = new Tile(TileFlags.None, 0f);
@@ -117,10 +117,16 @@ namespace Levels {
 			size    = newSize;
 		}
 
-		public int ToLinearIndex(int x, int z) { return z * size.x + x; }
+		public int ToLinearIndex(int x, int z) => ToLinearIndex(x, z, size); 
 
-		public Vector2Int FromLinearIndex(int i) {
-			int z = Math.DivRem(i, size.x, out int x);
+		public static int ToLinearIndex(int x, int z, Vector3Int specificSize) {
+			return z * specificSize.x + x;
+		}
+
+		public Vector2Int FromLinearIndex(int i) => FromLinearIndex(i, size);
+
+		public static Vector2Int FromLinearIndex(int i, Vector3Int specificSize) {
+			int z = Math.DivRem(i, specificSize.x, out int x);
 			return new Vector2Int(x, z);
 		}
 	}
