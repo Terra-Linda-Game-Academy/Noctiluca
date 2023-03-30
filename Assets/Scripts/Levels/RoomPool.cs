@@ -5,17 +5,18 @@ using UnityEngine;
 namespace Levels {
 	[CreateAssetMenu(menuName = "Levels/Room Pool", fileName = "Room Pool")]
 	public class RoomPool : ScriptableObject {
-		[SerializeField] public List<WrappedRoom> rooms = new List<WrappedRoom>();
+		[SerializeReference] public List<WrappedRoom> rooms = new();
 
 		[Serializable]
-		public struct WrappedRoom : IEquatable<WrappedRoom> {
+		public class WrappedRoom : IEquatable<WrappedRoom> {
 			public Room room;
 			public int  spawnWeight;
 			public bool unique;
 
 			public bool Equals(WrappedRoom other) {
-				return Equals(room, other.room)
-				    && spawnWeight == other.spawnWeight
+				return other != null
+				    && Equals(room, other.room) 
+				    && spawnWeight == other.spawnWeight 
 				    && unique      == other.unique;
 			}
 

@@ -10,7 +10,7 @@ namespace Levels.Editor {
 
 			SerializedProperty rooms = serializedObject.FindProperty("rooms");
 			ManagedListViewer<RoomPool.WrappedRoom> listViewer =
-				new ManagedListViewer<RoomPool.WrappedRoom>(rooms, new []{typeof(Room)}, ManagedListViewer<RoomPool.WrappedRoom>.Options.NoSize);
+				new ManagedListViewer<RoomPool.WrappedRoom>(rooms, ManagedListViewer<RoomPool.WrappedRoom>.Options.NoSize);
 			
 			root.Add(listViewer);
 

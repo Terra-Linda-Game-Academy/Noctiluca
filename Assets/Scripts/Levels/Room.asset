@@ -436,6 +436,7 @@ MonoBehaviour:
     packedHeight: 0
   tileAssets: []
   tiles: []
+  hallwayConnections: []
   references:
     version: 2
     RefIds: []
