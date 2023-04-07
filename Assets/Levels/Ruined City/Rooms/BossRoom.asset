@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9735f589568b4ca28072e35eb1498b4b, type: 3}
-  m_Name: NormalRoom
+  m_Name: BossRoom
   m_EditorClassIdentifier: 
-  size: {x: 8, y: 3, z: 8}
+  size: {x: 10, y: 3, z: 10}
   tileMap:
   - flags: 4
     packedHeight: 0
@@ -61,17 +61,11 @@ MonoBehaviour:
   - flags: 4
     packedHeight: 0
   - flags: 4
-    packedHeight: 0
+    packedHeight: 14553
   - flags: 4
-    packedHeight: 0
+    packedHeight: 14553
   - flags: 4
-    packedHeight: 0
-  - flags: 4
-    packedHeight: 0
-  - flags: 4
-    packedHeight: 14997
-  - flags: 4
-    packedHeight: 14997
+    packedHeight: 14553
   - flags: 4
     packedHeight: 0
   - flags: 4
@@ -85,15 +79,93 @@ MonoBehaviour:
   - flags: 4
     packedHeight: 0
   - flags: 4
-    packedHeight: 14997
+    packedHeight: 0
   - flags: 4
-    packedHeight: 14997
+    packedHeight: 14553
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 14553
   - flags: 4
     packedHeight: 0
   - flags: 4
     packedHeight: 0
   - flags: 4
     packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 14553
+  - flags: 4
+    packedHeight: 14553
+  - flags: 4
+    packedHeight: 14553
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 14553
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 14553
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 14553
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 14553
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 14553
+  - flags: 4
+    packedHeight: 14553
+  - flags: 4
+    packedHeight: 14553
   - flags: 4
     packedHeight: 0
   - flags: 4

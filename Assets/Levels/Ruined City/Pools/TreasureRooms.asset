@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c6f7ba7100fd4025b71f505e89040f46, type: 3}
-  m_Name: Room Pool
+  m_Name: TreasureRooms
   m_EditorClassIdentifier: 
   rooms:
-  - rid: 7234529924413390851
+  - rid: 7234529924413390853
   references:
     version: 2
     RefIds:
-    - rid: 7234529924413390851
+    - rid: 7234529924413390853
       type: {class: RoomPool/WrappedRoom, ns: Levels, asm: Assembly-CSharp}
       data:
-        room: {fileID: 11400000, guid: 4f837f549ec8ab0fd83a73da73cca3b0, type: 2}
-        spawnWeight: 5
+        room: {fileID: 11400000, guid: dd1c127fb6c834174863371e614c0218, type: 2}
+        spawnWeight: 0
         unique: 0

@@ -12,7 +12,7 @@ namespace Levels.Editor {
 
 		private void OnEnable() {
 			controller = (RoomController) target;
-			SetMeshes();
+			if (Room != null) SetMeshes();
 		}
 
 		private void SetMeshes() {

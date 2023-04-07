@@ -12,8 +12,100 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9735f589568b4ca28072e35eb1498b4b, type: 3}
   m_Name: Room
   m_EditorClassIdentifier: 
-  size: {x: 15, y: 5, z: 14}
+  size: {x: 16, y: 5, z: 16}
   tileMap:
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
   - flags: 4
     packedHeight: 0
   - flags: 4
