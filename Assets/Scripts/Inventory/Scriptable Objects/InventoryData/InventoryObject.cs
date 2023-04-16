@@ -7,15 +7,16 @@ using UnityEngine.Serialization;
 [CreateAssetMenu(fileName = "New Inventory", menuName = "Inventory System/Inventory")]
 public class InventoryObject : ScriptableObject
 {
-    public List<InventorySlot> Container = new List<InventorySlot>();
+    public List<InventorySlot> ItemContainer = new List<InventorySlot>();
+    public List<PotionSlot> PotionContainer = new List<PotionSlot>();
     public void AddItem(Item _item, int _ammount)
     {
         bool hasItem = false;
-        for (int i = 0; i < Container.Count; i++)
+        for (int i = 0; i < ItemContainer.Count; i++)
         {
-            if (Container[i].item == _item)
+            if (ItemContainer[i].item == _item)
             {
-                Container[i].AddAmmount(_ammount);
+                ItemContainer[i].AddAmmount(_ammount);
                 hasItem = true;
                 break;
             }
@@ -23,7 +24,7 @@ public class InventoryObject : ScriptableObject
 
         if (!hasItem)
         {
-            Container.Add(new InventorySlot(_item, _ammount));
+            ItemContainer.Add(new InventorySlot(_item, _ammount));
         }
     }
 }
@@ -43,5 +44,22 @@ public class InventorySlot
     public void AddAmmount(int value)
     {
         ammount += value;
+    }
+}
+
+[System.Serializable]
+public class PotionSlot
+{
+    public Potion potion;
+    public float capacity;
+    public PotionSlot(Potion _potion, float _capacity)
+    {
+        potion = _potion;
+        capacity = _capacity;
+    }
+
+    public void Consume(int value)
+    {
+        capacity -= value;
     }
 }

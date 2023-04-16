@@ -10,13 +10,12 @@ public enum FluidType
 }
 
 [CreateAssetMenu(fileName = "New Fluid", menuName = "Inventory System/Fluids/Fluid")]
-public class Fluid : ScriptableObject
+public abstract class Fluid : ScriptableObject
 {
     public FluidType type;
     public int fluidId;
-    public Sprite icon;
     public Color fluidColor;
     public Material fluidMaterial;
-    //public PotionItem potionItem;
-    //(^ either PotionItem or this should have corresponding variable)
+
+    public abstract void ApplyEffect(GameObject obj);
 }
