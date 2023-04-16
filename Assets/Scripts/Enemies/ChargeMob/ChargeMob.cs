@@ -15,7 +15,7 @@ namespace Enemies.ChargeMob {
 		float _chargeTime     = 0f;
 
 
-		private void Awake() {
+		private new void Awake() {
 			base.Awake();
 			updateFunctions += DetectPlayer;
 			updateFunctions += ChargeUpdate;
