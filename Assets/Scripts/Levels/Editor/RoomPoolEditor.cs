@@ -1,5 +1,7 @@
 using UnityEditor;
 using UnityEngine.UIElements;
+using Util.ConcretePools;
+using Util.ConcreteWeightedItems;
 using Util.Editor;
 
 namespace Levels.Editor {
@@ -8,9 +10,9 @@ namespace Levels.Editor {
 		public override VisualElement CreateInspectorGUI() {
 			VisualElement root = new VisualElement();
 
-			SerializedProperty rooms = serializedObject.FindProperty("rooms");
-			ManagedListViewer<RoomPool.WrappedRoom> listViewer =
-				new ManagedListViewer<RoomPool.WrappedRoom>(rooms, ManagedListViewer<RoomPool.WrappedRoom>.Options.NoSize);
+			SerializedProperty rooms = serializedObject.FindProperty("_items");
+			ManagedListViewer<object> listViewer =
+				new ManagedListViewer<object>(rooms, new []{typeof(WeightedRoom)}, ManagedListViewer<object>.Options.NoSize);
 			
 			root.Add(listViewer);
 

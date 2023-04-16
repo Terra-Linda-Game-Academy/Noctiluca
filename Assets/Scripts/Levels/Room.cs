@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using Util.ConcretePools;
 
 namespace Levels {
-	[CreateAssetMenu(fileName = "Room", menuName = "Room", order = 0)]
+	[CreateAssetMenu(fileName = "Room", menuName = "Levels/Room", order = 0)]
 	public class Room : ScriptableObject {
 		[Serializable, Flags]
 		public enum TileFlags : ushort {
@@ -16,9 +18,9 @@ namespace Levels {
 		[Serializable]
 		public enum Direction : byte {
 			North = 0,
-			East = 1,
+			East  = 1,
 			South = 2,
-			West = 3
+			West  = 3
 		}
 
 		[Serializable, StructLayout(LayoutKind.Sequential)]
@@ -37,9 +39,16 @@ namespace Levels {
 		}
 
 		[Serializable, StructLayout(LayoutKind.Sequential)]
-		public struct ConnectionPoint {
-			public byte coordinate;
+		public class ConnectionPoint {
+			public byte      coordinate;
 			public Direction direction;
+			public Direction InverseDirection => (Direction) ((int) (direction + 2) % 4);
+
+			[NonSerialized] public bool connected;
+
+			public ConnectionPoint Clone() {
+				return new ConnectionPoint {coordinate = coordinate, direction = direction, connected = connected};
+			}
 		}
 
 		[SerializeField] private Vector3Int size;
@@ -52,7 +61,7 @@ namespace Levels {
 		[SerializeField]     private TileAsset[]  tileAssets;
 		[SerializeReference] private SimpleTile[] tiles;
 
-		[SerializeField] public List<ConnectionPoint> hallwayConnections;
+		[SerializeField] public ConnectionPool connections;
 
 		public Tile GetTileAt(int x, int z) {
 			if (tileMap.Length <= 0) ResetTiles();
@@ -117,17 +126,32 @@ namespace Levels {
 			size    = newSize;
 		}
 
-		public int ToLinearIndex(int x, int z) => ToLinearIndex(x, z, size); 
+		public int ToLinearIndex(int x, int z) => ToLinearIndex(x, z, size);
 
-		public static int ToLinearIndex(int x, int z, Vector3Int specificSize) {
-			return z * specificSize.x + x;
-		}
+		public static int ToLinearIndex(int x, int z, Vector3Int specificSize) { return z * specificSize.x + x; }
 
 		public Vector2Int FromLinearIndex(int i) => FromLinearIndex(i, size);
 
 		public static Vector2Int FromLinearIndex(int i, Vector3Int specificSize) {
 			int z = Math.DivRem(i, specificSize.x, out int x);
 			return new Vector2Int(x, z);
+		}
+
+		public Room Clone() {
+			Room newRoom = CreateInstance<Room>();
+			newRoom.size       = size;
+			newRoom.tileMap    = (Tile[]) tileMap.Clone();
+			newRoom.tileAssets = (TileAsset[]) tileAssets.Clone();
+			newRoom.tiles      = (SimpleTile[]) tiles.Clone();
+			newRoom.name       = name;
+
+			newRoom.connections = CreateInstance<ConnectionPool>();
+			ConnectionPoint[] oldConns                              = connections.All().ToArray();
+			ConnectionPoint[] newConns                              = new ConnectionPoint[connections.Count];
+			for (int i = 0; i < connections.Count; i++) newConns[i] = oldConns[i].Clone();
+			newRoom.connections.Fill(newConns);
+
+			return newRoom;
 		}
 	}
 }

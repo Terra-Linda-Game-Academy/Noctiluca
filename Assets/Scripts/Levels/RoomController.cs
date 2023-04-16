@@ -7,6 +7,7 @@ using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
+using Color = UnityEngine.Color;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -29,7 +30,49 @@ namespace Levels {
 
 		private bool _initted;
 
-		private void Awake() { if (!_initted && room != null) Init(); }
+		private void OnDrawGizmos() {
+			Vector3 localScale = transform.localScale;
+
+			foreach (Room.ConnectionPoint connection in room.connections.All()) {
+				Vector3 pos;
+				Vector3 scale;
+
+				Gizmos.color = connection.connected ? Color.red : Color.green;
+				
+				switch (connection.direction) {
+					case Room.Direction.North:
+						pos = new Vector3((connection.coordinate + .5f) * localScale.x, 0,
+						                  room.Size.z                   * localScale.z);
+						scale = new Vector3(1, 2, .5f);
+						break;
+					case Room.Direction.East:
+						pos = new Vector3(room.Size.x                   * localScale.x, 0,
+						                  (connection.coordinate + .5f) * localScale.z);
+						scale = new Vector3(.5f, 2, 1);
+						break;
+					case Room.Direction.South:
+						pos   = new Vector3((connection.coordinate + .5f) * localScale.x, 0, 0);
+						scale = new Vector3(1, 2, .5f);
+						break;
+					case Room.Direction.West:
+						pos   = new Vector3(0, 0, (connection.coordinate + .5f) * localScale.z);
+						scale = new Vector3(.5f, 2, 1);
+						break;
+					default:
+						pos = Vector3.zero;
+						scale = Vector3.one;
+						break;
+				}
+
+				pos += transform.position + Vector3.up;
+
+				Gizmos.DrawWireCube(pos, scale);
+			}
+		}
+
+		private void Awake() {
+			if (!_initted && room != null) Init();
+		}
 
 		public void Init() {
 			#if UNITY_EDITOR
@@ -208,7 +251,7 @@ namespace Levels {
 			GetComponent<MeshFilter>().mesh = mesh;*/
 
 			Mesh mesh = TerrainMesh.Generate(room);
-			
+
 			GetComponent<MeshFilter>().mesh         = mesh;
 			GetComponent<MeshCollider>().sharedMesh = mesh;
 		}
