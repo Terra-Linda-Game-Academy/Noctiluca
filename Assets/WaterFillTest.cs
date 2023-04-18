@@ -1,42 +1,93 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Levels;
 
 
-public class WaterSlice {
-
+public class TestTile {
     public Vector2Int position;
-    public float topHeight;
-    public float bottomHeight;
-    
-
-    public WaterSlice(Vector2Int position, float topHeight, float bottomHeight) {
-        this.position = position;
-        this.topHeight = topHeight;
-        this.bottomHeight = bottomHeight;
-    }
-
+    public float height;
 }
 
-public class WaterTile : SimpleTile
+
+public class WaterFillTest : MonoBehaviour
 {
+    List<TestTile> tiles = new List<TestTile>();
 
-    [SerializeField] private Vector2Int position;
-    [SerializeField] private string name;
-
-    public override string Name => name;
-    public override Vector2Int Position => position;
+    public Vector2 noiseScale = new Vector2(5f, 5f);
+    public float noiseMultiplier = 5f;
 
 
-    private Room room;
-    
+    public Vector2Int waterTile = new Vector2Int(0, 0);
+    public float waterHeight = 1f;
 
-    public override void Init(GameObject obj, Room room)
+    //fill the tiles list with some test data
+    void Start()
     {
-        this.room = room;
+        for (int i = 0; i < 100; i++) {
+            for (int j = 0; j < 100; j++) {
+                TestTile tile = new TestTile();
+                tile.position = new Vector2Int(i, j);
+                //perlin noise
+                tile.height = Mathf.PerlinNoise(i / noiseScale.x, j / noiseScale.y) * noiseMultiplier;
+
+                if(i == 0 || i == 99 || j == 0 || j == 99)
+                    tile.height = 25f;
+                tiles.Add(tile);
+                
+            }
+        }
+        SpawnTiles();
+        
+        List<WaterSlice> waterSlices = GetWaterSlices(waterTile, waterHeight);
+        Debug.Log(waterSlices.Count);
+        SpawnWaterSlices(waterSlices);
+    }
+
+    public TestTile GetTileAtPosition(Vector2Int pos) {
+        foreach (TestTile tile in tiles) {
+            if (tile.position == pos) {
+                return tile;
+            }
+        }
+        return null;
+    }
+
+    public void SpawnTile(TestTile tile) {
+        //Spawn primative cube with height and make its bottom at 0
+        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        
+        cube.transform.position = new Vector3(tile.position.x, tile.height / 2, tile.position.y);
+        cube.transform.localScale = new Vector3(1, tile.height, 1);
+
         
     }
+
+    public void SpawnTiles() {
+        foreach (TestTile tile in tiles) {
+            SpawnTile(tile);
+        }
+    }
+    public void SpawnWaterSlice(WaterSlice waterSlice) {
+        //Spawn primative cube with height and make its bottom at 0
+        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cube.transform.position = new Vector3(waterSlice.position.x, waterSlice.topHeight / 2, waterSlice.position.y);
+        cube.transform.localScale = new Vector3(1, waterSlice.topHeight - waterSlice.bottomHeight, 1);
+
+        //set color to blue
+        cube.GetComponent<Renderer>().material.color = Color.blue;
+
+        cube.name = "Water";
+    }
+
+    public void SpawnWaterSlices(List<WaterSlice> waterSlices) {
+        foreach (WaterSlice waterSlice in waterSlices) {
+            SpawnWaterSlice(waterSlice);
+        }
+    }
+
+
+
+
 
     private Vector2Int[] adjecentPositions = new Vector2Int[]
     {
@@ -94,11 +145,11 @@ public class WaterTile : SimpleTile
     }
 
     public List<Vector2Int> GetWaterPositions(Vector2Int pos, float height) {
-        return GetFloodFill(pos, (Vector2Int p) => room.GetTileAt(p.x, p.y).Height < height);
+        return GetFloodFill(pos, (Vector2Int p) => GetTileAtPosition(p).height < height);
     }
 
     public WaterSlice ConverToWaterSlice(Vector2Int position, float topHeight) {
-        float bottomHeight = room.GetTileAt(position.x , position.y).Height;
+        float bottomHeight = GetTileAtPosition(position).height;
         return new WaterSlice(position, topHeight, bottomHeight);
     }
 
@@ -112,11 +163,11 @@ public class WaterTile : SimpleTile
     }
 
     public List<WaterSlice> GetWaterSlices(Vector2Int pos, float height) {
+        Debug.Log("Starting");
         List<Vector2Int> waterPositions = GetWaterPositions(pos, height);
+        Debug.Log("Positions: " + waterPositions.Count);
         List<WaterSlice> waterSlices = ConvertToWaterSlices(waterPositions, height);
+        Debug.Log("Slices: " + waterSlices.Count);
         return waterSlices;
     }
-
 }
-
-
