@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using UnityEngine;
-using Util.ConcretePools;
 
 namespace Levels {
 	[CreateAssetMenu(fileName = "Room", menuName = "Levels/Room", order = 0)]
@@ -61,7 +59,7 @@ namespace Levels {
 		[SerializeField]     private TileAsset[]  tileAssets;
 		[SerializeReference] private SimpleTile[] tiles;
 
-		[SerializeField] public ConnectionPool connections;
+		//[SerializeField] public ConnectionPool connections;
 
 		public Tile GetTileAt(int x, int z) {
 			if (tileMap.Length <= 0) ResetTiles();
@@ -137,7 +135,7 @@ namespace Levels {
 			return new Vector2Int(x, z);
 		}
 
-		public Room Clone() {
+		/*public Room Clone() {
 			Room newRoom = CreateInstance<Room>();
 			newRoom.size       = size;
 			newRoom.tileMap    = (Tile[]) tileMap.Clone();
@@ -152,6 +150,6 @@ namespace Levels {
 			newRoom.connections.Fill(newConns);
 
 			return newRoom;
-		}
+		}*/
 	}
 }

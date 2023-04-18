@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Util;
-using Util.ConcretePools;
 using Random = UnityEngine.Random;
 
 namespace Levels {
@@ -92,8 +91,8 @@ namespace Levels {
 				conn.direction == rootConnection.InverseDirection && !conn.connected;
 
 			var possibleNewRoom = spawningNormalRoom
-				                       ? normalRooms.One(room => room.connections.HasAny(ConnCheck))
-				                       : treasureRooms.One(room => room.connections.HasAny(ConnCheck));
+				                       ? normalRooms.Where(room => room.connections.HasAny(ConnCheck)).One()
+				                       : treasureRooms.Where(room => room.connections.HasAny(ConnCheck)).One();
 
 			if (!possibleNewRoom.Enabled) {
 				Debug.LogError($"Couldn't find a valid room to spawn {rootConnection.direction} of {root.Room.name}");
