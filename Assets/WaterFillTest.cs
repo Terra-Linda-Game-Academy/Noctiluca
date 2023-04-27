@@ -40,7 +40,7 @@ public class WaterFillTest : MonoBehaviour
         
         List<WaterSlice> waterSlices = GetWaterSlices(waterTile, waterHeight);
         Debug.Log(waterSlices.Count);
-        SpawnWaterSlices(waterSlices);
+        CreateWater(waterSlices);
     }
 
     public TestTile GetTileAtPosition(Vector2Int pos) {
@@ -67,23 +67,136 @@ public class WaterFillTest : MonoBehaviour
             SpawnTile(tile);
         }
     }
-    public void SpawnWaterSlice(WaterSlice waterSlice) {
-        //Spawn primative cube with height and make its bottom at 0
-        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        cube.transform.position = new Vector3(waterSlice.position.x, waterSlice.topHeight / 2, waterSlice.position.y);
-        cube.transform.localScale = new Vector3(1, waterSlice.topHeight - waterSlice.bottomHeight, 1);
+    
+    public void CreateWater(List<WaterSlice> waterSlices) {
+        //create a new game object add a mesh and creat a mesh based on the water slices
+        GameObject water = new GameObject("Water");
+        water.transform.position = new Vector3(-0.5f, 0f, -0.5f);
+        MeshFilter meshFilter = water.AddComponent<MeshFilter>();
+        MeshRenderer meshRenderer = water.AddComponent<MeshRenderer>();
+        Mesh mesh = CreateWaterMesh(waterSlices);
+        meshFilter.mesh = mesh;
+        meshRenderer.material.color = Color.blue;
 
-        //set color to blue
-        cube.GetComponent<Renderer>().material.color = Color.blue;
 
-        cube.name = "Water";
     }
-
-    public void SpawnWaterSlices(List<WaterSlice> waterSlices) {
+    public WaterSlice GetAdjacentWaterSlice(List<WaterSlice> waterSlices, Vector2Int position, int direction) {
         foreach (WaterSlice waterSlice in waterSlices) {
-            SpawnWaterSlice(waterSlice);
+            //direction 0 = (1,0) 1=(0,1) 2 = (-1,0) 3 = (0,-1)
+            Vector2Int displacement = Vector2Int.zero;
+            if (direction == 0) {
+                displacement = new Vector2Int(1, 0);
+            }
+            else if (direction == 1) {
+                displacement = new Vector2Int(0, 1);
+            }
+            else if (direction == 2) {
+                displacement = new Vector2Int(-1, 0);
+            }
+            else if (direction == 3) {
+                displacement = new Vector2Int(0, -1);
+            }
+            Vector2Int adjacentPosition = position + displacement;
+            if (waterSlice.position == adjacentPosition) {
+                return waterSlice;
+            }
         }
+        return null;
     }
+        
+    
+    public Mesh CreateWaterMesh(List<WaterSlice> waterSlices) {
+        Mesh mesh = new Mesh();
+        List<Vector3> vertices = new List<Vector3>();
+        List<int> triangles = new List<int>();
+        int vertexIndex = 0;
+
+        foreach (WaterSlice waterSlice in waterSlices) {
+            //create a box for each water slice
+            //create the top face
+            vertices.Add(new Vector3(waterSlice.position.x, waterSlice.topHeight, waterSlice.position.y));
+            vertices.Add(new Vector3(waterSlice.position.x + 1, waterSlice.topHeight, waterSlice.position.y));
+            vertices.Add(new Vector3(waterSlice.position.x + 1, waterSlice.topHeight, waterSlice.position.y + 1));
+            vertices.Add(new Vector3(waterSlice.position.x, waterSlice.topHeight, waterSlice.position.y + 1));
+
+            triangles.Add(vertexIndex + 0);
+            triangles.Add(vertexIndex + 1);
+            triangles.Add(vertexIndex + 2);
+
+            triangles.Add(vertexIndex + 0);
+            triangles.Add(vertexIndex + 2);
+            triangles.Add(vertexIndex + 3);
+
+            vertexIndex += 4;
+
+            //create the bottom face
+            vertices.Add(new Vector3(waterSlice.position.x, waterSlice.bottomHeight, waterSlice.position.y));
+            vertices.Add(new Vector3(waterSlice.position.x + 1, waterSlice.bottomHeight, waterSlice.position.y));
+            vertices.Add(new Vector3(waterSlice.position.x + 1, waterSlice.bottomHeight, waterSlice.position.y + 1));
+            vertices.Add(new Vector3(waterSlice.position.x, waterSlice.bottomHeight, waterSlice.position.y + 1));
+
+            triangles.Add(vertexIndex + 0);
+            triangles.Add(vertexIndex + 2);
+            triangles.Add(vertexIndex + 1);
+
+            triangles.Add(vertexIndex + 0);
+            triangles.Add(vertexIndex + 3);
+            triangles.Add(vertexIndex + 2);
+
+            vertexIndex += 4;
+        
+
+            //create the side faces
+            //check if there is a water slice in each direction
+            //if there is not a water slice in that direction then create the side face
+            //direction 0 = (1,0) 1=(0,1) 2 = (-1,0) 3 = (0,-1)
+            for (int i = 0; i < 4; i++) {
+                WaterSlice adjacentWaterSlice = GetAdjacentWaterSlice(waterSlices, waterSlice.position, i);
+                if (adjacentWaterSlice == null) {
+                    //create the side face
+                    Vector2Int displacement = Vector2Int.zero;
+                    if (i == 0) {
+                        displacement = new Vector2Int(1, 0);
+                    }
+                    else if (i == 1) {
+                        displacement = new Vector2Int(0, 1);
+                    }
+                    else if (i == 2) {
+                        displacement = new Vector2Int(-1, 0);
+                    }
+                    else if (i == 3) {
+                        displacement = new Vector2Int(0, -1);
+                    }
+                    Vector2Int adjacentPosition = waterSlice.position + displacement;
+                    //create the side face
+                    vertices.Add(new Vector3(waterSlice.position.x+displacement.x/2f-0.5f, waterSlice.bottomHeight, waterSlice.position.y+displacement.y/2f));
+                    vertices.Add(new Vector3(waterSlice.position.x+displacement.x/2f-0.5f, waterSlice.topHeight, waterSlice.position.y+displacement.y/2f));
+                    vertices.Add(new Vector3(adjacentPosition.x+displacement.x/2f+0.5f, waterSlice.topHeight, adjacentPosition.y+displacement.y/2f));
+                    vertices.Add(new Vector3(adjacentPosition.x+displacement.x/2f+0.5f, waterSlice.bottomHeight, adjacentPosition.y+displacement.y/2f));
+
+                    triangles.Add(vertexIndex + 0);
+                    triangles.Add(vertexIndex + 1);
+                    triangles.Add(vertexIndex + 2);
+
+                    triangles.Add(vertexIndex + 0);
+                    triangles.Add(vertexIndex + 2);
+                    triangles.Add(vertexIndex + 3);
+
+                    vertexIndex += 4;
+
+                }
+            }
+        }
+
+        mesh.SetVertices(vertices);
+        mesh.SetTriangles(triangles, 0);
+        mesh.RecalculateNormals();
+        return mesh;
+    }
+
+
+
+    //create boxes for each water slice, but only creat the side faces of the box if there is not another water tile touching that face
 
 
 
@@ -163,11 +276,8 @@ public class WaterFillTest : MonoBehaviour
     }
 
     public List<WaterSlice> GetWaterSlices(Vector2Int pos, float height) {
-        Debug.Log("Starting");
         List<Vector2Int> waterPositions = GetWaterPositions(pos, height);
-        Debug.Log("Positions: " + waterPositions.Count);
         List<WaterSlice> waterSlices = ConvertToWaterSlices(waterPositions, height);
-        Debug.Log("Slices: " + waterSlices.Count);
         return waterSlices;
     }
 }
