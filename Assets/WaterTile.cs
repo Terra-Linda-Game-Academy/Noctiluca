@@ -4,14 +4,14 @@ using UnityEngine;
 using Levels;
 
 
-public class WaterSlice {
+public class HeightSlice {
 
     public Vector2Int position;
     public float topHeight;
     public float bottomHeight;
     
 
-    public WaterSlice(Vector2Int position, float topHeight, float bottomHeight) {
+    public HeightSlice(Vector2Int position, float topHeight, float bottomHeight) {
         this.position = position;
         this.topHeight = topHeight;
         this.bottomHeight = bottomHeight;
@@ -97,23 +97,23 @@ public class WaterTile : SimpleTile
         return GetFloodFill(pos, (Vector2Int p) => room.GetTileAt(p.x, p.y).Height < height);
     }
 
-    public WaterSlice ConverToWaterSlice(Vector2Int position, float topHeight) {
+    public HeightSlice ConverToWaterSlice(Vector2Int position, float topHeight) {
         float bottomHeight = room.GetTileAt(position.x , position.y).Height;
-        return new WaterSlice(position, topHeight, bottomHeight);
+        return new HeightSlice(position, topHeight, bottomHeight);
     }
 
-    public List<WaterSlice> ConvertToWaterSlices(List<Vector2Int> positions, float topHeight) {
-        List<WaterSlice> waterSlices = new List<WaterSlice>();
+    public List<HeightSlice> ConvertToWaterSlices(List<Vector2Int> positions, float topHeight) {
+        List<HeightSlice> waterSlices = new List<HeightSlice>();
         foreach (Vector2Int pos in positions) {
-            WaterSlice waterSlice = ConverToWaterSlice(pos, topHeight);
+            HeightSlice waterSlice = ConverToWaterSlice(pos, topHeight);
             waterSlices.Add(waterSlice);
         }
         return waterSlices;
     }
 
-    public List<WaterSlice> GetWaterSlices(Vector2Int pos, float height) {
+    public List<HeightSlice> GetWaterSlices(Vector2Int pos, float height) {
         List<Vector2Int> waterPositions = GetWaterPositions(pos, height);
-        List<WaterSlice> waterSlices = ConvertToWaterSlices(waterPositions, height);
+        List<HeightSlice> waterSlices = ConvertToWaterSlices(waterPositions, height);
         return waterSlices;
     }
 

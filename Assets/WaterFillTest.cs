@@ -11,45 +11,51 @@ public class TestTile {
 
 public class WaterFillTest : MonoBehaviour
 {
-    List<TestTile> tiles = new List<TestTile>();
+    List<HeightSlice> tiles = new List<HeightSlice>();
 
     public Vector2 noiseScale = new Vector2(5f, 5f);
     public float noiseMultiplier = 5f;
 
 
-    public Vector2Int waterTile = new Vector2Int(0, 0);
+    public Vector2Int waterTile = new Vector2Int(10, 10);
     public float waterHeight = 1f;
+
+    public Material terrainMaterial;
+
+    public Material waterMaterial;
+
+    public Vector2Int mapSize = new Vector2Int(100, 100);
 
     //fill the tiles list with some test data
     void Start()
     {
-        for (int i = 0; i < 100; i++) {
-            for (int j = 0; j < 100; j++) {
-                TestTile tile = new TestTile();
-                tile.position = new Vector2Int(i, j);
-                //perlin noise
-                tile.height = Mathf.PerlinNoise(i / noiseScale.x, j / noiseScale.y) * noiseMultiplier;
+        for (int i = 0; i < mapSize.x; i++) {
+            for (int j = 0; j < mapSize.y; j++) {
+                //fake water tile, actally terrain
+                HeightSlice terrainSlice = new HeightSlice(new Vector2Int(i, j),  Mathf.PerlinNoise(i / noiseScale.x, j / noiseScale.y) * noiseMultiplier,-5f);
+                
 
-                if(i == 0 || i == 99 || j == 0 || j == 99)
-                    tile.height = 25f;
-                tiles.Add(tile);
+                if(i == 0 || i == mapSize.x-1 || j == 0 || j == mapSize.y-1)
+                    terrainSlice.topHeight = 25f;
+                tiles.Add(terrainSlice);
                 
             }
         }
         SpawnTiles();
         
-        List<WaterSlice> waterSlices = GetWaterSlices(waterTile, waterHeight);
+        List<HeightSlice> waterSlices = GetWaterSlices(waterTile, waterHeight);
         Debug.Log(waterSlices.Count);
         CreateWater(waterSlices);
     }
 
-    public TestTile GetTileAtPosition(Vector2Int pos) {
-        foreach (TestTile tile in tiles) {
+    public HeightSlice GetTileAtPosition(Vector2Int pos) {
+        foreach (HeightSlice tile in tiles) {
             if (tile.position == pos) {
                 return tile;
             }
         }
-        return null;
+        Debug.Log("Null tile at position: " + pos.ToString());
+        return new HeightSlice(pos, 100f, -100f);
     }
 
     public void SpawnTile(TestTile tile) {
@@ -63,25 +69,37 @@ public class WaterFillTest : MonoBehaviour
     }
 
     public void SpawnTiles() {
-        foreach (TestTile tile in tiles) {
-            SpawnTile(tile);
-        }
-    }
-    
-    public void CreateWater(List<WaterSlice> waterSlices) {
-        //create a new game object add a mesh and creat a mesh based on the water slices
-        GameObject water = new GameObject("Water");
-        water.transform.position = new Vector3(-0.5f, 0f, -0.5f);
+        
+        GameObject water = new GameObject("Terrain");
+        //water.transform.position = new Vector3(-0.5f, 0f, -0.5f);
         MeshFilter meshFilter = water.AddComponent<MeshFilter>();
         MeshRenderer meshRenderer = water.AddComponent<MeshRenderer>();
-        Mesh mesh = CreateWaterMesh(waterSlices);
+        //Mesh fullMesh = CreateWaterMesh(waterSlices);
+        Mesh mesh = CreateMeshFromSlices(tiles);
+        //mesh = MoveMesh(mesh, new Vector3(0f, 0f, 0f));
         meshFilter.mesh = mesh;
-        meshRenderer.material.color = Color.blue;
+        meshRenderer.material = terrainMaterial;
+    }
+    
+    public void CreateWater(List<HeightSlice> waterSlices) {
+        //create a new game object add a mesh and creat a mesh based on the water slices
+        GameObject water = new GameObject("Water");
+        //water.transform.position = new Vector3(-0.5f, 0f, -0.5f);
+        MeshFilter meshFilter = water.AddComponent<MeshFilter>();
+        MeshRenderer meshRenderer = water.AddComponent<MeshRenderer>();
+        //Mesh fullMesh = CreateWaterMesh(waterSlices);
+        Mesh mesh = CreateWaterCover(waterSlices);
+        mesh = MoveMesh(mesh, new Vector3(-0.5f, -waterHeight, -0.5f));
+        meshFilter.mesh = mesh;
+        meshRenderer.material = waterMaterial;
+
+        water.transform.localScale = new Vector3(1f, -1f, 1f);
+        water.transform.position = new Vector3(0f, waterHeight, 0f);
 
 
     }
-    public WaterSlice GetAdjacentWaterSlice(List<WaterSlice> waterSlices, Vector2Int position, int direction) {
-        foreach (WaterSlice waterSlice in waterSlices) {
+    public HeightSlice GetAdjacentWaterSlice(List<HeightSlice> waterSlices, Vector2Int position, int direction) {
+        foreach (HeightSlice waterSlice in waterSlices) {
             //direction 0 = (1,0) 1=(0,1) 2 = (-1,0) 3 = (0,-1)
             Vector2Int displacement = Vector2Int.zero;
             if (direction == 0) {
@@ -112,6 +130,7 @@ public class WaterFillTest : MonoBehaviour
         }
         Mesh combinedMesh = new Mesh();
         combinedMesh.CombineMeshes(combine);
+        //combinedMesh = MoveMesh(combinedMesh, new Vector3(0.5f, 0f, 0.5f));
         return combinedMesh;
     }
 
@@ -183,10 +202,40 @@ public class WaterFillTest : MonoBehaviour
         return mesh;
     }
 
-    public Mesh CreateWaterMesh(List<WaterSlice> waterSlices) {
+    public Mesh CreateWaterCover(List<HeightSlice> waterSlices) {
+        //just create a flat mesh that covers the topHeight of the water slices
+        Mesh mesh = new Mesh();
+        List<Vector3> vertices = new List<Vector3>();
+        List<int> triangles = new List<int>();
+        foreach (HeightSlice waterSlice in waterSlices) {
+            //add vertices
+            vertices.Add(new Vector3(waterSlice.position.x, waterSlice.topHeight, waterSlice.position.y));
+            vertices.Add(new Vector3(waterSlice.position.x + 1, waterSlice.topHeight, waterSlice.position.y));
+            vertices.Add(new Vector3(waterSlice.position.x + 1, waterSlice.topHeight, waterSlice.position.y + 1));
+            vertices.Add(new Vector3(waterSlice.position.x, waterSlice.topHeight, waterSlice.position.y + 1));
+            //add triangles
+            int vertexIndex = vertices.Count - 4;
+            triangles.Add(vertexIndex);
+            triangles.Add(vertexIndex + 1);
+            triangles.Add(vertexIndex + 2);
+            triangles.Add(vertexIndex);
+            triangles.Add(vertexIndex + 2);
+            triangles.Add(vertexIndex + 3);
+        }
+        mesh.vertices = vertices.ToArray();
+        mesh.triangles = triangles.ToArray();
+        mesh.RecalculateNormals();
+        mesh.RecalculateBounds();
+        mesh.Optimize();
+        
+        return mesh;
+        
+    }
+
+    public Mesh CreateMeshFromSlices(List<HeightSlice> waterSlices) {
         List<Mesh> boxMeshes = new List<Mesh>();
 
-        foreach (WaterSlice waterSlice in waterSlices) {
+        foreach (HeightSlice waterSlice in waterSlices) {
             //difference between waterSlice.topHeight and waterSlice.bottomHeight is the height of the water slice
             float height = waterSlice.topHeight - waterSlice.bottomHeight;
             Vector3 size = new Vector3(1f, height, 1f);
@@ -197,7 +246,7 @@ public class WaterFillTest : MonoBehaviour
         }
         Mesh finalMesh = CombineMeshes(boxMeshes);
         finalMesh.Optimize ();
-        finalMesh.RecalculateNormals();
+        //finalMesh.RecalculateNormals();
         
         return finalMesh;
     }
@@ -266,26 +315,26 @@ public class WaterFillTest : MonoBehaviour
     }
 
     public List<Vector2Int> GetWaterPositions(Vector2Int pos, float height) {
-        return GetFloodFill(pos, (Vector2Int p) => GetTileAtPosition(p).height < height);
+        return GetFloodFill(pos, (Vector2Int p) => GetTileAtPosition(p).topHeight < height);
     }
 
-    public WaterSlice ConverToWaterSlice(Vector2Int position, float topHeight) {
-        float bottomHeight = GetTileAtPosition(position).height;
-        return new WaterSlice(position, topHeight, bottomHeight);
+    public HeightSlice ConverToWaterSlice(Vector2Int position, float topHeight) {
+        float bottomHeight = GetTileAtPosition(position).topHeight;
+        return new HeightSlice(position, topHeight, bottomHeight);
     }
 
-    public List<WaterSlice> ConvertToWaterSlices(List<Vector2Int> positions, float topHeight) {
-        List<WaterSlice> waterSlices = new List<WaterSlice>();
+    public List<HeightSlice> ConvertToWaterSlices(List<Vector2Int> positions, float topHeight) {
+        List<HeightSlice> waterSlices = new List<HeightSlice>();
         foreach (Vector2Int pos in positions) {
-            WaterSlice waterSlice = ConverToWaterSlice(pos, topHeight);
+            HeightSlice waterSlice = ConverToWaterSlice(pos, topHeight);
             waterSlices.Add(waterSlice);
         }
         return waterSlices;
     }
 
-    public List<WaterSlice> GetWaterSlices(Vector2Int pos, float height) {
+    public List<HeightSlice> GetWaterSlices(Vector2Int pos, float height) {
         List<Vector2Int> waterPositions = GetWaterPositions(pos, height);
-        List<WaterSlice> waterSlices = ConvertToWaterSlices(waterPositions, height);
+        List<HeightSlice> waterSlices = ConvertToWaterSlices(waterPositions, height);
         return waterSlices;
     }
 }

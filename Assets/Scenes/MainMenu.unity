@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 251385698}
   - component: {fileID: 251385697}
   m_Layer: 0
-  m_Name: Water
+  m_Name: Test
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -154,8 +154,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   noiseScale: {x: 5, y: 5}
   noiseMultiplier: 10
-  waterTile: {x: 50, y: 50}
+  waterTile: {x: 25, y: 25}
   waterHeight: 6
+  terrainMaterial: {fileID: 2100000, guid: 55aab580e03d21f4b864a7d189dff00f, type: 2}
+  waterMaterial: {fileID: 2100000, guid: 04bdad24ce20c144cbed27a18464cc47, type: 2}
+  mapSize: {x: 50, y: 50}
 --- !u!4 &251385698
 Transform:
   m_ObjectHideFlags: 0
