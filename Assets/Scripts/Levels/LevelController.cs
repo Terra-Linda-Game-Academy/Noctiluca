@@ -37,14 +37,6 @@ namespace Levels {
 		private void IterativeBranching(RoomController root, int depth) {
 			if (depth <= 0) return;
 
-			/*foreach (Room.ConnectionPoint conn in root.Room.connections.All()) {
-				if (conn.connected) continue;
-				var possibleNewRoom = SpawnBranch(root, conn);
-				if (!possibleNewRoom.Enabled) return;
-
-				IterativeBranching(possibleNewRoom.Value, depth - 1);
-			}*/
-
 			for (int i = 0; i < root.connections.Length; i++) {
 				if (root.connections[i]) continue;
 				var possibleNewRoom = SpawnBranch(root, i);
