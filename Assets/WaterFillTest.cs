@@ -103,95 +103,103 @@ public class WaterFillTest : MonoBehaviour
         }
         return null;
     }
-        
+    //combine meshes from list of meshes
+    public Mesh CombineMeshes(List<Mesh> meshes) {
+        CombineInstance[] combine = new CombineInstance[meshes.Count];
+        for (int i = 0; i < meshes.Count; i++) {
+            combine[i].mesh = meshes[i];
+            combine[i].transform = Matrix4x4.identity;
+        }
+        Mesh combinedMesh = new Mesh();
+        combinedMesh.CombineMeshes(combine);
+        return combinedMesh;
+    }
+
     
+
+    public Mesh ScaleMesh(Mesh mesh, Vector3 scale) {
+        Vector3[] vertices = mesh.vertices;
+        for (int i = 0; i < vertices.Length; i++) {
+            vertices[i] = Vector3.Scale(vertices[i], scale);
+        }
+        mesh.vertices = vertices;
+        mesh.RecalculateBounds();
+        return mesh;
+    }
+
+    //create a cube mesh
+    private Mesh CreateCube () {
+		Vector3[] vertices = {
+			new Vector3 (0, 0, 0),
+			new Vector3 (1, 0, 0),
+			new Vector3 (1, 1, 0),
+			new Vector3 (0, 1, 0),
+			new Vector3 (0, 1, 1),
+			new Vector3 (1, 1, 1),
+			new Vector3 (1, 0, 1),
+			new Vector3 (0, 0, 1),
+		};
+
+		int[] triangles = {
+			0, 2, 1, //face front
+			0, 3, 2,
+			2, 3, 4, //face top
+			2, 4, 5,
+			1, 2, 5, //face right
+			1, 5, 6,
+			0, 7, 4, //face left
+			0, 4, 3,
+			5, 4, 7, //face back
+			5, 7, 6,
+			0, 6, 7, //face bottom
+			0, 1, 6
+		};
+
+			
+		Mesh mesh = new Mesh ();
+		mesh.Clear ();
+		mesh.vertices = vertices;
+		mesh.triangles = triangles;
+		mesh.Optimize ();
+		mesh.RecalculateNormals ();
+        mesh = MoveMesh(mesh, new Vector3(-0.5f, -0.5f, -0.5f));
+        return mesh;
+	}
+
+
+    //Create box mesh based on a vector3, size
+    public Mesh CreateBox(Vector3 size) {
+        return ScaleMesh(CreateCube(), size);
+    }
+        
+    //Move Mesh
+    public Mesh MoveMesh(Mesh mesh, Vector3 offset) {
+        Vector3[] vertices = mesh.vertices;
+        for (int i = 0; i < vertices.Length; i++) {
+            vertices[i] += offset;
+        }
+        mesh.vertices = vertices;
+        mesh.RecalculateBounds();
+        return mesh;
+    }
+
     public Mesh CreateWaterMesh(List<WaterSlice> waterSlices) {
-        Mesh mesh = new Mesh();
-        List<Vector3> vertices = new List<Vector3>();
-        List<int> triangles = new List<int>();
-        int vertexIndex = 0;
+        List<Mesh> boxMeshes = new List<Mesh>();
 
         foreach (WaterSlice waterSlice in waterSlices) {
-            //create a box for each water slice
-            //create the top face
-            vertices.Add(new Vector3(waterSlice.position.x, waterSlice.topHeight, waterSlice.position.y));
-            vertices.Add(new Vector3(waterSlice.position.x + 1, waterSlice.topHeight, waterSlice.position.y));
-            vertices.Add(new Vector3(waterSlice.position.x + 1, waterSlice.topHeight, waterSlice.position.y + 1));
-            vertices.Add(new Vector3(waterSlice.position.x, waterSlice.topHeight, waterSlice.position.y + 1));
-
-            triangles.Add(vertexIndex + 0);
-            triangles.Add(vertexIndex + 1);
-            triangles.Add(vertexIndex + 2);
-
-            triangles.Add(vertexIndex + 0);
-            triangles.Add(vertexIndex + 2);
-            triangles.Add(vertexIndex + 3);
-
-            vertexIndex += 4;
-
-            //create the bottom face
-            vertices.Add(new Vector3(waterSlice.position.x, waterSlice.bottomHeight, waterSlice.position.y));
-            vertices.Add(new Vector3(waterSlice.position.x + 1, waterSlice.bottomHeight, waterSlice.position.y));
-            vertices.Add(new Vector3(waterSlice.position.x + 1, waterSlice.bottomHeight, waterSlice.position.y + 1));
-            vertices.Add(new Vector3(waterSlice.position.x, waterSlice.bottomHeight, waterSlice.position.y + 1));
-
-            triangles.Add(vertexIndex + 0);
-            triangles.Add(vertexIndex + 2);
-            triangles.Add(vertexIndex + 1);
-
-            triangles.Add(vertexIndex + 0);
-            triangles.Add(vertexIndex + 3);
-            triangles.Add(vertexIndex + 2);
-
-            vertexIndex += 4;
-        
-
-            //create the side faces
-            //check if there is a water slice in each direction
-            //if there is not a water slice in that direction then create the side face
-            //direction 0 = (1,0) 1=(0,1) 2 = (-1,0) 3 = (0,-1)
-            for (int i = 0; i < 4; i++) {
-                WaterSlice adjacentWaterSlice = GetAdjacentWaterSlice(waterSlices, waterSlice.position, i);
-                if (adjacentWaterSlice == null) {
-                    //create the side face
-                    Vector2Int displacement = Vector2Int.zero;
-                    if (i == 0) {
-                        displacement = new Vector2Int(1, 0);
-                    }
-                    else if (i == 1) {
-                        displacement = new Vector2Int(0, 1);
-                    }
-                    else if (i == 2) {
-                        displacement = new Vector2Int(-1, 0);
-                    }
-                    else if (i == 3) {
-                        displacement = new Vector2Int(0, -1);
-                    }
-                    Vector2Int adjacentPosition = waterSlice.position + displacement;
-                    //create the side face
-                    vertices.Add(new Vector3(waterSlice.position.x+displacement.x/2f-0.5f, waterSlice.bottomHeight, waterSlice.position.y+displacement.y/2f));
-                    vertices.Add(new Vector3(waterSlice.position.x+displacement.x/2f-0.5f, waterSlice.topHeight, waterSlice.position.y+displacement.y/2f));
-                    vertices.Add(new Vector3(adjacentPosition.x+displacement.x/2f+0.5f, waterSlice.topHeight, adjacentPosition.y+displacement.y/2f));
-                    vertices.Add(new Vector3(adjacentPosition.x+displacement.x/2f+0.5f, waterSlice.bottomHeight, adjacentPosition.y+displacement.y/2f));
-
-                    triangles.Add(vertexIndex + 0);
-                    triangles.Add(vertexIndex + 1);
-                    triangles.Add(vertexIndex + 2);
-
-                    triangles.Add(vertexIndex + 0);
-                    triangles.Add(vertexIndex + 2);
-                    triangles.Add(vertexIndex + 3);
-
-                    vertexIndex += 4;
-
-                }
-            }
+            //difference between waterSlice.topHeight and waterSlice.bottomHeight is the height of the water slice
+            float height = waterSlice.topHeight - waterSlice.bottomHeight;
+            Vector3 size = new Vector3(1f, height, 1f);
+            Mesh boxMesh = CreateBox(size);
+            float middleHeight = (waterSlice.topHeight + waterSlice.bottomHeight) / 2;
+            boxMesh = MoveMesh(boxMesh, new Vector3(waterSlice.position.x, middleHeight, waterSlice.position.y));
+            boxMeshes.Add(boxMesh);
         }
-
-        mesh.SetVertices(vertices);
-        mesh.SetTriangles(triangles, 0);
-        mesh.RecalculateNormals();
-        return mesh;
+        Mesh finalMesh = CombineMeshes(boxMeshes);
+        finalMesh.Optimize ();
+        finalMesh.RecalculateNormals();
+        
+        return finalMesh;
     }
 
 
