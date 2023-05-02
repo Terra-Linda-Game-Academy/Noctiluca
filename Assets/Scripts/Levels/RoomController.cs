@@ -24,20 +24,44 @@ namespace Levels {
 			set => room = value;
 		}
 
+		[HideInInspector] public bool[] connections;
+
 		public Guid RoomId { get; private set; }
+
+		public bool Intersect(RoomController other) => Intersect(other.Room, other.transform.position);
+
+		public bool Intersect(Room other, Vector3 otherPos) {
+			Vector3 pos       = transform.position;
+			float   minX      = pos.x;
+			float   minZ      = pos.z;
+			float   maxX      = minX + Room.Size.x;
+			float   maxZ      = minZ + Room.Size.z;
+			
+			float   otherMinX = otherPos.x;
+			float   otherMinZ = otherPos.z;
+			float   otherMaxX = otherMinX + other.Size.x;
+			float   otherMaxZ = otherMinZ + other.Size.z;
+			
+			return minX <= otherMaxX && maxX >= otherMinX && minZ <= otherMaxZ && maxZ >= otherMinZ;
+		}
 
 		private MeshRenderer meshRenderer;
 
 		private bool _initted;
-
+		
 		private void OnDrawGizmos() {
+			connections ??= new bool[room.connectionPoints.Count];
+			
 			Vector3 localScale = transform.localScale;
 
-			foreach (Room.ConnectionPoint connection in room.connections.All()) {
+			for (int i = 0; i < connections.Length; i++) {
+				Room.ConnectionPoint connection = room.connectionPoints[i];
+				bool connected = connections[i];
+				
 				Vector3 pos;
 				Vector3 scale;
 
-				Gizmos.color = connection.connected ? Color.red : Color.green;
+				Gizmos.color = connected ? Color.red : Color.green;
 				
 				switch (connection.direction) {
 					case Room.Direction.North:
@@ -59,7 +83,7 @@ namespace Levels {
 						scale = new Vector3(.5f, 2, 1);
 						break;
 					default:
-						pos = Vector3.zero;
+						pos   = Vector3.zero;
 						scale = Vector3.one;
 						break;
 				}

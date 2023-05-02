@@ -1,11 +1,7 @@
 using UnityEditor;
-using UnityEditor.Rendering;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Util.ConcretePools;
-using Util.ConcreteWeightedItems;
-using Util.Editor;
 
 namespace Levels.Editor {
 	[CustomEditor(typeof(Room))]
@@ -18,11 +14,9 @@ namespace Levels.Editor {
 
 			var button = new Button(FindRoomController) {text = "Edit in Scene View"};
 			element.Add(button);
-			
-			SerializedProperty connections = serializedObject.FindProperty("connections");
-			PoolViewer<Room.ConnectionPoint, WeightedConnection, ConnectionPool> poolViewer =
-				new PoolViewer<Room.ConnectionPoint, WeightedConnection, ConnectionPool>(connections, target);
-			element.Add(poolViewer);
+
+			var connectionsProp = serializedObject.FindProperty("connectionPoints");
+			element.Add(new PropertyField(connectionsProp));
 
 			element.Bind(serializedObject);
 			return element;

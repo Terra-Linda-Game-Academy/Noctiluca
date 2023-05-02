@@ -196,7 +196,15 @@ MonoBehaviour:
     packedHeight: 0
   tileAssets: []
   tiles: []
-  connections: {fileID: -7033701292102325101}
+  connectionPoints:
+  - coordinate: 1
+    direction: 0
+  - coordinate: 1
+    direction: 1
+  - coordinate: 1
+    direction: 2
+  - coordinate: 1
+    direction: 3
   references:
     version: 2
     RefIds: []

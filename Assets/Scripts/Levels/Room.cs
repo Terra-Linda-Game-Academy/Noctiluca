@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Levels {
 	[CreateAssetMenu(fileName = "Room", menuName = "Levels/Room", order = 0)]
@@ -22,6 +23,13 @@ namespace Levels {
 		}
 
 		[Serializable, StructLayout(LayoutKind.Sequential)]
+		public struct ConnectionPoint {
+			public byte      coordinate;
+			public Direction direction;
+			public Direction InverseDirection => (Direction) ((int) (direction + 2) % 4);
+		}
+
+		[Serializable, StructLayout(LayoutKind.Sequential)]
 		public struct Tile {
 			public const int Stride = sizeof(TileFlags) + sizeof(ushort);
 
@@ -36,19 +44,6 @@ namespace Levels {
 			}
 		}
 
-		[Serializable, StructLayout(LayoutKind.Sequential)]
-		public class ConnectionPoint {
-			public byte      coordinate;
-			public Direction direction;
-			public Direction InverseDirection => (Direction) ((int) (direction + 2) % 4);
-
-			[NonSerialized] public bool connected;
-
-			public ConnectionPoint Clone() {
-				return new ConnectionPoint {coordinate = coordinate, direction = direction, connected = connected};
-			}
-		}
-
 		[SerializeField] private Vector3Int size;
 
 		public Vector3Int Size => size;
@@ -59,7 +54,7 @@ namespace Levels {
 		[SerializeField]     private TileAsset[]  tileAssets;
 		[SerializeReference] private SimpleTile[] tiles;
 
-		//[SerializeField] public ConnectionPool connections;
+		[SerializeField] public List<ConnectionPoint> connectionPoints;
 
 		public Tile GetTileAt(int x, int z) {
 			if (tileMap.Length <= 0) ResetTiles();
@@ -134,22 +129,5 @@ namespace Levels {
 			int z = Math.DivRem(i, specificSize.x, out int x);
 			return new Vector2Int(x, z);
 		}
-
-		/*public Room Clone() {
-			Room newRoom = CreateInstance<Room>();
-			newRoom.size       = size;
-			newRoom.tileMap    = (Tile[]) tileMap.Clone();
-			newRoom.tileAssets = (TileAsset[]) tileAssets.Clone();
-			newRoom.tiles      = (SimpleTile[]) tiles.Clone();
-			newRoom.name       = name;
-
-			newRoom.connections = CreateInstance<ConnectionPool>();
-			ConnectionPoint[] oldConns                              = connections.All().ToArray();
-			ConnectionPoint[] newConns                              = new ConnectionPoint[connections.Count];
-			for (int i = 0; i < connections.Count; i++) newConns[i] = oldConns[i].Clone();
-			newRoom.connections.Fill(newConns);
-
-			return newRoom;
-		}*/
 	}
 }
