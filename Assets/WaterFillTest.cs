@@ -145,6 +145,14 @@ public class WaterFillTest : MonoBehaviour
         mesh.RecalculateBounds();
         return mesh;
     }
+    public Mesh ReprojectUVs(Mesh mesh, float scale) {
+        Vector2[] uvs = new Vector2[mesh.vertices.Length];
+        for (int i = 0; i < uvs.Length; i++) {
+            uvs[i] = new Vector2(mesh.vertices[i].x * scale, mesh.vertices[i].z * scale);
+        }
+        mesh.uv = uvs;
+        return mesh;
+    }
 
     //create a cube mesh
     private Mesh CreateCube () {
@@ -227,6 +235,7 @@ public class WaterFillTest : MonoBehaviour
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
         mesh.Optimize();
+        mesh = ReprojectUVs(mesh,1f);
         
         return mesh;
         
