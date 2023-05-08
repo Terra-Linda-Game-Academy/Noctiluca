@@ -15,6 +15,8 @@ namespace Player {
 		private GameObject healthBar;
 		private RectTransform healthBarTransform;
 
+		
+
 		public bool healthBarHidden = false;
 
 		public int Health {
@@ -22,14 +24,15 @@ namespace Player {
 			private set {
 				healthVar.Value = value;
 
-				if (value == 0) { OnZero?.Invoke(); } else { OnChange?.Invoke(value); }
+				if (value == 0) { return; } else { OnChange?.Invoke(value); }
 			}
 		}
 		public int maxHealth;
 		public Action<int> OnChange;
-		public Action      OnZero; //death?
+		public GameEvent OnZero;  //death?
 
-        private void Start()
+
+		private void Start()
         {
 			//loading the heart sprites
 			heartSprites[0] = Resources.Load<Sprite>("Heart_Full"); //Full heart
@@ -49,7 +52,6 @@ namespace Player {
 				rt.anchoredPosition = new Vector2(i * 65, 0);
 				hearts.Add(heart.GetComponent<Image>()); //Storing the heart's image component
 			}
-			StartCoroutine(HiderCoroutine());
         }
 
         public void Damage(int d)
@@ -90,16 +92,33 @@ namespace Player {
 
 		//methods for hiding and unhiding the healthbar
 
-		IEnumerator HiderCoroutine()
+		public void HideHealthBar()
         {
-			while(true)
+			StopCoroutine(HiderCoroutine(1));
+			StartCoroutine(HiderCoroutine(0));
+        }
+
+		public void UnhideHealthBar()
+        {
+			StopCoroutine(HiderCoroutine(0));
+			StartCoroutine(HiderCoroutine(1));
+		}
+		IEnumerator HiderCoroutine(float target)
+        {
+			while(hearts[0].color.a != target)
             {
-				Vector2 target = healthBarHidden ? new Vector2(55, 50) : new Vector2(55, -50);
-				if (Vector2.Distance(healthBar.transform.position, target) > 0.01)
-				{
-					healthBarTransform.anchoredPosition = Vector2.MoveTowards(healthBarTransform.anchoredPosition, target, 400 * Time.deltaTime);
-				}
+				foreach(Image h in hearts)
+                {
+					h.color = new Color(255, 255, 255, Mathf.MoveTowards(h.color.a, target, 2 * Time.deltaTime));
+                }
 				yield return null;
+			}
+			if(target == 0)
+            {
+				healthBarHidden = true;
+            } else
+            {
+				healthBarHidden = false;
 			}
 		}
 		
