@@ -61,4 +61,14 @@ public class DefaultCommands
         gameObject.SetActive(false);
     }
 
+
+    [ConsoleCommand("chess", "chess", false)]
+    public void Chess()
+    {
+        GameObject chess = new GameObject("Chess");
+        ChessWindow chessWindow = chess.AddComponent<ChessWindow>();
+        chessWindow.Initilize();
+    }
+    
+
 }
