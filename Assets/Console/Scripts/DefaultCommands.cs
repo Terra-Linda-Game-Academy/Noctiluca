@@ -62,12 +62,47 @@ public class DefaultCommands
     }
 
 
-    [ConsoleCommand("chess", "chess", false)]
-    public void Chess()
+    static ChessWindow chessWindow;
+
+    [ConsoleCommand("chess", "chess (1-20)", false)]
+    public void Chess(int difficulty)
     {
+
+        //limit difficulty to 1-20
+        if (difficulty < 1)
+        {
+            difficulty = 1;
+        }
+        else if (difficulty > 20)
+        {
+            difficulty = 20;
+        }
         GameObject chess = new GameObject("Chess");
-        ChessWindow chessWindow = chess.AddComponent<ChessWindow>();
-        chessWindow.Initilize();
+        chessWindow = chess.AddComponent<ChessWindow>();
+        chessWindow.Initilize(difficulty);
+        //chessWindow.Initilize();
+    }
+
+    [ConsoleCommand("chess fen get", "chess fen", false)]
+    public string ChessFENGet()
+    {
+        if(chessWindow == null)
+        {
+            return "No chess game running";
+        }
+
+        return "FEN: "+chessWindow.GetFEN();
+    }
+
+    [ConsoleCommand("chess fen set", "chess fen (fen)", false)]
+    public string ChessFENSet(string fen)
+    {
+        if(chessWindow == null)
+        {
+            return "No chess game running";
+        }
+        chessWindow.SetFEN(fen);
+        return "FEN set to: "+fen;
     }
     
 
