@@ -62,10 +62,10 @@ public class DefaultCommands
     }
 
 
-    static ChessWindow chessWindow = null;
+    public static ChessWindow chessWindow = null;
 
-    [ConsoleCommand("chess", "chess (1-20)", false)]
-    public string Chess(int difficulty)
+    [ConsoleCommand("chess", "chess (playAsWhite) (difficulty 1-20)", false)]
+    public string Chess(bool playAsWhite, int difficulty)
     {
         if(chessWindow != null) {
             return "Only one chess game can be run at a time.";
@@ -82,9 +82,42 @@ public class DefaultCommands
         }
         GameObject chess = new GameObject("Chess");
         chessWindow = chess.AddComponent<ChessWindow>();
-        chessWindow.Initilize(difficulty);
+        chessWindow.Initilize(playAsWhite, difficulty);
         return "Succesfuly started chess.";
         //chessWindow.Initilize();
+    }
+
+    [ConsoleCommand("chess_screen_saver_mode", "chess_screen_saver_mode", false)]
+    public string ChessRainbow(bool screenSaverMode)
+    {
+        if(chessWindow == null)
+        {
+            return "No chess game running";
+        }
+        chessWindow.screenSaverMode = screenSaverMode;
+        return "Succesfuly set chess screen saver mode to "+screenSaverMode+".";
+    }
+
+    [ConsoleCommand("chess_rainbow", "chess_rainbow", false)]
+    public string ChessRainbow()
+    {
+        if(chessWindow == null)
+        {
+            return "No chess game running";
+        }
+        chessWindow.rainbow = !chessWindow.rainbow;
+        return "Succesfuly "+ (chessWindow.rainbow?"rainbowed":"de-rainbowed")+" chess.";
+    }
+
+    [ConsoleCommand("chess_color_reset", "chess_color_reset", false)]
+    public string ChessColorReset()
+    {
+        if(chessWindow == null)
+        {
+            return "No chess game running";
+        }
+        chessWindow.ResetTileColors();
+        return "Succesfuly reset chess color.";
     }
 
     [ConsoleCommand("chess_close", "chess fen (fen)", false)]

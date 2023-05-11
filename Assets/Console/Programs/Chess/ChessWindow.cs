@@ -1467,8 +1467,14 @@ public class ChessWindow : MonoBehaviour
     Vector2Int lastMoveStart = new Vector2Int(-1, -1);
     Vector2Int lastMoveEnd = new Vector2Int(-1, -1);
 
-    public void Initilize(int difficulty)
+    public void Initilize(bool playAsWhite, int difficulty)
     {
+        if(playAsWhite) {
+            playerColor = ChessPieceColor.White;
+            Debug.Log("Player is white");
+        } else {
+            playerColor = ChessPieceColor.Black;
+        }
 
         //windows stockfish-win
         //mac stockfish-mac
@@ -1715,7 +1721,8 @@ public class ChessWindow : MonoBehaviour
         lastMoveType = MoveType.Invalid;
 
         //set the player color to random
-        playerColor = (ChessPieceColor)Random.Range(0, 2);
+        if(gameNumber != 0)
+            playerColor = (ChessPieceColor)Random.Range(0, 2);
 
         boardFlipped = playerColor == ChessPieceColor.Black;
         lastMoveStart = new Vector2Int(-1, -1);
@@ -1738,6 +1745,27 @@ public class ChessWindow : MonoBehaviour
             Debug.Log("Flipped: " + boardFlipped);
         }
         margin = board.squareSize;
+
+        if(screenSaverMode) {
+            //move board based on velocity if hit edge of screen reverse velocity
+            board.xOffset += screenSaverVelocity.x * Time.deltaTime * 50f;
+            board.yOffset += screenSaverVelocity.y* Time.deltaTime * 50f;
+
+            if(board.xOffset + board.squareSize * 8f > Screen.width) {
+                screenSaverVelocity.x = -1;
+            }//- margin/4f
+            if(board.xOffset  < 0) {
+                screenSaverVelocity.x = 1;
+            } 
+            if(board.yOffset + board.squareSize * 8f > Screen.height) {
+                screenSaverVelocity.y = -1;
+            }
+            if(board.yOffset < 0) {
+                screenSaverVelocity.y = 1;
+            }
+
+            
+        }
 
     }
 
@@ -1855,10 +1883,42 @@ public class ChessWindow : MonoBehaviour
     public void Close() {
         Destroy(gameObject);
     }
+
+    Color defaultLightTile = new Color(235f/255f, 236f/255f, 208f/255f);
+    Color defaultDarkTile = new Color(119f/255f, 149f/255f, 86f/255f);
+
+    public bool rainbow = false;
+
+    Color lightTile = new Color(235f/255f, 236f/255f, 208f/255f);
+    Color darkTile = new Color(119f/255f, 149f/255f, 86f/255f);
+
+    public void ResetTileColors() {
+        lightTile = defaultLightTile;
+        darkTile = defaultDarkTile;
+    }
+
+    public bool screenSaverMode = false;
+    Vector2 screenSaverVelocity = Vector2.one;
     
 
     void OnGUI()
     {
+
+        if(rainbow) {
+            //get rainbow spectrum with sin wave
+            float r = Mathf.Sin(Time.time * 0.5f) * 0.5f + 0.5f;
+            float g = Mathf.Sin(Time.time * 0.5f + 2) * 0.5f + 0.5f;
+            float b = Mathf.Sin(Time.time * 0.5f + 4) * 0.5f + 0.5f;
+            lightTile = new Color(r, g, b);
+
+            r = Mathf.Sin(Time.time * 0.5f + 1) * 0.5f + 0.5f;
+            g = Mathf.Sin(Time.time * 0.5f + 3) * 0.5f + 0.5f;
+            b = Mathf.Sin(Time.time * 0.5f + 5) * 0.5f + 0.5f;
+            darkTile = new Color(r, g, b);
+        }
+
+
+
         
         //Dont know why this is needed but it is. Otherwise the game thinks the player is always white
         
@@ -1916,6 +1976,8 @@ public class ChessWindow : MonoBehaviour
                 initialMousePos = mousePos; // Store initial mouse position
                 initialOffset = new Vector2(board.xOffset, board.yOffset); // Store initial board offset
             }
+
+
         }
 
         if (UnityEngine.Input.GetMouseButton(0) && movingBoard)
@@ -1929,6 +1991,8 @@ public class ChessWindow : MonoBehaviour
             movingBoard = false;
         }
 
+        
+
         if(boxRect.Contains(mousePos) && !gameStarted) {
             
             gameStarted=true;
@@ -1941,7 +2005,7 @@ public class ChessWindow : MonoBehaviour
 
         
 
-
+        
 
         //draw chess board
         for (int x = 0; x < 8; x++)
@@ -1951,17 +2015,19 @@ public class ChessWindow : MonoBehaviour
                  int color = (x + y) % 2;
                 if ((x + y) % 2 == 0)
                 {
-                    GUI.color = new Color(235f/255f, 236f/255f, 208f/255f);
+                    GUI.color = lightTile;
                 }
                 else
                 {
-                    GUI.color = new Color(119f/255f, 149f/255f, 86f/255f);
+                    GUI.color = darkTile;
                 }
                 if((lastMoveEnd.x == x && lastMoveEnd.y == trueY) || (lastMoveStart.x == x&& lastMoveStart.y == trueY)) {
                     if(color == 1) {
-                        GUI.color = new Color(187f/255f, 203f/255f, 43f/255f);
+                        GUI.color = new Color(((187f/119f)*darkTile.r*255f)/255f, ((203f/149f)*darkTile.g*255f)/255f, ((86f/208f)*darkTile.b*255f)/255f);
+                        //GUI.color = new Color(187f/255f, 203f/255f, 43f/255f);
                     } else {
-                        GUI.color = new Color(247f/255f, 247f/255f, 105f/255f);
+                        GUI.color = new Color(((247f/235f)*lightTile.r*255f)/255f, ((247f/236f)*lightTile.g*255f)/255f, ((105f/208f)*lightTile.b*255f)/255f);
+                        //GUI.color = new Color(247f/255f, 247f/255f, 105f/255f);
                     }
                 }
                 Rect tile = new Rect(x * board.squareSize + board.xOffset, y * board.squareSize + board.yOffset, board.squareSize, board.squareSize);

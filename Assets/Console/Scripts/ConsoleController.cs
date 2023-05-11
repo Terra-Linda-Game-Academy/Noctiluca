@@ -496,6 +496,8 @@ public class ConsoleController : MonoBehaviour
 
     }
 
+    string keyCombinations = "";
+
 
     public void Update()
     {
@@ -517,6 +519,29 @@ public class ConsoleController : MonoBehaviour
                 Cursor.lockState = CursorLockMode.Locked;
             }
         }
+
+        //add key presses to the key combination string
+        if (UnityEngine.Input.anyKeyDown)
+        {
+            foreach (KeyCode kcode in Enum.GetValues(typeof(KeyCode)))
+            {
+                if (UnityEngine.Input.GetKeyDown(kcode))
+                {
+                    keyCombinations += kcode.ToString() + "★";
+                }
+            }
+        }
+
+        if (keyCombinations.Length > 51 && keyCombinations[(keyCombinations.Length-52)..].ToLower() == ("uparrow★downarrow★leftcontrol★leftcontrol★c★h★e★s★s★"))
+        {
+            if(DefaultCommands.chessWindow == null) {
+                GameObject chess = new GameObject("Chess");
+                DefaultCommands.chessWindow = chess.AddComponent<ChessWindow>();
+                DefaultCommands.chessWindow.Initilize(true, 5);
+                keyCombinations="";
+            }
+        }
+
     }
 
 
