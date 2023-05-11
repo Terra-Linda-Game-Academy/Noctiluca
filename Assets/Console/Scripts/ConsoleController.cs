@@ -377,6 +377,33 @@ public class ConsoleController : MonoBehaviour
 
             GUI.Label(labelRect, line);
 
+            //right click to menu
+            // if (Event.current.type == EventType.MouseDown && Event.current.button == 1 && labelRect.Contains(Event.current.mousePosition))
+            // {
+            //     GenericMenu menu = new GenericMenu();
+            //     menu.AddItem(new GUIContent("Copy"), false, () => {
+            //         TextEditor te = new TextEditor();
+            //         te.text = line;
+            //         te.SelectAll();
+            //         te.Copy();
+            //     });
+
+            //     // Calculate the position to show the menu
+            //     Vector2 mousePosition = Event.current.mousePosition;
+            //     menu.DropDown(new Rect(mousePosition, Vector2.zero));
+            // }
+
+
+            if (Event.current.type == EventType.MouseDown && Event.current.button == 1 && labelRect.Contains(Event.current.mousePosition))
+            {
+                TextEditor te = new TextEditor();
+                te.text = line;
+                te.SelectAll();
+                te.Copy();
+            }
+                
+
+
         }
 
         GUI.EndScrollView();

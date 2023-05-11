@@ -4,6 +4,7 @@ using UnityEngine;
 using Stockfish;
 using Stockfish.NET;
 using System.Threading;
+using System.IO;
 
 public enum ChessPieceType
 {
@@ -20,6 +21,7 @@ public enum GameOutcome
     BlackWin,
     WhiteWin,
     Stalemate,
+    Repetition,
     Draw,
     InProgress
 }
@@ -71,7 +73,8 @@ public class ChessPiece
 public class ChessBoard {
     private ChessPiece[,] board = new ChessPiece[8, 8];
     public float squareSize = 50f;
-    public float xOffset,yOffset = 0f;
+    public float xOffset = 100f;
+    public float yOffset = 100f;
 
     public ChessPiece[,] GetBoard()
     {
@@ -88,27 +91,27 @@ public class ChessBoard {
         board[x, y] = piece;
     }
 
-    public Vector2Int[] GetPieceMoves(ChessPiece piece) {
+    public Vector2Int[] GetPieceMoves(ChessPiece piece, ChessPiece[,] board) {
         List<Vector2Int> moves = new List<Vector2Int>();
         switch (piece.type)
         {
             case ChessPieceType.Pawn:
-                moves.AddRange(GetPawnMoves(piece));
+                moves.AddRange(GetPawnMoves(piece, board));
                 break;
             case ChessPieceType.Rook:
-                moves.AddRange(GetRookMoves(piece));
+                moves.AddRange(GetRookMoves(piece,board));
                 break;
             case ChessPieceType.Knight:
-                moves.AddRange(GetKnightMoves(piece));
+                moves.AddRange(GetKnightMoves(piece,board));
                 break;
             case ChessPieceType.Bishop:
-                moves.AddRange(GetBishopMoves(piece));
+                moves.AddRange(GetBishopMoves(piece,board));
                 break;
             case ChessPieceType.Queen:
-                moves.AddRange(GetQueenMoves(piece));
+                moves.AddRange(GetQueenMoves(piece,board));
                 break;
             case ChessPieceType.King:
-                moves.AddRange(GetKingMoves(piece));
+                moves.AddRange(GetKingMoves(piece,board));
                 //add castling
                 int castle = IsCastleLegal(piece.color);
                 if (castle == 0)
@@ -129,7 +132,7 @@ public class ChessBoard {
         return moves.ToArray();
     }
 
-    public Vector2Int[] GetPawnMoves(ChessPiece piece)
+    public Vector2Int[] GetPawnMoves(ChessPiece piece, ChessPiece[,] board)
     {
         List<Vector2Int> moves = new List<Vector2Int>();
         int direction = piece.color == ChessPieceColor.White ? -1 : 1;
@@ -151,10 +154,22 @@ public class ChessBoard {
         {
             moves.Add(new Vector2Int(x + 1, y + direction));
         }
+
+        //add en passant
+        if (EnPeasantSquare != new Vector2Int(-1,-1) && board[EnPeasantSquare.x, EnPeasantSquare.y] == null) {
+            if (EnPeasantSquare.x == x - 1 && EnPeasantSquare.y == y + direction) {
+                moves.Add(new Vector2Int(x - 1, y + direction));
+            }
+            else if (EnPeasantSquare.x == x + 1 && EnPeasantSquare.y == y + direction) {
+                moves.Add(new Vector2Int(x + 1, y + direction));
+            }
+        }
+
+
         return moves.ToArray();
     }
 
-    public Vector2Int[] GetRookMoves(ChessPiece piece)
+    public Vector2Int[] GetRookMoves(ChessPiece piece, ChessPiece[,] board)
     {
         List<Vector2Int> moves = new List<Vector2Int>();
         int x = piece.x;
@@ -222,7 +237,7 @@ public class ChessBoard {
         return moves.ToArray();
     }
 
-    public Vector2Int[] GetKnightMoves(ChessPiece piece)
+    public Vector2Int[] GetKnightMoves(ChessPiece piece, ChessPiece[,] board)
     {
         List<Vector2Int> moves = new List<Vector2Int>();
         int x = piece.x;
@@ -274,7 +289,7 @@ public class ChessBoard {
         return moves.ToArray();
     }
 
-    public Vector2Int[] GetBishopMoves(ChessPiece piece)
+    public Vector2Int[] GetBishopMoves(ChessPiece piece, ChessPiece[,] board)
     {
         List<Vector2Int> moves = new List<Vector2Int>();
         int x = piece.x;
@@ -370,15 +385,15 @@ public class ChessBoard {
         return moves.ToArray();
     }
 
-    public Vector2Int[] GetQueenMoves(ChessPiece piece)
+    public Vector2Int[] GetQueenMoves(ChessPiece piece, ChessPiece[,] board)
     {
         List<Vector2Int> moves = new List<Vector2Int>();
-        moves.AddRange(GetBishopMoves(piece));
-        moves.AddRange(GetRookMoves(piece));
+        moves.AddRange(GetBishopMoves(piece, board));
+        moves.AddRange(GetRookMoves(piece, board));
         return moves.ToArray();
     }
 
-    public Vector2Int[] GetKingMoves(ChessPiece piece)
+    public Vector2Int[] GetKingMoves(ChessPiece piece, ChessPiece[,] board)
     {
         List<Vector2Int> moves = new List<Vector2Int>();
         int x = piece.x;
@@ -425,15 +440,7 @@ public class ChessBoard {
     }
 
     public bool InCheck(ChessPiece[,] currentBoard, ChessPieceColor color) {
-        ChessPiece king = null;
-        foreach (ChessPiece piece in currentBoard)
-        {
-            if (piece != null && piece.color == color && piece.type == ChessPieceType.King)
-            {
-                king = piece;
-                break;
-            }
-        }
+        ChessPiece king = GetKing(currentBoard,color);
         if (king == null)
         {
             return false;
@@ -442,7 +449,7 @@ public class ChessBoard {
         {
             if (piece != null && piece.color != color && piece.type != ChessPieceType.King)
             {
-                Vector2Int[] moves = GetPieceMoves(piece);
+                Vector2Int[] moves = GetPieceMoves(piece, currentBoard);
                 foreach (Vector2Int move in moves)
                 {
                     if (move.x == king.x && move.y == king.y)
@@ -455,9 +462,9 @@ public class ChessBoard {
         return false;
     }
 
-    public ChessPiece GetKing(ChessPieceColor color)
+    public ChessPiece GetKing(ChessPiece[,] currentBoard, ChessPieceColor color)
     {
-        foreach (ChessPiece piece in board)
+        foreach (ChessPiece piece in currentBoard)
         {
             if (piece != null && piece.color == color && piece.type == ChessPieceType.King)
             {
@@ -467,11 +474,16 @@ public class ChessBoard {
         return null;
     }
 
+    public ChessPiece GetKing(ChessPieceColor color)
+    {
+        return GetKing(board, color);
+    }
+
     public bool InCheck(ChessPieceColor color, int x, int y)
     {
         ChessPiece[,] newBoard = CopyBoard(board);
         ChessPiece king = GetKing(color);
-        MovePiece(newBoard, color, king.x, king.y, x, y);
+        MovePiece(ref newBoard, color, king.x, king.y, x, y);
         return InCheck(board, color);
     }
 
@@ -486,30 +498,34 @@ public class ChessBoard {
         {
             return false;
         }
-        ChessPiece king = GetKing(color);
-        Vector2Int[] kingMoves = GetKingMoves(king);
-        foreach (Vector2Int move in kingMoves)
-        {
-            ChessPiece[,] newBoard = CopyBoard(board);
-            MovePiece(newBoard, king.color, king.x, king.y, move.x, move.y);
-            if (!InCheck(newBoard, color))
-            {
-                return false;
-            }
-        }
+        // ChessPiece king = GetKing(color);
+        // Vector2Int[] kingMoves = GetKingMoves(king, board);
+        // foreach (Vector2Int move in kingMoves)
+        // {
+        //     ChessPiece[,] newBoard = CopyBoard(board);
+        //     MovePiece(ref newBoard, king.color, king.x, king.y, move.x, move.y);
+        //     if (!InCheck(newBoard, color))
+        //     {
+        //         return false;
+        //     }
+        // }
         foreach (ChessPiece piece in board)
         {
             if (piece != null && piece.color == color)
             {
-                Vector2Int[] moves = GetPieceMoves(piece);
-                foreach (Vector2Int move in moves)
+                List<Vector2Int> moves = GetLegalMoves(piece);
+                // foreach (Vector2Int move in moves)
+                // {
+                //     ChessPiece[,] newBoard = CopyBoard(board);
+                //     MovePiece(ref newBoard, piece.color, piece.x, piece.y, move.x, move.y);
+                //     if (!InCheck(newBoard, color))
+                //     {
+                //         return false;
+                //     }
+                // }
+                if (moves.Count > 0)
                 {
-                    ChessPiece[,] newBoard = CopyBoard(board);
-                    MovePiece(newBoard, piece.color, piece.x, piece.y, move.x, move.y);
-                    if (!InCheck(newBoard, color))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
         }
@@ -527,15 +543,9 @@ public class ChessBoard {
         {
             if (piece != null && piece.color == color)
             {
-                Vector2Int[] moves = GetPieceMoves(piece);
-                foreach (Vector2Int move in moves)
+                if(GetLegalMoves(piece).Count > 0)
                 {
-                    ChessPiece[,] newBoard = CopyBoard(board);
-                    MovePiece(newBoard, piece.color, piece.x, piece.y, move.x, move.y);
-                    if (!InCheck(newBoard, color))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
         }
@@ -550,7 +560,7 @@ public class ChessBoard {
 
     public bool InStalemate()
     {
-        return InStalemate(ChessPieceColor.White) || InStalemate(ChessPieceColor.Black);
+        return (InStalemate(ChessPieceColor.White) && turn==ChessPieceColor.Black) || (InStalemate(ChessPieceColor.Black) && turn==ChessPieceColor.White);
     }
 
     public GameOutcome GetGameOutcome()
@@ -565,14 +575,29 @@ public class ChessBoard {
         }
         if (InStalemate())
         {
-            return GameOutcome.Draw;
+            return GameOutcome.Stalemate;
         }
         return GameOutcome.InProgress;
     }
 
     public ChessPieceColor turn = ChessPieceColor.White; 
 
+
+    public GameOutcome gameOutcome = GameOutcome.InProgress;
+    public bool gameOver = false;
+
+
+
+
+    public GameOutcome GetOutcome() {
+        return gameOutcome;
+    }
+
     public void EndTurn() {
+
+        //check game outcome
+        GameOutcome outcome = GetGameOutcome();
+
         SwitchTurn();
         ChessPieceColor otherColor = turn == ChessPieceColor.White ? ChessPieceColor.Black : ChessPieceColor.White;
         if(InCheck(turn)) {
@@ -585,8 +610,7 @@ public class ChessBoard {
 
         
 
-        //check game outcome
-        GameOutcome outcome = GetGameOutcome();
+        
         
         //switch turn
         switch (outcome)
@@ -594,13 +618,20 @@ public class ChessBoard {
             case GameOutcome.BlackWin:
                 OnCheckmate(ChessPieceColor.Black);
                 Debug.Log("Black wins!");
+                gameOutcome = GameOutcome.BlackWin;
+                gameOver = true;
                 break;
             case GameOutcome.WhiteWin:
                 OnCheckmate(ChessPieceColor.White);
                 Debug.Log("White wins!");
+                gameOutcome = GameOutcome.WhiteWin;
+                gameOver = true;
                 break;
-            case GameOutcome.Draw:
+            case GameOutcome.Stalemate:
                 Debug.Log("Draw!");
+                OnStalemate();
+                gameOutcome = GameOutcome.Stalemate;
+                gameOver = true;
                 break;
             case GameOutcome.InProgress:
                 OnTurnEnd(turn);
@@ -615,7 +646,7 @@ public class ChessBoard {
         //OnTurnSwitch(turn);
     }
 
-    public bool MovePiece(ChessPiece[,] currentBoard, ChessPieceColor color, int x, int y, int newX, int newY)
+    public bool MovePiece(ref ChessPiece[,] currentBoard, ChessPieceColor color, int x, int y, int newX, int newY)
     {
         
         if (x == newX && y == newY || (currentBoard[newX, newY] != null && currentBoard[newX, newY].color == color))
@@ -646,11 +677,15 @@ public class ChessBoard {
         return MovePiece(piece, newX, newY);
     }
 
-    public bool MovePiece(ChessPiece piece, int newX, int newY)
+    Vector2Int EnPeasantSquare = new Vector2Int(-1, -1);
+
+    public bool MovePiece(ChessPiece piece, int newX, int newY, ChessPieceType promotionType = ChessPieceType.Pawn)
     {
+        Debug.Log("Move piece");
+        bool attacking = false;
 
         //if king is moved, check if it is castling
-        if(piece.type == ChessPieceType.King) {
+        if(piece.type == ChessPieceType.King && Mathf.Abs(piece.x - newX)>=2) {
             if(newX == 2) {
                 Castle(1, piece.color);
                 return true;
@@ -661,11 +696,41 @@ public class ChessBoard {
             }
         }
 
-        if(piece.x == newX && piece.y == newY || (board[newX, newY]!= null && board[newX, newY].color == piece.color) || !GetLegalMoves(piece).Contains(new Vector2Int(newX, newY)))
-            return false;
+        bool enPeasant = false;
+
+        //check if en peasant, if piece moved diagonally to empty square, kill the piece behind it
+        if(piece.type == ChessPieceType.Pawn && newX != piece.x && board[newX, newY] == null) {
+            Debug.Log("En peasant");
+            if(piece.color == ChessPieceColor.White) {
+                KillPiece(newX, newY+1);
+                attacking=true;
+                enPeasant=true;
+            } else if(piece.color == ChessPieceColor.Black) {
+                KillPiece(newX, newY-1);
+                attacking=true;
+                enPeasant=true;
+            }
+        }
+
+
+        //en passant if pawn moved 2 squares
+        if(piece.type == ChessPieceType.Pawn && Mathf.Abs(newY - piece.y) == 2) {
+            if(piece.color == ChessPieceColor.White)
+                EnPeasantSquare = new Vector2Int(newX, newY+1);
+            else if(piece.color == ChessPieceColor.Black) {
+                EnPeasantSquare = new Vector2Int(newX, newY-1);
+            }
+        } else {
+            EnPeasantSquare = new Vector2Int(-1, -1);
+        }
+
         
-        bool attacking = false;
-        if(board[newX, newY] != null) {
+        if(!enPeasant)
+            if(piece.x == newX && piece.y == newY || (board[newX, newY]!= null && board[newX, newY].color == piece.color) || !GetLegalMoves(piece).Contains(new Vector2Int(newX, newY)))
+                return false;
+        
+        
+        if(!enPeasant && board[newX, newY] != null) {
             KillPiece(newX, newY);
             attacking=true;
         }
@@ -681,12 +746,39 @@ public class ChessBoard {
         board[piece.x, piece.y] = null;
         piece.Move(newX, newY);
 
-        if(!attacking)
-            OnMove(piece.color, x, y, newX, newY);
+        OnMove(piece.color, x, y, newX, newY);
+            
+            
+
+        //promotion
+        if(piece.type == ChessPieceType.Pawn && (newY == 0 || newY == 7)) {
+            if(promotionType == ChessPieceType.Pawn) {
+                return false;
+            }
+            Promote(promotionType, piece.color, newX, newY);
+        }
 
         EndTurn();
         
         return true;
+    }
+
+    public bool IsPromotion(ChessPiece piece, int newX, int newY) {
+        if(piece.type == ChessPieceType.Pawn && (newY == 0 || newY == 7)) {
+            return true;
+        }
+        return false;
+    }
+
+    public void Promote(ChessPieceType type, ChessPieceColor color, int x, int y) {
+        board[x,y] = CreatePiece(type, board[x, y].color, x, y);
+    }
+        
+
+    public ChessPiece CreatePiece(ChessPieceType type, ChessPieceColor color, int x, int y) {
+        ChessPiece piece = new ChessPiece (type, color);
+        piece.Move(x,y);
+        return piece;
     }
 
     public void IrregularMove(ChessPiece piece, int newX, int newY)
@@ -697,29 +789,89 @@ public class ChessBoard {
     }
 
     public void NotationMove(string notation, ChessPieceColor color) {
-        if (notation == "O-O")
-        {
-            Castle(0, color); // Perform king-side castle
-        }
-        else if (notation == "O-O-O")
-        {
-            Castle(1, color); // Perform queen-side castle
-        }
-        else if (notation.Length == 4)
+        // if (notation == "O-O")
+        // {
+        //     Castle(0, color); // Perform king-side castle
+        // }
+        // else if (notation == "O-O-O")
+        // {
+        //     Castle(1, color); // Perform queen-side castle
+        // }
+        //else 
+        if (notation.Length == 4)
         {
             int startX = notation[0] - 'a'; // Convert letter to x-coordinate
             int startY = '8' - notation[1]; // Convert number to y-coordinate
             int endX = notation[2] - 'a'; // Convert letter to x-coordinate
             int endY = '8' - notation[3]; // Convert number to y-coordinate
 
+            //e1g1 is king side castle for white
+            //e1c1 is queen side castle for white
+            //e8g8 is king side castle for black
+            //e8c8 is queen side castle for black
+
+            if(!GetKing(ChessPieceColor.White).hasMoved && startX == 4 && startY == 0 && endX == 6 && endY == 0) {
+                Castle(0, ChessPieceColor.White);
+                return;
+            } else if(!GetKing(ChessPieceColor.White).hasMoved &&startX == 4 && startY == 0 && endX == 2 && endY == 0) {
+                Castle(1, ChessPieceColor.White);
+                return;
+            } else if(!GetKing(ChessPieceColor.Black).hasMoved &&startX == 4 && startY == 7 && endX == 6 && endY == 7) {
+                Castle(0, ChessPieceColor.Black);
+                return;
+            } else if(!GetKing(ChessPieceColor.Black).hasMoved &&startX == 4 && startY == 7 && endX == 2 && endY == 7) {
+                Castle(1, ChessPieceColor.Black);
+                return;
+            }
+
+
             ChessPiece piece = GetPiece(startX, startY);
             MovePiece(piece, endX, endY);
+        } else if (notation.Length == 5)//promotion 
+        {
+            int startX = notation[0] - 'a'; // Convert letter to x-coordinate
+            int startY = '8' - notation[1]; // Convert number to y-coordinate
+            int endX = notation[2] - 'a'; // Convert letter to x-coordinate
+            int endY = '8' - notation[3]; // Convert number to y-coordinate
+            char promotion = notation[4];
+            ChessPieceType type = ChessPieceType.Pawn;
+            switch(promotion) {
+                case 'q':
+                    type = ChessPieceType.Queen;
+                    break;
+                case 'r':
+                    type = ChessPieceType.Rook;
+                    break;
+                case 'b':
+                    type = ChessPieceType.Bishop;
+                    break;
+                case 'n':
+                    type = ChessPieceType.Knight;
+                    break;
+            }
+            Debug.Log("Promotion to " + type);
+            ChessPiece piece = GetPiece(startX, startY);
+            MovePiece(piece, endX, endY, type);
         }
         else
         {
             Debug.Log("Invalid algebraic notation!");
         }
     }
+
+    public Vector2Int GetNotationCoordinates(string notation) { 
+        int x = notation[0] - 'a'; // Convert letter to x-coordinate
+        int y = '8' - notation[1]; // Convert number to y-coordinate
+        return new Vector2Int(x, y);
+    }
+
+    public string GetNotation(int x, int y) {
+        string notation = "";
+        notation += (char)('a' + x);
+        notation += (char)('8' - y);
+        return notation;
+    }
+
 
     public int IsCastleLegal(ChessPieceColor color) {
         // 0 = king-side, 1 = queen-side, -1 = illegal 2 = both
@@ -848,30 +1000,27 @@ public class ChessBoard {
     public List<Vector2Int> GetLegalMoves(ChessPiece piece)
     {
         List<Vector2Int> legalMoves = new List<Vector2Int>();
-        Vector2Int[] moves = GetPieceMoves(piece);
+        if(piece == null) {
+            return legalMoves;
+        }
+        Vector2Int[] moves = GetPieceMoves(piece, board);
 
         foreach (Vector2Int move in moves)
         {
             ChessPiece[,] newBoard = CopyBoard(board);
-            MovePiece(newBoard, piece.color, piece.x, piece.y, move.x, move.y);
+            MovePiece(ref newBoard, piece.color, piece.x, piece.y, move.x, move.y);
 
             if (!InCheck(newBoard, piece.color))
             {
-                bool isBlockingCheck = false;
-
-                // Check if the move blocks a check
-                if (InCheck(board, piece.color))
+                ChessPiece otherKing = GetKing(GetOpponentColor(piece.color));
+                //if king, check if in other king's attack range
+                if (piece.type == ChessPieceType.King)
                 {
-                    isBlockingCheck = true;
+                    if (Mathf.Abs(otherKing.x - move.x) <= 1 && Mathf.Abs(otherKing.y - move.y) <= 1)
+                    {
+                        continue;
+                    }
                 }
-
-
-                // Include the move in the list of legal moves
-                if (isBlockingCheck)
-                {
-                    
-                }
-
                 legalMoves.Add(move);
             }
         }
@@ -918,13 +1067,42 @@ public class ChessBoard {
 
     public void LoadFEN(string fen)
     {
-        board = ReadFEN(fen);
+
+        FENInfo FENinfo = ReadFEN(fen);
+        board = FENinfo.board;
+        EnPeasantSquare = FENinfo.EnPeasantSquare;
+        turn = FENinfo.turn;
+        halfMoveClock = FENinfo.halfMoveClock;
+        fullMoveNumber = FENinfo.fullMoveNumber;
+
     }
+
+    public struct FENInfo
+    {
+        public ChessPiece[,] board;
+        public Vector2Int EnPeasantSquare;
+        public ChessPieceColor turn;
+        public int halfMoveClock;
+        public int fullMoveNumber;
+
+        public FENInfo(ChessPiece[,] board, Vector2Int EnPeasantSquare, ChessPieceColor turn, int halfMoveClock, int fullMoveNumber)
+        {
+            this.board = board;
+            this.EnPeasantSquare = EnPeasantSquare;
+            this.turn = turn;
+            this.halfMoveClock = halfMoveClock;
+            this.fullMoveNumber = fullMoveNumber;
+        }
+    }
+
+
     
-    public ChessPiece[,] ReadFEN(string fen) {
+    public FENInfo ReadFEN(string fen) {
         //read FEN string and return a 2d array of chess pieces
         //https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation
-        string[] fenRows = fen.Split('/');
+        string[] FENChunks = fen.Split(' ');
+
+        string[] fenRows = FENChunks[0].Split('/');
         ChessPiece[,] tempBoard = new ChessPiece[8, 8];
         for (int i = 0; i < fenRows.Length; i++)
         {
@@ -951,6 +1129,11 @@ public class ChessBoard {
                     {
                         case 'p':
                             piece = new ChessPiece(ChessPieceType.Pawn, ChessPieceColor.Black);
+                            //set piece to have moved if it is not the second row
+                            if (i != 1)
+                            {
+                                piece.hasMoved = true;
+                            }
                             break;
                         case 'r':
                             piece = new ChessPiece(ChessPieceType.Rook, ChessPieceColor.Black);
@@ -969,6 +1152,11 @@ public class ChessBoard {
                             break;
                         case 'P':
                             piece = new ChessPiece(ChessPieceType.Pawn, ChessPieceColor.White);
+                            //set piece to have moved if it is not the second row
+                            if (i != 6)
+                            {
+                                piece.hasMoved = true;
+                            }
                             break;
                         case 'R':
                             piece = new ChessPiece(ChessPieceType.Rook, ChessPieceColor.White);
@@ -993,10 +1181,67 @@ public class ChessBoard {
                 }
             }
         }
-        return tempBoard;
+         ChessPieceColor turnColor = ChessPieceColor.White;
+        if(FENChunks.Length > 1) {
+            string turn = FENChunks[1];
+            turnColor = turn == "w" ? ChessPieceColor.White : ChessPieceColor.Black;
+        }
+
+        if(FENChunks.Length > 2) {
+            string castling = FENChunks[2];
+            if (castling != "-")
+            {
+                for (int i = 0; i < castling.Length; i++)
+                {
+                    char c = castling[i];
+                    try {
+                    switch (c)
+                    {
+                        case 'K':
+                            tempBoard[7, 7].hasMoved = false;
+                            tempBoard[4, 7].hasMoved = false;
+                            break;
+                        case 'Q':
+                            tempBoard[0, 7].hasMoved = false;
+                            tempBoard[4, 7].hasMoved = false;
+                            break;
+                        case 'k':
+                            tempBoard[7, 0].hasMoved = false;
+                            tempBoard[4, 0].hasMoved = false;
+                            break;
+                        case 'q':
+                            tempBoard[0, 0].hasMoved = false;
+                            tempBoard[4, 0].hasMoved = false;
+                            break;
+                    }
+                    } catch (System.Exception e) {
+                        Debug.Log(e);
+                    }
+                }
+            }
+        }
+
+        Vector2Int enPeasantSquare = new Vector2Int(-1, -1);
+        if(FENChunks.Length > 3 && FENChunks[3] != "-") {
+            string enPeasant = FENChunks[3];
+            enPeasantSquare = GetNotationCoordinates(enPeasant);
+        }
+
+        int halfMoveClock = 0;
+        if(FENChunks.Length > 4)
+            halfMoveClock = int.Parse(FENChunks[4]);
+
+        int fullMoveNumber = 0;
+        if(FENChunks.Length > 5)
+            fullMoveNumber = int.Parse(FENChunks[5]);
+
+        return new FENInfo(tempBoard, enPeasantSquare, turnColor, halfMoveClock, fullMoveNumber);
 
 
     }
+
+    int fullMoveNumber = 0;
+    int halfMoveClock = 0;
 
     public string GetFEN(ChessPiece[,] currentBoard) {
         //get FEN string from 2d array of chess pieces
@@ -1050,6 +1295,51 @@ public class ChessBoard {
                 fen += "/";
             }
         }
+        fen += " ";
+        fen += turn == ChessPieceColor.White ? "w" : "b";
+        fen += " ";
+        string castling = "";
+
+        //check each corner for a rook, if it is there, check if it has moved or the king has moved
+        if (currentBoard[7, 7] != null && currentBoard[4, 7] != null && currentBoard[4, 7].type == ChessPieceType.King && (currentBoard[7, 7].type == ChessPieceType.Rook && !currentBoard[7, 7].hasMoved && !currentBoard[4, 7].hasMoved))
+        {
+            castling += "K";
+        }
+        if (currentBoard[0, 7] != null && currentBoard[4, 7] != null && currentBoard[4, 7].type == ChessPieceType.King && (currentBoard[0, 7].type == ChessPieceType.Rook && !currentBoard[0, 7].hasMoved && !currentBoard[4, 7].hasMoved))
+        {
+            castling += "Q";
+        }
+        if (currentBoard[7, 0] != null && currentBoard[4, 0] != null && currentBoard[4, 0].type == ChessPieceType.King && (currentBoard[7, 0].type == ChessPieceType.Rook && !currentBoard[7, 0].hasMoved && !currentBoard[4, 0].hasMoved))
+        {
+            castling += "k";
+        }
+        if (currentBoard[0, 0] != null && currentBoard[4, 0] != null && currentBoard[4, 0].type == ChessPieceType.King && (currentBoard[0, 0].type == ChessPieceType.Rook && !currentBoard[0, 0].hasMoved && !currentBoard[4, 0].hasMoved))
+        {
+            castling += "q";
+        }
+        if (castling == "")
+        {
+            castling = "-";
+        }
+        fen += castling;
+        fen += " ";
+
+        if (EnPeasantSquare.x == -1)
+        {
+            fen += "-";
+        }
+        else
+        {
+            fen += GetNotation(EnPeasantSquare.x, EnPeasantSquare.y);
+        }
+
+        fen += " ";
+        fen += halfMoveClock;
+
+        fen += " ";
+        fen += fullMoveNumber;
+
+
         return fen;
     }
 
@@ -1067,6 +1357,9 @@ public class ChessBoard {
 
     public delegate void CheckmateEvent(ChessPieceColor color);
     public event CheckmateEvent OnCheckmate;
+
+    public delegate void StalemateEvent();
+    public event StalemateEvent OnStalemate;
     //on turn end
     public delegate void TurnEndEvent(ChessPieceColor color);
     public event TurnEndEvent OnTurnEnd;
@@ -1074,6 +1367,8 @@ public class ChessBoard {
     //On Castle
     public delegate void CastleEvent(ChessPieceColor color, int side);
     public event CastleEvent OnCastle;
+
+
 
 
 }
@@ -1095,24 +1390,27 @@ public class ChessWindow : MonoBehaviour
 {
     public ChessBoard board = null;
 
-    public Texture2D whiteSquare;
-    public Texture2D blackSquare;
+    private Texture2D whiteSquare;
+    private Texture2D blackSquare;
 
-    public Texture2D whitePawn;
-    public Texture2D whiteRook;
-    public Texture2D whiteKnight;
-    public Texture2D whiteBishop;
-    public Texture2D whiteQueen;
-    public Texture2D whiteKing;
+    private Texture2D whitePawn;
+    private Texture2D whiteRook;
+    private Texture2D whiteKnight;
+    private Texture2D whiteBishop;
+    private Texture2D whiteQueen;
+    private Texture2D whiteKing;
 
-    public Texture2D blackPawn;
-    public Texture2D blackRook;
-    public Texture2D blackKnight;
-    public Texture2D blackBishop;
-    public Texture2D blackQueen;
-    public Texture2D blackKing;
+    private Texture2D blackPawn;
+    private Texture2D blackRook;
+    private Texture2D blackKnight;
+    private Texture2D blackBishop;
+    private Texture2D blackQueen;
+    private Texture2D blackKing;
 
-    public Texture2D circle;
+    private Texture2D circle;
+    private Texture2D hollowCircle;
+
+    private Texture2D white;
 
 
     AudioClip moveSound;
@@ -1125,6 +1423,7 @@ public class ChessWindow : MonoBehaviour
 
     
     void LoadTextures() {
+        
         whitePawn = Resources.Load<Texture2D>("chess/Chess_plt60");
         whiteRook = Resources.Load<Texture2D>("chess/Chess_rlt60");
         whiteKnight = Resources.Load<Texture2D>("chess/Chess_nlt60");
@@ -1140,6 +1439,7 @@ public class ChessWindow : MonoBehaviour
         blackKing = Resources.Load<Texture2D>("chess/Chess_kdt60");
 
         circle = Resources.Load<Texture2D>("chess/circle");
+        hollowCircle = Resources.Load<Texture2D>("chess/hollow_circle");
 
         //load sounds
 
@@ -1149,27 +1449,45 @@ public class ChessWindow : MonoBehaviour
         checkmateSound = Resources.Load<AudioClip>("chess/checkmate");
         castleSound = Resources.Load<AudioClip>("chess/castle");
 
+
+
+        //create 1x1 white texture
+        white = new Texture2D(1, 1);
+        white.SetPixel(0, 0, Color.white);
+        white.Apply();
+
+
     }
 
     IStockfish stockfish;
     
     MoveType lastMoveType = MoveType.Invalid;
+
+
+    Vector2Int lastMoveStart = new Vector2Int(-1, -1);
+    Vector2Int lastMoveEnd = new Vector2Int(-1, -1);
+
     public void Initilize(int difficulty)
     {
 
-        //in resources folder
-        stockfish = new Stockfish.NET.Core.Stockfish(Application.dataPath + "/resources/chess/stockfish-win.exe");
-        stockfish.SkillLevel = difficulty;
+        //windows stockfish-win
+        //mac stockfish-mac
+        //linux stockfish-linux
+
+        StartCoroutine(LoadBot(difficulty));
 
         board = new ChessBoard();
         LoadTextures();
         //board.LoadFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-        board.LoadFEN("rnbqk2r/ppp2ppp/4p3/2b5/2p1nP2/3P1N2/PPP3PP/RNBQ1RK1");
+        RestartGame();
 
         board.OnMove += (color, fromX, fromY, toX, toY) =>
         {
             if(lastMoveType == MoveType.Invalid)
                 lastMoveType = MoveType.Move;
+
+            lastMoveStart = new Vector2Int(fromX, fromY);
+            lastMoveEnd = new Vector2Int(toX, toY);
 
             //AudioSource.PlayClipAtPoint(moveSound, Vector3.zero, 3f);
             
@@ -1204,11 +1522,18 @@ public class ChessWindow : MonoBehaviour
             
         };
 
+        board.OnStalemate += () =>
+        {
+            lastMoveType = MoveType.Stalemate;
+            AudioSource.PlayClipAtPoint(checkmateSound, Vector3.zero, 3f);
+        };
+
+
         board.OnTurnEnd += (color) =>
         {
             if(lastMoveType == MoveType.Checkmate) {
                 Debug.Log("Checkmate");
-                AudioSource.PlayClipAtPoint(checkmateSound, Vector3.zero, 3f);
+                //AudioSource.PlayClipAtPoint(checkmateSound, Vector3.zero, 3f);
             } else if (lastMoveType == MoveType.Check) {
                 Debug.Log("Check");
                 AudioSource.PlayClipAtPoint(checkSound, Vector3.zero, 3f);
@@ -1225,9 +1550,14 @@ public class ChessWindow : MonoBehaviour
                 Debug.Log("Invalid");
             }
             lastMoveType = MoveType.Invalid;
+
+            
             //create a thread to run the bot move
-            if(color != playerColor)
+            if(color != playerColor) {
+                Debug.Log("Bot move. End turn");
                 StartCoroutine(BotMove());
+            }
+                
             
 
             
@@ -1237,7 +1567,11 @@ public class ChessWindow : MonoBehaviour
         
     }
 
+    int gameNumber = 0;
+
     IEnumerator BotMove() {
+        yield return new WaitUntil(() => botLoaded);
+        int initialGameNumber = gameNumber;
         string move = "t";
         Thread thread = new Thread(() => {
             stockfish.SetFenPosition(board.GetFEN(board.GetBoard()));
@@ -1247,13 +1581,83 @@ public class ChessWindow : MonoBehaviour
         thread.Start();
         yield return new WaitUntil(() => move != "t");
         Debug.Log("Done waiting");
-        board.NotationMove(move, ChessPieceColor.Black);
+        if(initialGameNumber == gameNumber)
+            board.NotationMove(move, playerColor == ChessPieceColor.White ? ChessPieceColor.Black : ChessPieceColor.White);
+        
+        legalMoves = board.GetLegalMoves(selectedPiece);
         yield return null;
     }
 
-    public void Awake() {
-        Initilize(5);
+    IEnumerator LoadBot(int difficulty) {
+        bool loaded = false;
+        //find folder in application data path called cengines1155
+        string dataPath = FindFolder(Application.dataPath, "cengines1155");
+
+        //if editor, use the folder in the project
+        if(Application.isEditor) {
+            //one folder up from assets in the build folder
+            string buildPath = Application.dataPath.Substring(0, Application.dataPath.LastIndexOf("/"));
+            dataPath = FindFolder(buildPath, "cengines1155");
+        }
+            
+        
+        
+        Thread thread = new Thread(() => {
+            switch (Application.platform)
+            {
+                case RuntimePlatform.WindowsEditor:
+                case RuntimePlatform.WindowsPlayer:
+                    stockfish = new Stockfish.NET.Core.Stockfish(dataPath+ "/stockfish-win.exe");
+                    break;
+                case RuntimePlatform.OSXEditor:
+                case RuntimePlatform.OSXPlayer:
+                    stockfish = new Stockfish.NET.Core.Stockfish(dataPath + "/stockfish-mac");
+                    break;
+                case RuntimePlatform.LinuxEditor:
+                case RuntimePlatform.LinuxPlayer:
+                    stockfish = new Stockfish.NET.Core.Stockfish(dataPath + "/stockfish-linux");
+                    break;
+            }
+
+            stockfish.SkillLevel = difficulty;
+            loaded = true;
+        });
+        thread.Start();
+        yield return new WaitUntil(() => loaded);
+        botLoaded = true;
     }
+    
+
+    bool botLoaded = false;
+
+
+
+    public string FindFolder(string path, string folderName)
+    {
+        // Check if the current directory contains the target folder
+        string targetFolderPath = Path.Combine(path, folderName);
+        if (Directory.Exists(targetFolderPath))
+        {
+            return targetFolderPath;
+        }
+
+        // Recursively search within each subdirectory
+        string[] subdirectories = Directory.GetDirectories(path);
+        foreach (string subdirectory in subdirectories)
+        {
+            string result = FindFolder(subdirectory, folderName);
+            if (result != null)
+            {
+                return result;
+            }
+        }
+
+        // Target folder not found
+        return null;
+    }
+
+
+
 
     //Get Set fen
     public string GetFEN() {
@@ -1262,13 +1666,31 @@ public class ChessWindow : MonoBehaviour
 
     public void SetFEN(string fen) {
         board.LoadFEN(fen);
+
+        board.gameOver = false;
+        board.gameOutcome = GameOutcome.InProgress;
+        lastMoveType = MoveType.Invalid;
+        gameStarted = true;
+        
+        lastMoveStart = new Vector2Int(-1, -1);
+        lastMoveEnd = new Vector2Int(-1, -1);
+
+        legalMoves = new List<Vector2Int>();
+        selectedPiece = null;
+        gameNumber++;
+
+        if(board.turn != playerColor) {
+            Debug.Log("Bot move. Set FEN");
+            StartCoroutine(BotMove());
+        }
+        
     }
 
 
-    public ChessPieceColor playerColor = ChessPieceColor.White;
+    ChessPieceColor playerColor = ChessPieceColor.White;
 
 
-
+    string startingFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";//"2Q3B1/k7/8/2K5/8/8/P7/8 w - - 0 0";
 
     bool isMousePressed = false;
     
@@ -1284,14 +1706,175 @@ public class ChessWindow : MonoBehaviour
 
     List<Vector2Int> legalMoves = new List<Vector2Int>();
 
+
+    void RestartGame() {
+        Debug.Log("Restarting Game");
+        
+        board.gameOver = false;
+        board.gameOutcome = GameOutcome.InProgress;
+        lastMoveType = MoveType.Invalid;
+
+        //set the player color to random
+        playerColor = (ChessPieceColor)Random.Range(0, 2);
+
+        boardFlipped = playerColor == ChessPieceColor.Black;
+        lastMoveStart = new Vector2Int(-1, -1);
+        lastMoveEnd = new Vector2Int(-1, -1);
+
+        legalMoves = new List<Vector2Int>();
+        selectedPiece = null;
+
+        SetFEN(startingFEN);
+        gameNumber++;
+    }
+
+    bool boardFlipped = false;
+
+    bool gameStarted = false;
+
+    void Update() {
+        if(UnityEngine.Input.GetKeyDown(KeyCode.F)) {
+            boardFlipped = !boardFlipped;
+            Debug.Log("Flipped: " + boardFlipped);
+        }
+        margin = board.squareSize;
+
+    }
+
+    bool mouseInPromotion = false;
+
+    bool promotionActive = false;
+    Vector2Int promotionTile = Vector2Int.zero;
+
+    bool promotionSelelected = false;
+    ChessPieceType promotionPiece = ChessPieceType.Queen;
+
+    ChessPiece promotionPieceObject = null;
+    Vector2Int promotionPieceTargetPos = Vector2Int.zero;
+
+    void PromotionGUI(int x, int y) {
+        //Set button style background to solid
+        GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
+        buttonStyle.normal.background = white;
+        buttonStyle.hover.background = white;
+
+        //create a box that has 4 buttons for the 4 pieces
+        //if a button is pressed then set promotion piece to that piece
+        //if right or escape is pressed then exit
+        Rect promotionTile = GetTile(x, y);
+        float popupMargin = margin/2f;
+        Rect promotionBox = new Rect(promotionTile.x + promotionTile.width/2, promotionTile.y, promotionTile.width*4+popupMargin*5, promotionTile.height+popupMargin*2);
+        //color dark black 0.9 opacity
+        GUI.color = new Color(0f, 0f, 0f, 0.9f);
+        GUI.Box(promotionBox, "", buttonStyle);
+        GUI.color = Color.white;
+
+        if(promotionBox.Contains(Event.current.mousePosition)) {
+            mouseInPromotion = true;
+        } else {
+            mouseInPromotion = false;
+        }
+
+        
+
+        Rect queenButton = new Rect(promotionTile.x + promotionTile.width/2+popupMargin, promotionTile.y+popupMargin, promotionTile.width, promotionTile.height);
+        Rect rookButton = new Rect(promotionTile.x + promotionTile.width/2+popupMargin*2+promotionTile.width, promotionTile.y+popupMargin, promotionTile.width, promotionTile.height);
+        Rect bishopButton = new Rect(promotionTile.x + promotionTile.width/2+popupMargin*3+promotionTile.width*2, promotionTile.y+popupMargin, promotionTile.width, promotionTile.height);
+        Rect knightButton = new Rect(promotionTile.x + promotionTile.width/2+popupMargin*4+promotionTile.width*3, promotionTile.y+popupMargin, promotionTile.width, promotionTile.height);
+
+        Texture2D queenTexture;
+        if(playerColor == ChessPieceColor.White)
+            queenTexture = whiteQueen;
+        else
+            queenTexture = blackQueen;
+        if(GUI.Button(queenButton, queenTexture, buttonStyle)) {
+            Debug.Log("Promoting to Queen");
+            promotionPiece = ChessPieceType.Queen;
+            promotionSelelected = true;
+            promotionActive = false;
+            board.MovePiece(promotionPieceObject, promotionPieceTargetPos.x, promotionPieceTargetPos.y, promotionPiece);
+            selectedPiece = null;
+            legalMoves = new List<Vector2Int>();
+            mouseInPromotion = false;
+            Debug.Log("Promotion Piece: " + promotionPiece);
+            
+        }
+
+        Texture2D rookTexture;
+        if(playerColor == ChessPieceColor.White)
+            rookTexture = whiteRook;
+        else
+            rookTexture = blackRook;
+        if(GUI.Button(rookButton, rookTexture, buttonStyle)) {
+            promotionPiece = ChessPieceType.Rook;
+            promotionSelelected = true;
+            promotionActive = false;
+            board.MovePiece(promotionPieceObject, promotionPieceTargetPos.x, promotionPieceTargetPos.y, promotionPiece);
+            selectedPiece = null;
+            legalMoves = new List<Vector2Int>();
+            mouseInPromotion = false;
+        }
+
+        Texture2D bishopTexture;
+        if(playerColor == ChessPieceColor.White)
+            bishopTexture = whiteBishop;
+        else
+            bishopTexture = blackBishop;
+        if(GUI.Button(bishopButton, bishopTexture, buttonStyle)) {
+            promotionPiece = ChessPieceType.Bishop;
+            promotionSelelected = true;
+            promotionActive = false;
+            board.MovePiece(promotionPieceObject, promotionPieceTargetPos.x, promotionPieceTargetPos.y, promotionPiece);
+            selectedPiece = null;
+            legalMoves = new List<Vector2Int>();
+            mouseInPromotion = false;
+        }
+
+        Texture2D knightTexture;
+        if(playerColor == ChessPieceColor.White)
+            knightTexture = whiteKnight;
+        else
+            knightTexture = blackKnight;
+        if(GUI.Button(knightButton, knightTexture, buttonStyle)) {
+            promotionPiece = ChessPieceType.Knight;
+            promotionSelelected = true;
+            promotionActive = false;
+            board.MovePiece(promotionPieceObject, promotionPieceTargetPos.x, promotionPieceTargetPos.y, promotionPiece);
+            selectedPiece = null;
+            legalMoves = new List<Vector2Int>();
+            mouseInPromotion = false;
+        }
+
+        GUI.color = Color.white;
+
+
+
+
+    }
+
+    public void Close() {
+        Destroy(gameObject);
+    }
+    
+
     void OnGUI()
     {
+        
+        //Dont know why this is needed but it is. Otherwise the game thinks the player is always white
+        
+
+        bool gameOver = board.gameOver;
 
         //check if f pressed and then print fen
-        if (UnityEngine.Input.GetKeyDown(KeyCode.F))
+        if (UnityEngine.Input.GetKey(KeyCode.LeftControl) && UnityEngine.Input.GetKeyDown(KeyCode.F))
         {
             Debug.Log(board.GetFEN(board.GetBoard()));
         }
+
+        
+
+        //Debug.Log("Board Flipped: " + boardFlipped);
+        
 
         bool mousePressedFrame = false;
         bool mouseReleasedFrame = false;
@@ -1308,7 +1891,7 @@ public class ChessWindow : MonoBehaviour
         //check if cntrl + r is pressed and reset the board
         if (UnityEngine.Input.GetKey(KeyCode.LeftControl) && UnityEngine.Input.GetKeyDown(KeyCode.R))
         {
-            board.LoadFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+            RestartGame();
         }
 
         Vector2 mousePos = new Vector2(UnityEngine.Input.mousePosition.x, Screen.height - UnityEngine.Input.mousePosition.y);
@@ -1346,12 +1929,26 @@ public class ChessWindow : MonoBehaviour
             movingBoard = false;
         }
 
+        if(boxRect.Contains(mousePos) && !gameStarted) {
+            
+            gameStarted=true;
+
+            // if(playerColor == ChessPieceColor.Black) {
+            //     Debug.Log("Bot Move. Game Started");
+            //     StartCoroutine(BotMove());
+            // }
+        }
+
+        
+
 
 
         //draw chess board
         for (int x = 0; x < 8; x++)
         {
             for (int y = 0; y < 8; y++) {
+                 int trueY = boardFlipped?(7-y):y;
+                 int color = (x + y) % 2;
                 if ((x + y) % 2 == 0)
                 {
                     GUI.color = new Color(235f/255f, 236f/255f, 208f/255f);
@@ -1360,39 +1957,87 @@ public class ChessWindow : MonoBehaviour
                 {
                     GUI.color = new Color(119f/255f, 149f/255f, 86f/255f);
                 }
+                if((lastMoveEnd.x == x && lastMoveEnd.y == trueY) || (lastMoveStart.x == x&& lastMoveStart.y == trueY)) {
+                    if(color == 1) {
+                        GUI.color = new Color(187f/255f, 203f/255f, 43f/255f);
+                    } else {
+                        GUI.color = new Color(247f/255f, 247f/255f, 105f/255f);
+                    }
+                }
                 Rect tile = new Rect(x * board.squareSize + board.xOffset, y * board.squareSize + board.yOffset, board.squareSize, board.squareSize);
                 GUI.DrawTexture(tile, Texture2D.whiteTexture);
 
+               
 
-                //draw a circle if the tile is a legal move
-                if(legalMoves.Contains(new Vector2Int(x, y))) {
-                    GUI.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
-                    Rect circleRect = new Rect(tile.x, tile.y, tile.width, tile.height);
-                    //scale the circle so that it is half the size of the tile
-                    circleRect.x += circleRect.width / 4f;
-                    circleRect.y += circleRect.height / 4f;
-                    circleRect.width /= 2f;
-                    circleRect.height /= 2f;
-                    //draw a circle
-                    GUI.DrawTexture(circleRect, circle);
-                }
+
                 
 
+                if(gameOver)
+                    continue;
 
+                //draw a circle if the tile is a legal move
+                if(legalMoves.Contains(new Vector2Int(x, trueY))) {
+                    GUI.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
+                    if(board.GetBoard()[x, trueY] != null) {
+                        GUI.DrawTexture(tile, hollowCircle);
+                    } else {
+                        Rect circleRect = new Rect(tile.x,  tile.y, tile.width, tile.height);
+                        //scale the circle so that it is half the size of the tile
+                        circleRect.x += circleRect.width / 3f;
+                        circleRect.y += circleRect.height / 3f;
+                        circleRect.width /= 3f;
+                        circleRect.height /= 3f;
+                        GUI.DrawTexture(circleRect, circle);
+                    }
+                    GUI.color = Color.white;
+                    
+                }
+
+
+                
+                
                 //Detect if the mouse is over the tile
-                if (tile.Contains(mousePos) && mousePressedFrame)
+                if (tile.Contains(mousePos) && mousePressedFrame && !mouseInPromotion)
                 {
                     Debug.Log("Clicked on tile " + x + ", " + y);
-                    if(selectedPiece == null || !legalMoves.Contains(new Vector2Int(x, y))) {
-                        selectedPiece = board.GetPiece(x, y);
-                        if(selectedPiece.color != playerColor)
+                    if(selectedPiece == null || !legalMoves.Contains(new Vector2Int(x,trueY))) {
+                        selectedPiece = board.GetPiece(x, trueY);
+                        promotionActive = false;
+                        if(selectedPiece.color != playerColor) {
                             selectedPiece = null;
+                            legalMoves = new List<Vector2Int>();
+                        }
                         legalMoves = board.GetLegalMoves(selectedPiece);
                     } else {
-                        if(legalMoves.Contains(new Vector2Int(x, y)) && board.turn == ChessPieceColor.White && board.MovePiece(selectedPiece, x, y) ) {
-                            Debug.Log("Moved piece");
-                            legalMoves = new List<Vector2Int>();
-                            selectedPiece = null;
+                        if(legalMoves.Contains(new Vector2Int(x, trueY)) && board.turn == playerColor ) {
+                            bool isPromotion = board.IsPromotion(selectedPiece, x, trueY);
+                            if(!isPromotion && board.MovePiece(selectedPiece, x, trueY)) {
+                                Debug.Log("Moved piece");
+                                gameStarted = true;
+                                legalMoves = new List<Vector2Int>();
+                                selectedPiece = null;
+                                promotionActive = false;
+                            }
+                            if(isPromotion && !promotionActive) {
+                                promotionActive = true;
+                                promotionTile = new Vector2Int(x, trueY);
+                                promotionPieceObject = selectedPiece;
+                                promotionPieceTargetPos = new Vector2Int(x, trueY);
+                            }
+                            // if(board.IsPromotion(selectedPiece, x, trueY)) {
+                            //     Debug.Log("Promotion");
+                            //     //show promotion menu
+                            //     promotionMenu = true;
+                            //     promotionX = x;
+                            //     promotionY = trueY;
+                            // } else {
+                            //     Debug.Log("Moved piece");
+                            //     gameStarted = true;
+                            //     legalMoves = new List<Vector2Int>();
+                            //     selectedPiece = null;
+                            //     board.MovePiece(selectedPiece, x, trueY);
+                            // }
+                            
                         }
                     }
                 }
@@ -1400,11 +2045,18 @@ public class ChessWindow : MonoBehaviour
             }
         }
 
+        
+
         if(selectedPiece != null) {
-            Color highlightColor = new Color(0.7f, 0.7f, 0.9f, 0.9f);
-            GUI.color = highlightColor;
+            int color = (selectedPiece.x + selectedPiece.y) % 2;
+            if(color == 0) {
+                GUI.color = new Color(187f/255f, 203f/255f, 43f/255f);
+            } else {
+                GUI.color = new Color(247f/255f, 247f/255f, 105f/255f);
+            }
             
             GUI.DrawTexture(GetTile(selectedPiece), Texture2D.whiteTexture);
+            
         }
 
         GUI.color = Color.white;
@@ -1413,6 +2065,7 @@ public class ChessWindow : MonoBehaviour
         ChessPiece[,] pieces = board.GetBoard();
         for (int x = 0; x < 8; x++)
         {
+            //int y = (boardFlipped?7:0); ((!boardFlipped && y < 8) || (boardFlipped && y >= 0)); y+=(boardFlipped?-1:1)
             for (int y = 0; y < 8; y++) {
                 ChessPiece piece = pieces[x, y];
                 if (piece != null)
@@ -1481,20 +2134,77 @@ public class ChessWindow : MonoBehaviour
                             }
                             break;
                     }
-                    GUI.DrawTexture(new Rect(x * board.squareSize+board.xOffset, y * board.squareSize+board.yOffset, board.squareSize, board.squareSize), texture);
+                    GUI.DrawTexture(new Rect(x * board.squareSize+board.xOffset, (boardFlipped?(7-y):y) * board.squareSize+board.yOffset, board.squareSize, board.squareSize), texture);
                 }
             }
             
         }
 
-         if(UnityEngine.Input.GetMouseButtonDown(1)) {
+        if(UnityEngine.Input.GetMouseButtonDown(1) && !gameOver) {
             selectedPiece = null;
+            legalMoves = new List<Vector2Int>();
         }
+            
+
+        if(promotionActive) {
+            PromotionGUI(promotionTile.x, promotionTile.y);
+            //if escape or right click is pressed, cancel promotion
+            if(UnityEngine.Input.GetKeyDown(KeyCode.Escape) || UnityEngine.Input.GetMouseButtonDown(1)) {
+                promotionActive = false;
+                promotionTile = new Vector2Int(-1, -1);
+            }
+        }
+
+        //if game is over, create a banner that says who won and a button to restart the game
+        if(gameOver) {
+            GUIStyle textStyle = new GUIStyle(GUI.skin.label);
+            textStyle.fontSize = 45;
+            textStyle.fontStyle = FontStyle.Bold;
+            textStyle.alignment = TextAnchor.MiddleCenter;
+            textStyle.normal.textColor = Color.white;
+            textStyle.hover.textColor = Color.white;
+
+            GUIStyle buttonStyle = new GUIStyle(GUI.skin.label);
+            buttonStyle.fontSize = 35;
+            buttonStyle.fontStyle = FontStyle.Bold;
+            buttonStyle.alignment = TextAnchor.MiddleCenter;
+            buttonStyle.normal.textColor = Color.white;
+            buttonStyle.hover.textColor = new Color(0.8f, 0.8f, 0.8f, 1f);
+
+            GUI.color = new Color(0.3f, 0.3f, 0.3f, 0.65f);
+            GUI.DrawTexture(boxRect, Texture2D.whiteTexture);
+            GUI.color = Color.white;
+            string message = "Game Over\n";
+            //board.GetOutcome()
+            if (board.GetOutcome() == GameOutcome.Stalemate)
+            {
+                message += "Stalemate.";
+            }
+            else if (board.GetOutcome() == GameOutcome.WhiteWin)
+            {
+                message += "White Wins!";
+            }
+            else if (board.GetOutcome() == GameOutcome.BlackWin)
+            {
+                message += "Black Wins!";
+            }
+
+            //Win rect is the boxRect with half the width
+            Rect winRect = new Rect(boxRect.x, boxRect.y, boxRect.width, boxRect.height/2f);
+            Rect winButtonRect = new Rect(boxRect.x+ boxRect.width/3f, boxRect.y+boxRect.height/3f*2f, boxRect.width/3f, boxRect.height/7.5f);
+
+            GUI.Label(winRect, message, textStyle);
+            if(GUI.Button(winButtonRect, "Restart", buttonStyle)) {
+                RestartGame();
+            }
+        }
+
+        
         
     }
 
     public Rect GetTile(ChessPiece piece) {
-        return GetTile(piece.x, piece.y);
+        return GetTile(piece.x, boardFlipped?7-piece.y:piece.y);
     }
 
     public Rect GetTile(int x, int y) {

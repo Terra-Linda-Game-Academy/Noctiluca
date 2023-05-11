@@ -62,11 +62,14 @@ public class DefaultCommands
     }
 
 
-    static ChessWindow chessWindow;
+    static ChessWindow chessWindow = null;
 
     [ConsoleCommand("chess", "chess (1-20)", false)]
-    public void Chess(int difficulty)
+    public string Chess(int difficulty)
     {
+        if(chessWindow != null) {
+            return "Only one chess game can be run at a time.";
+        }
 
         //limit difficulty to 1-20
         if (difficulty < 1)
@@ -80,10 +83,23 @@ public class DefaultCommands
         GameObject chess = new GameObject("Chess");
         chessWindow = chess.AddComponent<ChessWindow>();
         chessWindow.Initilize(difficulty);
+        return "Succesfuly started chess.";
         //chessWindow.Initilize();
     }
 
-    [ConsoleCommand("chess fen get", "chess fen", false)]
+    [ConsoleCommand("chess_close", "chess fen (fen)", false)]
+    public string ChessClose()
+    {
+        if(chessWindow == null)
+        {
+            return "No chess game running";
+        }
+        chessWindow.Close();
+        chessWindow = null;
+        return "Succesfuly closed chess.";
+    }
+
+    [ConsoleCommand("chess_fen_get", "chess_fen_get", false)]
     public string ChessFENGet()
     {
         if(chessWindow == null)
@@ -94,7 +110,7 @@ public class DefaultCommands
         return "FEN: "+chessWindow.GetFEN();
     }
 
-    [ConsoleCommand("chess fen set", "chess fen (fen)", false)]
+    [ConsoleCommand("chess_fen_set", "chess_fen_set (fen)", false)]
     public string ChessFENSet(string fen)
     {
         if(chessWindow == null)
@@ -104,6 +120,16 @@ public class DefaultCommands
         chessWindow.SetFEN(fen);
         return "FEN set to: "+fen;
     }
-    
+
+    [ConsoleCommand("chess_square_size", "chess_square_size (size)", false)]
+    public string SetSquareSize(float size)
+    {
+        if(chessWindow == null)
+        {
+            return "No chess game running";
+        }
+        chessWindow.board.squareSize = size;
+        return "Sqaure size set to: "+size;
+    }
 
 }
