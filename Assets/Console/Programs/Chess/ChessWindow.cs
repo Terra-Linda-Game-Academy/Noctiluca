@@ -5,6 +5,8 @@ using Stockfish;
 using Stockfish.NET;
 using System.Threading;
 using System.IO;
+using System;
+using System.Linq;
 
 public enum ChessPieceType
 {
@@ -75,6 +77,20 @@ public class ChessBoard {
     public float squareSize = 50f;
     public float xOffset = 100f;
     public float yOffset = 100f;
+
+    void UslessFunction()
+    {
+        
+    }
+    public ChessBoard() {
+        OnCapture += (piece) => { Debug.Log("Captured "); };
+        OnMove += (x, y, x1,y1, c, asd) => { Debug.Log("Moved "); };
+        OnCheck += (color) => { Debug.Log("Check "); };
+        OnCheckmate += (color) => { Debug.Log("Checkmate "); };
+        OnStalemate += () => { Debug.Log("Stalemate "); };
+        OnCastle += (color, side) => { Debug.Log("Castle "); };
+        OnTurnEnd += (color) => { Debug.Log("Turn End "); };
+    }
 
     public ChessPiece[,] GetBoard()
     {
@@ -734,10 +750,20 @@ public class ChessBoard {
             KillPiece(newX, newY);
             attacking=true;
         }
+
+        bool promotion = false;
+
+        if(piece.type == ChessPieceType.Pawn && (newY == 0 || newY == 7)) {
+            if(promotionType == ChessPieceType.Pawn) {
+                return false;
+            }
+            promotion = true;
+            
+        }
             
         
 
-        Debug.Log("Moving " + piece.type + " from " + piece.x + ", " + piece.y + " to " + newX + ", " + newY + ".");
+        Debug.Log("Moving " + piece.color+piece.type + " from " + piece.x + ", " + piece.y + " to " + newX + ", " + newY + ".");
 
         int x = piece.x;
         int y = piece.y;
@@ -746,15 +772,13 @@ public class ChessBoard {
         board[piece.x, piece.y] = null;
         piece.Move(newX, newY);
 
-        OnMove(piece.color, x, y, newX, newY);
+        OnMove(piece.color, x, y, newX, newY, promotion);
+
             
             
 
         //promotion
-        if(piece.type == ChessPieceType.Pawn && (newY == 0 || newY == 7)) {
-            if(promotionType == ChessPieceType.Pawn) {
-                return false;
-            }
+        if(promotion) {
             Promote(promotionType, piece.color, newX, newY);
         }
 
@@ -788,7 +812,181 @@ public class ChessBoard {
         piece.Move(newX, newY);
     }
 
+    //letter to type
+    public ChessPieceType LetterToType(char letter) {
+        switch((letter + "").ToLower().ToCharArray()[0]) {
+            case 'k':
+                return ChessPieceType.King;
+            case 'q':
+                return ChessPieceType.Queen;
+            case 'r':
+                return ChessPieceType.Rook;
+            case 'b':
+                return ChessPieceType.Bishop;
+            case 'n':
+                return ChessPieceType.Knight;
+            case 'p':
+                return ChessPieceType.Pawn;
+            default:
+                return ChessPieceType.Pawn;
+        }
+    }
+
+    //type to letter
+    public char TypeToLetter(ChessPieceType type) {
+        switch(type) {
+            case ChessPieceType.King:
+                return 'K';
+            case ChessPieceType.Queen:
+                return 'Q';
+            case ChessPieceType.Rook:
+                return 'R';
+            case ChessPieceType.Bishop:
+                return 'B';
+            case ChessPieceType.Knight:
+                return 'N';
+            case ChessPieceType.Pawn:
+                return 'P';
+            default:
+                return 'P';
+        }
+    }
+
+    // Example: Rxg7+ to a7g7
+    public string PuzzleNotation(string notation, ChessPieceColor color)
+    {
+        Debug.Log("Puzzle notation: " + notation);
+
+        notation = notation.Replace("x", "").Replace("+", "").Replace("#", "").Replace(" ", "").Trim();
+
+        Debug.Log("New Puzzle notation: " + notation + ", Length: " + notation.Length);
+
+        
+        if(notation.Contains("=")) {
+            Debug.Log("1.0");
+            string endPos = notation.Substring(0, 2);
+            string piece = notation.Split ('=')[1];
+
+            Vector2Int pos = GetNotationCoordinates(endPos);
+            ChessPiece pawn = FindPieces((piece) => (piece.type == LetterToType(notation[0]) && piece.color == turn && piece.type == ChessPieceType.Pawn && GetLegalMoves(piece).Contains(GetNotationCoordinates(endPos))))[0];
+            return GetNotation(new Vector2Int(pawn.x, pawn.y)) + endPos + "=" +piece.ToUpper();
+            
+        }
+        //if calsling
+        else if (notation == "O-O") {
+            Debug.Log("2.0");
+            if(color == ChessPieceColor.White) {
+                return "e1g1";
+            } else {
+                return "e8g8";
+            }
+        } else if (notation == "O-O-O") {
+            Debug.Log("3.0");
+            if(color == ChessPieceColor.White) {
+                return "e1c1";
+            } else {
+                return "e8c8";
+            }
+        }
+        else {
+            if(notation.Length == 2) {
+                Debug.Log("4.0");
+                ChessPiece movePiece = FindPieces((piece) => (piece.color == turn&& piece.type==ChessPieceType.Pawn && GetLegalMoves(piece).Contains(GetNotationCoordinates(notation))))[0];
+                return GetNotation(movePiece.x, movePiece.y) + notation;
+            }
+            else if(notation.Length == 3) {
+                Debug.Log("5.0");
+                string firstLetter = notation.Substring(0, 1);
+                string endPos = notation.Substring(1, 2);
+                bool isFirstCharNumber = int.TryParse(firstLetter, out int n);
+
+                //check if first letter is capital
+                if(firstLetter == firstLetter.ToUpper() && !isFirstCharNumber) {
+                    Debug.Log("5.1");
+                    Debug.Log("Notation: " + notation);
+                    Debug.Log("Must be: " + LetterToType(firstLetter.ToCharArray()[0]) + ", " + color + ", " + GetNotationCoordinates(endPos));
+                    
+                    ChessPiece movePiece = FindPieces((piece) => (piece.type == LetterToType(notation[0]) && piece.color == turn && GetLegalMoves(piece).Contains(GetNotationCoordinates(endPos))))[0];
+                    return GetNotation(movePiece.x, movePiece.y) + endPos;
+                } else {
+                    Debug.Log("5.2");
+                    //if first letter is letter or number
+                    List<ChessPiece>  possiblePieces = FindPieces((piece) => (piece.color == turn && GetLegalMoves(piece).Contains(GetNotationCoordinates(endPos))));
+                    foreach(ChessPiece piece in possiblePieces) {
+                        bool rightLocation = true;
+                        if(isFirstCharNumber) {
+                            //check if y is right
+                            if(7-piece.y != int.Parse(firstLetter) - 1) {
+                                rightLocation = false;
+                            }
+                            
+                        } else {
+                            //check if x is right
+                            if(piece.x != firstLetter.ToLower().ToCharArray()[0] - 97) {
+                                rightLocation = false;
+                            }
+                            
+                        }
+                        if(rightLocation) {
+                            return GetNotation(piece.x, piece.y) + endPos;
+                        }
+                    }
+                }
+            } else if (notation.Length == 4) {
+                Debug.Log("6.0");
+                string firstLetter = notation.Substring(0, 1);
+                string secondLetter = notation.Substring(1, 1);
+                string endPos = notation.Substring(2, 2);
+                bool isSecondCharNumber = int.TryParse(secondLetter, out int n);
+
+                List<ChessPiece>  possiblePieces = FindPieces((piece) => (piece.type == LetterToType(firstLetter.ToCharArray()[0]) && piece.color == color && GetLegalMoves(piece).Contains(GetNotationCoordinates(endPos))));
+                foreach(ChessPiece piece in possiblePieces) {
+                    bool rightLocation = true;
+                    if(isSecondCharNumber) {
+                        int y =int.Parse(secondLetter) - 1;
+                        Debug.Log("y: " + y + ", piece.y: " + (7-piece.y));
+                        //check if y is right
+                        if(7-piece.y != int.Parse(secondLetter) - 1) {
+                            rightLocation = false;
+                        }
+                        
+                    } else {
+                        int x = secondLetter.ToLower().ToCharArray()[0] - 97;
+                        Debug.Log("x: " + x + ", piece.x: " + piece.x);
+                        //check if x is right
+                        if(piece.x != secondLetter.ToLower().ToCharArray()[0] - 97) {
+                            rightLocation = false;
+                        }
+                        
+                    }
+                    if(rightLocation) {
+                        return GetNotation(piece.x, piece.y) + endPos;
+                    }
+                }
+            }
+        }
+        Debug.Log("7.0");
+        return "";
+        
+    }
+
+
+
+
+    //Find piece FindPiece((piece) => (piece.x == 5))
+    public List<ChessPiece> FindPieces(Func<ChessPiece, bool> predicate) {
+        List<ChessPiece> pieces = new List<ChessPiece>();
+        foreach(ChessPiece piece in board) {
+            if(piece != null && predicate(piece)) {
+                pieces.Add(piece);
+            }
+        }
+        return pieces;
+    }
+
     public void NotationMove(string notation, ChessPieceColor color) {
+
+        Debug.Log("Notation: " + notation);
         // if (notation == "O-O")
         // {
         //     Castle(0, color); // Perform king-side castle
@@ -863,6 +1061,14 @@ public class ChessBoard {
         int x = notation[0] - 'a'; // Convert letter to x-coordinate
         int y = '8' - notation[1]; // Convert number to y-coordinate
         return new Vector2Int(x, y);
+    }
+
+    //get notation from coordinates
+    public string GetNotation(Vector2Int coordinates) {
+        string notation = "";
+        notation += (char)('a' + coordinates.x);
+        notation += (char)('8' - coordinates.y);
+        return notation;
     }
 
     public string GetNotation(int x, int y) {
@@ -1072,6 +1278,7 @@ public class ChessBoard {
         board = FENinfo.board;
         EnPeasantSquare = FENinfo.EnPeasantSquare;
         turn = FENinfo.turn;
+        Debug.Log("Fen turen: " + turn);
         halfMoveClock = FENinfo.halfMoveClock;
         fullMoveNumber = FENinfo.fullMoveNumber;
 
@@ -1183,8 +1390,8 @@ public class ChessBoard {
         }
          ChessPieceColor turnColor = ChessPieceColor.White;
         if(FENChunks.Length > 1) {
-            string turn = FENChunks[1];
-            turnColor = turn == "w" ? ChessPieceColor.White : ChessPieceColor.Black;
+            string turnTemp = FENChunks[1];
+            turnColor = (turnTemp == "w") ? ChessPieceColor.White : ChessPieceColor.Black;
         }
 
         if(FENChunks.Length > 2) {
@@ -1198,20 +1405,28 @@ public class ChessBoard {
                     switch (c)
                     {
                         case 'K':
-                            tempBoard[7, 7].hasMoved = false;
-                            tempBoard[4, 7].hasMoved = false;
+                            if(tempBoard[7, 7] != null)
+                                tempBoard[7, 7].hasMoved = false;
+                            if(tempBoard[4, 7] != null)
+                                tempBoard[4, 7].hasMoved = false;
                             break;
                         case 'Q':
-                            tempBoard[0, 7].hasMoved = false;
-                            tempBoard[4, 7].hasMoved = false;
+                            if(tempBoard[0, 7] != null)
+                                tempBoard[0, 7].hasMoved = false;
+                            if(tempBoard[4, 7] != null)
+                                tempBoard[4, 7].hasMoved = false;
                             break;
                         case 'k':
-                            tempBoard[7, 0].hasMoved = false;
-                            tempBoard[4, 0].hasMoved = false;
+                            if(tempBoard[7, 0] != null)
+                                tempBoard[7, 0].hasMoved = false;
+                            if(tempBoard[4, 0] != null)
+                                tempBoard[4, 0].hasMoved = false;
                             break;
                         case 'q':
-                            tempBoard[0, 0].hasMoved = false;
-                            tempBoard[4, 0].hasMoved = false;
+                            if(tempBoard[0, 0] != null)
+                                tempBoard[0, 0].hasMoved = false;
+                            if(tempBoard[4, 0] != null)
+                                tempBoard[4, 0].hasMoved = false;
                             break;
                     }
                     } catch (System.Exception e) {
@@ -1346,7 +1561,7 @@ public class ChessBoard {
 
     //move, capture, check, checkmate
 
-    public delegate void MoveEvent(ChessPieceColor color, int fromX, int fromY, int toX, int toY);
+    public delegate void MoveEvent(ChessPieceColor color, int fromX, int fromY, int toX, int toY, bool promotion = false);
     public event MoveEvent OnMove;
 
     public delegate void CaptureEvent(ChessPieceColor color);
@@ -1412,6 +1627,8 @@ public class ChessWindow : MonoBehaviour
 
     private Texture2D white;
 
+    private Texture2D triangle;
+
 
     AudioClip moveSound;
     AudioClip captureSound;
@@ -1420,6 +1637,14 @@ public class ChessWindow : MonoBehaviour
 
     AudioClip castleSound;
     //AudioClip stalemateSound;
+
+    TextAsset mateInFourPuzzles;
+    TextAsset winningSacrificesPuzzles;
+    TextAsset pinsPuzzles;
+
+    Dictionary<string, string> puzzles = new Dictionary<string, string>();
+
+    
 
     
     void LoadTextures() {
@@ -1449,6 +1674,10 @@ public class ChessWindow : MonoBehaviour
         checkmateSound = Resources.Load<AudioClip>("chess/checkmate");
         castleSound = Resources.Load<AudioClip>("chess/castle");
 
+        //load puzzles
+        mateInFourPuzzles = Resources.Load<TextAsset>("chess/mate_in_four");
+        winningSacrificesPuzzles = Resources.Load<TextAsset>("chess/winning_sacrifices");
+        pinsPuzzles = Resources.Load<TextAsset>("chess/pins");
 
 
         //create 1x1 white texture
@@ -1456,14 +1685,87 @@ public class ChessWindow : MonoBehaviour
         white.SetPixel(0, 0, Color.white);
         white.Apply();
 
+        LoadPuzzles();
+    }
+
+    struct Arrow {
+        public Vector2Int start;
+        public Vector2Int end;
+        public Color color;
+        public Arrow(Vector2Int start, Vector2Int end, Color color) {
+            this.start = start;
+            this.end = end;
+            this.color = color;
+        }
+    }
+
+    List<Arrow> arrows = new List<Arrow>();
+
+    private void LoadPuzzles() {
+        /* mate in four puzzles file format
+        [FEN]
+        [Solution]
+        [FEN]
+        [Solution]
+        */
+        List<string> loadedPuzzles = new List<string>();
+        loadedPuzzles.AddRange(mateInFourPuzzles.text.Split('\n'));
+        loadedPuzzles.AddRange(winningSacrificesPuzzles.text.Split('\n'));
+        loadedPuzzles.AddRange(pinsPuzzles.text.Split('\n'));
+
+        string[] lines = string.Join("\n", loadedPuzzles).Split('\n');
+        for(int i = 0; i < lines.Length; i += 2) {
+            
+            if(i == lines.Length - 1)
+                break;
+
+            string answer = lines[i + 1].Replace("  ", " ").Replace("   ", " ").Trim();
+            if(!puzzles.ContainsKey(lines[i]))
+                puzzles.Add(lines[i], answer);
+            // string moveConversion = UpdateMoveFormat(lines[i], lines[i + 1]);
+            // if(moveConversion != "") {
+            //     puzzles.Add(lines[i], moveConversion);
+            //      Debug.Log("Adding: " + lines[i] + " " + moveConversion);
+            // }
+
+           
+        }
+    }
+
+    private string UpdateMoveFormat(string FEN, string movesStr) {
+        string[] moves = movesStr.Split(' ');
+        ChessBoard tempBoard = new ChessBoard();
+        tempBoard.LoadFEN(FEN);
+        List<string> trueMoves = new List<string>();
+        foreach (string move in moves) {
+            try {
+            //if move length == 4 and the first letter is a lowercase letter, the second letter is a number, and the third letter is a lowercase letter and the fourth letter is a number
+            if (move.Length == 4 && char.IsLower(move[0]) && char.IsDigit(move[1]) && char.IsLower(move[2]) && char.IsDigit(move[3])) {
+                trueMoves.Add(move);
+                continue;
+            }
+
+            string trueMove = tempBoard.PuzzleNotation(movesStr.Split(' ')[turnNumber], tempBoard.turn == ChessPieceColor.White ? ChessPieceColor.Black : ChessPieceColor.White);
+            trueMoves.Add(trueMove);
+            tempBoard.NotationMove(trueMove, tempBoard.turn);
+            } catch (Exception e) {
+               // Debug.Log(e);
+                return "";
+            }
+        }
+
+        //join moves with " "
+        return string.Join(" ", trueMoves);
 
     }
+
+    
 
     IStockfish stockfish;
     
     MoveType lastMoveType = MoveType.Invalid;
 
-
+    
     Vector2Int lastMoveStart = new Vector2Int(-1, -1);
     Vector2Int lastMoveEnd = new Vector2Int(-1, -1);
 
@@ -1487,13 +1789,25 @@ public class ChessWindow : MonoBehaviour
         //board.LoadFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
         RestartGame();
 
-        board.OnMove += (color, fromX, fromY, toX, toY) =>
+        board.OnMove += (color, fromX, fromY, toX, toY, promotion) =>
         {
             if(lastMoveType == MoveType.Invalid)
                 lastMoveType = MoveType.Move;
 
             lastMoveStart = new Vector2Int(fromX, fromY);
             lastMoveEnd = new Vector2Int(toX, toY);
+
+            if(color == playerColor && playingPuzzles) {
+                string playerMoveNotation = board.GetNotation(new Vector2Int(fromX, fromY)) + board.GetNotation(new Vector2Int(toX, toY));
+                if(promotion) {
+                    playerMoveNotation += "=" + board.TypeToLetter(board.GetPiece(toX,toY).type);
+                }
+                Debug.Log("Player move: " + playerMoveNotation);
+                Debug.Log("Puzzle move: " + playerPuzzleMove + "("+playerPuzzleHint+")");
+                if(playerMoveNotation != playerPuzzleMove && board.GetGameOutcome() == GameOutcome.InProgress) {
+                    StartCoroutine(WrongMove());
+                }
+            }
 
             //AudioSource.PlayClipAtPoint(moveSound, Vector3.zero, 3f);
             
@@ -1537,6 +1851,9 @@ public class ChessWindow : MonoBehaviour
 
         board.OnTurnEnd += (color) =>
         {
+            // if(board.InCheckmate()) {
+            //     AudioSource.PlayClipAtPoint(checkmateSound, Vector3.zero, 3f);
+            // }
             if(lastMoveType == MoveType.Checkmate) {
                 Debug.Log("Checkmate");
                 //AudioSource.PlayClipAtPoint(checkmateSound, Vector3.zero, 3f);
@@ -1557,15 +1874,63 @@ public class ChessWindow : MonoBehaviour
             }
             lastMoveType = MoveType.Invalid;
 
-            
-            //create a thread to run the bot move
-            if(color != playerColor) {
-                Debug.Log("Bot move. End turn");
-                StartCoroutine(BotMove());
-            }
-                
+            hintPos = new Vector2Int(-1, -1);
+            hintPos2 = new Vector2Int(-1, -1);
             
 
+            
+
+            
+            if(!wrongMove) {
+                turnNumber++;
+            }
+
+            if(((turnNumber % 2) == 1) && playerColor == board.turn) {
+                turnNumber++;
+            }
+
+            if(playingPuzzles && turnNumber >= puzzles[puzzleFEN].Split(' ').Length) {
+                Debug.Log("Puzzle Solved");
+                //should eventually be puzzle solved
+                board.gameOver=true;
+                //RandomPuzzle();
+                return;
+            }
+
+            
+
+            //create a thread to run the bot move
+            if(color != playerColor) {
+                
+
+                if(playingPuzzles && !wrongMove) {
+                    StartCoroutine(PuzzleMove());
+                
+                }
+                    
+                else
+                    StartCoroutine(BotMove());
+                
+
+                
+                
+            } else {
+                if(playingPuzzles && !wrongMove) {
+                    try {
+                    playerPuzzleMove = board.PuzzleNotation(puzzles[puzzleFEN].Split(' ')[turnNumber], playerColor==ChessPieceColor.White? ChessPieceColor.Black : ChessPieceColor.White);
+                    } catch {
+                        board.gameOver=true;
+                        return;
+                    }
+                    playerPuzzleHint = puzzles[puzzleFEN].Split(' ')[turnNumber];
+                }
+                //if move was right
+                //if(puzzles[puzzleFEN])
+            }
+            if(!wrongMove) {
+                lastTurnFEN = board.GetFEN(board.GetBoard());
+            }
+            
             
         };
 
@@ -1573,7 +1938,90 @@ public class ChessWindow : MonoBehaviour
         
     }
 
+    bool wrongMove = false;
+
+    string playerPuzzleMove = "";
+    string playerPuzzleHint = "";
+
+    string lastTurnFEN = "";
+
+    int turnNumber = 0;
+
+    public bool playingPuzzles = false;
+    string puzzleFEN = "";
+
     int gameNumber = 0;
+    IEnumerator PuzzleMove() {
+        if(!wrongMove) {
+            bool worked = false;
+            ChessPieceColor otherColor = playerColor == ChessPieceColor.White ? ChessPieceColor.Black : ChessPieceColor.White;
+            string move = "";
+            try {
+                move = board.PuzzleNotation(puzzles[puzzleFEN].Split(' ')[turnNumber], otherColor);
+                worked = true;
+            } catch(Exception e) { 
+                
+                //find the forced move
+                foreach (ChessPiece piece in board.GetBoard()) {
+                    if(piece.color == otherColor) {
+                        List<Vector2Int> moves = board.GetLegalMoves(piece);
+                        if(moves.Count > 0) {
+                            move = board.GetNotation(piece.x, piece.y) + board.GetNotation(moves[0]);
+                            worked = true;
+                            turnNumber--;
+                            break;
+                        }
+                    }
+                }
+            }
+            if(!worked) {
+                board.gameOver=true;
+                // bool w = false;
+                // Debug.Log("Getting best move. Alt other");
+                // GetBestMove((move) => {board.NotationMove(move, otherColor);});
+                // yield return new WaitUntil(() => w);
+                // Debug.Log("w: " + w);
+
+                //playerPuzzleHint = playerPuzzleMove;
+            } else {
+                yield return new WaitForSeconds(0.5f);
+                board.NotationMove(move, otherColor);
+            }
+            
+        }
+            
+        
+
+    }
+
+    public string GetAllPuzzleMoves() {
+        return puzzles[puzzleFEN];
+    }
+
+    IEnumerator WrongMove() {
+        wrongMove= true;
+        //set tile color to red and fade it back to normal
+        Color originalLightColor = lightTile;
+        Color originalDarkColor = darkTile;
+
+        lightTile = new Color(1f, 0f, 0f, 1f);
+        darkTile = new Color(0.75f, 0f, 0f, 1f);
+
+        //fade back to normal
+        for (float f = 0f; f <= 1f; f += 0.01f) {
+            lightTile = Color.Lerp(lightTile, originalLightColor, f);
+            darkTile = Color.Lerp(darkTile, originalDarkColor, f);
+            yield return new WaitForSeconds(0.01f);
+        }
+        yield return new WaitForSeconds(0.5f);
+
+        int turnNumberTemp = turnNumber;
+        SetFEN(lastTurnFEN);
+        turnNumber = turnNumberTemp--;
+        wrongMove = false;
+        
+
+    }
 
     IEnumerator BotMove() {
         yield return new WaitUntil(() => botLoaded);
@@ -1591,6 +2039,31 @@ public class ChessWindow : MonoBehaviour
             board.NotationMove(move, playerColor == ChessPieceColor.White ? ChessPieceColor.Black : ChessPieceColor.White);
         
         legalMoves = board.GetLegalMoves(selectedPiece);
+        yield return null;
+    }
+
+    public void GetHint(Action<string> callback) {
+        if(playingPuzzles) {
+            callback(playerPuzzleHint);
+            return;
+        }
+        StartCoroutine(GetBestMove(callback));
+    }
+    private IEnumerator GetBestMove(Action<string> callback) {
+        yield return new WaitUntil(() => botLoaded);
+        Debug.Log("Getting best move");
+        string move = "t";
+        int initialSkill = stockfish.SkillLevel;
+        stockfish.SkillLevel = 20;
+        Thread thread = new Thread(() => {
+            stockfish.SetFenPosition(board.GetFEN(board.GetBoard()));
+            move = stockfish.GetBestMoveTime(500);
+            Debug.Log("Move: "+ move);
+        });
+        thread.Start();
+        yield return new WaitUntil(() => move != "t");
+        stockfish.SkillLevel = initialSkill;
+        callback(move);
         yield return null;
     }
 
@@ -1662,7 +2135,32 @@ public class ChessWindow : MonoBehaviour
         return null;
     }
 
+    
 
+    public void SetChessPuzzle(string FEN, string solution) {
+        stockfish.SkillLevel = 20;
+        SetFEN(FEN, true);
+        puzzleFEN = FEN;
+        playingPuzzles = true;
+        turnNumber = 0;
+        playerPuzzleMove = board.PuzzleNotation(puzzles[puzzleFEN].Split(' ')[turnNumber], playerColor==ChessPieceColor.White? ChessPieceColor.Black : ChessPieceColor.White);
+        playerPuzzleHint = puzzles[puzzleFEN].Split(' ')[turnNumber];
+    }
+
+
+    
+
+
+    public void RandomPuzzle(int difficulty) {
+        stockfish.SkillLevel = 20;
+        int randomPuzzle = UnityEngine.Random.Range(0, puzzles.Count);
+        string puzzleFEN = puzzles.Keys.ElementAt(randomPuzzle);
+        SetChessPuzzle(puzzleFEN, "");
+    }
+
+    public void RandomPuzzle() {
+        RandomPuzzle(5);
+    }
 
 
     //Get Set fen
@@ -1670,28 +2168,47 @@ public class ChessWindow : MonoBehaviour
         return board.GetFEN(board.GetBoard());
     }
 
-    public void SetFEN(string fen) {
+     public void SetFEN(string fen, bool isPuzzle = false) {
+
+        lastTurnFEN = fen;
+        turnNumber = 0;
         board.LoadFEN(fen);
+
+        hintPos = new Vector2Int(-1, -1);
+        hintPos2 = new Vector2Int(-1, -1);
+
+        
+
 
         board.gameOver = false;
         board.gameOutcome = GameOutcome.InProgress;
         lastMoveType = MoveType.Invalid;
         gameStarted = true;
-        
+       
         lastMoveStart = new Vector2Int(-1, -1);
         lastMoveEnd = new Vector2Int(-1, -1);
+
 
         legalMoves = new List<Vector2Int>();
         selectedPiece = null;
         gameNumber++;
 
-        if(board.turn != playerColor) {
-            Debug.Log("Bot move. Set FEN");
-            StartCoroutine(BotMove());
-        }
-        
-    }
 
+        if(isPuzzle) 
+            playerColor = board.turn;
+
+        boardFlipped = playerColor == ChessPieceColor.Black;
+
+        if(board.turn != playerColor) {
+            if(isPuzzle)
+                StartCoroutine(PuzzleMove());
+            else
+                StartCoroutine(BotMove());
+            //Debug.Log("Bot move. Set FEN");
+            
+        }
+       
+    }
 
     ChessPieceColor playerColor = ChessPieceColor.White;
 
@@ -1722,7 +2239,7 @@ public class ChessWindow : MonoBehaviour
 
         //set the player color to random
         if(gameNumber != 0)
-            playerColor = (ChessPieceColor)Random.Range(0, 2);
+            playerColor = (ChessPieceColor)UnityEngine.Random.Range(0, 2);
 
         boardFlipped = playerColor == ChessPieceColor.Black;
         lastMoveStart = new Vector2Int(-1, -1);
@@ -1730,9 +2247,18 @@ public class ChessWindow : MonoBehaviour
 
         legalMoves = new List<Vector2Int>();
         selectedPiece = null;
-
-        SetFEN(startingFEN);
+        
+        SetFEN(playingPuzzles? puzzleFEN : startingFEN, playingPuzzles);
+        
         gameNumber++;
+        turnNumber = 0;
+        if(playingPuzzles) {
+            playerPuzzleMove = board.PuzzleNotation(puzzles[puzzleFEN].Split(' ')[turnNumber], playerColor==ChessPieceColor.White? ChessPieceColor.Black : ChessPieceColor.White);
+            playerPuzzleHint = puzzles[puzzleFEN].Split(' ')[turnNumber];
+        }
+
+        hintPos = new Vector2Int(-1, -1);
+        hintPos2 = new Vector2Int(-1, -1);
     }
 
     bool boardFlipped = false;
@@ -1765,6 +2291,23 @@ public class ChessWindow : MonoBehaviour
             }
 
             
+        }
+
+        if (UnityEngine.Input.GetKeyDown(KeyCode.H)&&playingPuzzles) {
+            Debug.Log("Hint");
+            if(hintPos == new Vector2Int(-1, -1)) {
+                hintPos = board.GetNotationCoordinates(playerPuzzleMove.Substring(0, 2));
+            } else {
+                hintPos2 = board.GetNotationCoordinates(playerPuzzleMove.Substring(2, 2));
+            }
+
+            Debug.Log("Hint: " + hintPos + " " + hintPos2);
+        }
+
+        if(playingPuzzles && !wrongMove && playerPuzzleMove.Length < 2) {
+            playerPuzzleMove = board.PuzzleNotation(puzzles[puzzleFEN].Split(' ')[turnNumber], playerColor == ChessPieceColor.White ? ChessPieceColor.Black : ChessPieceColor.White);
+            playerPuzzleHint = puzzles[puzzleFEN].Split(' ')[turnNumber];
+            Debug.Log("Puzzle Move: " + playerPuzzleMove);
         }
 
     }
@@ -1899,8 +2442,12 @@ public class ChessWindow : MonoBehaviour
 
     public bool screenSaverMode = false;
     Vector2 screenSaverVelocity = Vector2.one;
-    
 
+    Vector2Int hintPos = new Vector2Int(-1, -1);
+    Vector2Int hintPos2 = new Vector2Int(-1, -1);
+    
+    Color hintDarkColor = new Color(73f/255f, 161f/255f, 126f/255f, 1f);
+    Color hintLightColor = new Color(133f/255f, 205f/255f, 188f/255f, 1f);
     void OnGUI()
     {
 
@@ -2011,8 +2558,10 @@ public class ChessWindow : MonoBehaviour
         for (int x = 0; x < 8; x++)
         {
             for (int y = 0; y < 8; y++) {
+                int trueX = boardFlipped?(7-x):x;
                  int trueY = boardFlipped?(7-y):y;
-                 int color = (x + y) % 2;
+                 
+                int color = (x + y) % 2;
                 if ((x + y) % 2 == 0)
                 {
                     GUI.color = lightTile;
@@ -2021,13 +2570,44 @@ public class ChessWindow : MonoBehaviour
                 {
                     GUI.color = darkTile;
                 }
-                if((lastMoveEnd.x == x && lastMoveEnd.y == trueY) || (lastMoveStart.x == x&& lastMoveStart.y == trueY)) {
+                if((lastMoveEnd.x == trueX && lastMoveEnd.y == trueY) || (lastMoveStart.x == trueX && lastMoveStart.y == trueY)) {
                     if(color == 1) {
                         GUI.color = new Color(((187f/119f)*darkTile.r*255f)/255f, ((203f/149f)*darkTile.g*255f)/255f, ((86f/208f)*darkTile.b*255f)/255f);
                         //GUI.color = new Color(187f/255f, 203f/255f, 43f/255f);
                     } else {
                         GUI.color = new Color(((247f/235f)*lightTile.r*255f)/255f, ((247f/236f)*lightTile.g*255f)/255f, ((105f/208f)*lightTile.b*255f)/255f);
                         //GUI.color = new Color(247f/255f, 247f/255f, 105f/255f);
+                    }
+                }
+
+                bool selectedTile = false;
+
+                if(selectedPiece != null && selectedPiece.x == trueX && selectedPiece.y == trueY) {
+                    selectedTile = true;
+                    if(color == 0) {
+                        GUI.color = new Color(247f/255f, 247f/255f, 105f/255f);
+                        
+                    } else {
+                        GUI.color = new Color(187f/255f, 203f/255f, 43f/255f);
+                    }
+                    
+                    //GUI.DrawTexture(GetTile(selectedPiece), Texture2D.whiteTexture);
+                    
+                }
+
+                float multiplier = selectedTile?1.5f:1f;
+                if(new Vector2Int(trueX, trueY) == hintPos) {
+                    
+                    if(color ==1) {
+                        GUI.color = hintDarkColor * multiplier;
+                    } else {
+                        GUI.color = hintLightColor * multiplier;
+                    }
+                } else if (new Vector2Int(trueX, trueY) == hintPos2) {
+                    if(color ==1) {
+                        GUI.color = hintDarkColor * multiplier;
+                    } else {
+                        GUI.color = hintLightColor * multiplier;
                     }
                 }
                 Rect tile = new Rect(x * board.squareSize + board.xOffset, y * board.squareSize + board.yOffset, board.squareSize, board.squareSize);
@@ -2042,9 +2622,9 @@ public class ChessWindow : MonoBehaviour
                     continue;
 
                 //draw a circle if the tile is a legal move
-                if(legalMoves.Contains(new Vector2Int(x, trueY))) {
+                if(legalMoves.Contains(new Vector2Int(trueX, trueY))) {
                     GUI.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
-                    if(board.GetBoard()[x, trueY] != null) {
+                    if(board.GetBoard()[trueX, trueY] != null) {
                         GUI.DrawTexture(tile, hollowCircle);
                     } else {
                         Rect circleRect = new Rect(tile.x,  tile.y, tile.width, tile.height);
@@ -2066,18 +2646,18 @@ public class ChessWindow : MonoBehaviour
                 if (tile.Contains(mousePos) && mousePressedFrame && !mouseInPromotion)
                 {
                     Debug.Log("Clicked on tile " + x + ", " + y);
-                    if(selectedPiece == null || !legalMoves.Contains(new Vector2Int(x,trueY))) {
-                        selectedPiece = board.GetPiece(x, trueY);
+                    if(selectedPiece == null || !legalMoves.Contains(new Vector2Int(trueX,trueY))) {
+                        selectedPiece = board.GetPiece(trueX, trueY);
                         promotionActive = false;
-                        if(selectedPiece.color != playerColor) {
+                        if(selectedPiece != null && selectedPiece.color != playerColor) {
                             selectedPiece = null;
                             legalMoves = new List<Vector2Int>();
                         }
                         legalMoves = board.GetLegalMoves(selectedPiece);
                     } else {
-                        if(legalMoves.Contains(new Vector2Int(x, trueY)) && board.turn == playerColor ) {
-                            bool isPromotion = board.IsPromotion(selectedPiece, x, trueY);
-                            if(!isPromotion && board.MovePiece(selectedPiece, x, trueY)) {
+                        if(legalMoves.Contains(new Vector2Int(trueX, trueY)) && board.turn == playerColor ) {
+                            bool isPromotion = board.IsPromotion(selectedPiece, trueX, trueY);
+                            if(!isPromotion && board.MovePiece(selectedPiece, trueX, trueY)) {
                                 Debug.Log("Moved piece");
                                 gameStarted = true;
                                 legalMoves = new List<Vector2Int>();
@@ -2086,22 +2666,22 @@ public class ChessWindow : MonoBehaviour
                             }
                             if(isPromotion && !promotionActive) {
                                 promotionActive = true;
-                                promotionTile = new Vector2Int(x, trueY);
+                                promotionTile = new Vector2Int(trueX, trueY);
                                 promotionPieceObject = selectedPiece;
-                                promotionPieceTargetPos = new Vector2Int(x, trueY);
+                                promotionPieceTargetPos = new Vector2Int(trueX, trueY);
                             }
                             // if(board.IsPromotion(selectedPiece, x, trueY)) {
                             //     Debug.Log("Promotion");
                             //     //show promotion menu
                             //     promotionMenu = true;
-                            //     promotionX = x;
+                            //     promotionX = trueX;
                             //     promotionY = trueY;
                             // } else {
                             //     Debug.Log("Moved piece");
                             //     gameStarted = true;
                             //     legalMoves = new List<Vector2Int>();
                             //     selectedPiece = null;
-                            //     board.MovePiece(selectedPiece, x, trueY);
+                            //     board.MovePiece(selectedPiece, trueX, trueY);
                             // }
                             
                         }
@@ -2113,17 +2693,7 @@ public class ChessWindow : MonoBehaviour
 
         
 
-        if(selectedPiece != null) {
-            int color = (selectedPiece.x + selectedPiece.y) % 2;
-            if(color == 0) {
-                GUI.color = new Color(187f/255f, 203f/255f, 43f/255f);
-            } else {
-                GUI.color = new Color(247f/255f, 247f/255f, 105f/255f);
-            }
-            
-            GUI.DrawTexture(GetTile(selectedPiece), Texture2D.whiteTexture);
-            
-        }
+        
 
         GUI.color = Color.white;
 
@@ -2200,7 +2770,7 @@ public class ChessWindow : MonoBehaviour
                             }
                             break;
                     }
-                    GUI.DrawTexture(new Rect(x * board.squareSize+board.xOffset, (boardFlipped?(7-y):y) * board.squareSize+board.yOffset, board.squareSize, board.squareSize), texture);
+                    GUI.DrawTexture(new Rect((boardFlipped?(7-x):x) * board.squareSize+board.xOffset, (boardFlipped?(7-y):y) * board.squareSize+board.yOffset, board.squareSize, board.squareSize), texture);
                 }
             }
             
@@ -2210,10 +2780,27 @@ public class ChessWindow : MonoBehaviour
             selectedPiece = null;
             legalMoves = new List<Vector2Int>();
         }
+
+
+        foreach (Arrow arrow in arrows)
+        {
+            int trueStartX = (boardFlipped?(7-arrow.start.x):arrow.start.x);
+            int trueStartY = (boardFlipped?(7-arrow.start.y):arrow.start.y);
+            int trueEndX = (boardFlipped?(7-arrow.end.x):arrow.end.x);
+            int trueEndY = (boardFlipped?(7-arrow.end.y):arrow.end.y);
+
+            Vector2Int start = new Vector2Int(trueStartX, trueStartY);
+            Vector2Int end = new Vector2Int(trueEndX, trueEndY);
+
+            
+            
+
+            
+        }
             
 
         if(promotionActive) {
-            PromotionGUI(promotionTile.x, promotionTile.y);
+            PromotionGUI(boardFlipped?(7-promotionTile.x):promotionTile.x, boardFlipped?(7-promotionTile.y):promotionTile.y);
             //if escape or right click is pressed, cancel promotion
             if(UnityEngine.Input.GetKeyDown(KeyCode.Escape) || UnityEngine.Input.GetMouseButtonDown(1)) {
                 promotionActive = false;
@@ -2240,28 +2827,35 @@ public class ChessWindow : MonoBehaviour
             GUI.color = new Color(0.3f, 0.3f, 0.3f, 0.65f);
             GUI.DrawTexture(boxRect, Texture2D.whiteTexture);
             GUI.color = Color.white;
-            string message = "Game Over\n";
+            string message = "";
             //board.GetOutcome()
             if (board.GetOutcome() == GameOutcome.Stalemate)
             {
-                message += "Stalemate.";
+                message += "Game Over\nStalemate.";
             }
             else if (board.GetOutcome() == GameOutcome.WhiteWin)
             {
-                message += "White Wins!";
+                message += "Game Over\nWhite Wins!";
             }
             else if (board.GetOutcome() == GameOutcome.BlackWin)
             {
-                message += "Black Wins!";
+                message += "Game Over\nBlack Wins!";
+            } else if(board.GetOutcome() == GameOutcome.InProgress && playingPuzzles) {
+                message += "Puzzle Solved!";
             }
 
             //Win rect is the boxRect with half the width
             Rect winRect = new Rect(boxRect.x, boxRect.y, boxRect.width, boxRect.height/2f);
-            Rect winButtonRect = new Rect(boxRect.x+ boxRect.width/3f, boxRect.y+boxRect.height/3f*2f, boxRect.width/3f, boxRect.height/7.5f);
+            Rect restartButtonRect = new Rect(boxRect.x+ boxRect.width/3f, boxRect.y+boxRect.height/3f*1.8f, boxRect.width/3f, boxRect.height/7.5f);
+            Rect puzzleButtonRect = new Rect(boxRect.x+ boxRect.width/4f, boxRect.y+boxRect.height/3f*2.3f, boxRect.width/2f, boxRect.height/7.5f);
 
             GUI.Label(winRect, message, textStyle);
-            if(GUI.Button(winButtonRect, "Restart", buttonStyle)) {
+            if(GUI.Button(restartButtonRect, "Restart", buttonStyle)) {
                 RestartGame();
+            }
+
+            if(playingPuzzles && GUI.Button(puzzleButtonRect, "Next Puzzle", buttonStyle)) {
+                RandomPuzzle();
             }
         }
 
@@ -2270,7 +2864,7 @@ public class ChessWindow : MonoBehaviour
     }
 
     public Rect GetTile(ChessPiece piece) {
-        return GetTile(piece.x, boardFlipped?7-piece.y:piece.y);
+        return GetTile(boardFlipped?7-piece.x:piece.x, boardFlipped?7-piece.y:piece.y);
     }
 
     public Rect GetTile(int x, int y) {

@@ -87,6 +87,53 @@ public class DefaultCommands
         //chessWindow.Initilize();
     }
 
+    [ConsoleCommand("chess_puzzle", "puzzle (1-20)", false)]
+    public string ChessPuzzle()
+    {
+        if(chessWindow == null)
+        {
+            return "Chess must be running";
+        }
+
+
+        // //limit difficulty to 1-20
+        // if (difficulty < 1)
+        // {
+        //     difficulty = 1;
+        // }
+        // else if (difficulty > 20)
+        // {
+        //     difficulty = 20;
+        // }
+        chessWindow.RandomPuzzle();
+        return "Succesfuly started a puzzle.";
+        //chessWindow.Initilize();
+    }
+
+    //chess_hint GetBestMove
+    [ConsoleCommand("chess_hint", "chess_hint", false)]
+    public string ChessHint()
+    {
+        if(chessWindow == null)
+        {
+            return "No chess game running";
+        }
+        chessWindow.GetHint((hint) => {ConsoleController.Instance.AddToConsoleLog("Best move is: " + hint);});
+        return chessWindow.playingPuzzles?"":"Finding best move...";
+    }
+
+    //allpuzll moves
+    [ConsoleCommand("chess_all_moves", "chess_all_moves", false)]
+    public string ChessAllMoves()
+    {
+        if(chessWindow == null)
+        {
+            return "No chess game running";
+        }
+        return chessWindow.GetAllPuzzleMoves();
+    }
+
+
     [ConsoleCommand("chess_screen_saver_mode", "chess_screen_saver_mode", false)]
     public string ChessRainbow(bool screenSaverMode)
     {

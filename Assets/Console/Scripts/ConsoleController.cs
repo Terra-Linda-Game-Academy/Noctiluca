@@ -479,14 +479,14 @@ public class ConsoleController : MonoBehaviour
         }
 
 
-        if (e.keyCode == KeyCode.UpArrow)
+        if (e.keyCode == KeyCode.UpArrow&& commandHistory.Count > 0)
         {
             commandHistoryIndex += 1;
             if (commandHistoryIndex >= commandHistory.Count) { commandHistoryIndex = 0; }
             input = commandHistory.ToArray()[commandHistoryIndex];
         }
 
-        else if (e.keyCode == KeyCode.DownArrow)
+        else if (e.keyCode == KeyCode.DownArrow && commandHistory.Count > 0)
         {
             commandHistoryIndex -= 1;
             if (commandHistoryIndex < 0) { commandHistoryIndex = commandHistory.Count - 1; }
