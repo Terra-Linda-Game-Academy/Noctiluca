@@ -24,7 +24,7 @@ namespace Levels {
 			set => room = value;
 		}
 
-		[HideInInspector] public bool[] connections;
+		/*[HideInInspector] */public bool[] connections;
 
 		public Guid RoomId { get; private set; }
 
@@ -50,7 +50,6 @@ namespace Levels {
 		private bool _initted;
 		
 		private void OnDrawGizmos() {
-			connections ??= new bool[room.connectionPoints.Count];
 			
 			Vector3 localScale = transform.localScale;
 
@@ -104,6 +103,8 @@ namespace Levels {
 			#endif
 			RoomId       = new Guid();
 			meshRenderer = GetComponent<MeshRenderer>();
+			
+			connections = new bool[room.connectionPoints.Count];
 
 			foreach (var tile in room.TileAssets) {
 				if (!tile.CreateGameObject) return;
@@ -149,7 +150,7 @@ namespace Levels {
 
 		//private static readonly int tileMapShaderId = Shader.PropertyToID("TileMap");
 
-		private void GenerateTerrainMesh() {
+		public void GenerateTerrainMesh() {
 			/*ComputeShader computeTerrain = Resources.Load<ComputeShader>("GenerateTerrain");
 			Mesh mesh = GetComponent<MeshFilter>().sharedMesh;
 			
@@ -274,7 +275,7 @@ namespace Levels {
 			//mesh.Optimize();
 			GetComponent<MeshFilter>().mesh = mesh;*/
 
-			Mesh mesh = TerrainMesh.Generate(room);
+			Mesh mesh = TerrainMesh.Generate(room, connections);
 
 			GetComponent<MeshFilter>().mesh         = mesh;
 			GetComponent<MeshCollider>().sharedMesh = mesh;

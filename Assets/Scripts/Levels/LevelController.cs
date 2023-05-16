@@ -32,6 +32,10 @@ namespace Levels {
 			RoomController startingRoom = SpawnRoom(possibleStartRoom.Value, transform.position, "Starting Room");
 
 			IterativeBranching(startingRoom, 2);
+
+			foreach (RoomController rc in _rooms) {
+				rc.GenerateTerrainMesh();
+			}
 		}
 
 		private void IterativeBranching(RoomController root, int depth) {
