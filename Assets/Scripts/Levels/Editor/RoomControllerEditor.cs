@@ -13,13 +13,16 @@ namespace Levels.Editor {
             VisualElement element = new VisualElement();
 
             var roomProp = serializedObject.FindProperty("room");
-            element.Add(new PropertyField(roomProp, "room"));
+            element.Add(new PropertyField(roomProp, "Room"));
 
             if (roomProp.objectReferenceValue is not null) {
                 SerializedObject room = new SerializedObject(roomProp.objectReferenceValue);
                 var sizeProp = room.FindPropertyOrFail("size");
                 element.Add(new PropertyField(sizeProp));
             }
+
+            var connectionsProp = serializedObject.FindProperty("connections");
+            element.Add(new PropertyField(connectionsProp, "Connections"));
 
             element.Bind(serializedObject);
             return element;

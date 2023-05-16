@@ -7,7 +7,7 @@ using UnityEngine.Rendering;
 
 namespace Levels {
     public static class TerrainMesh {
-        public static Mesh Generate(Room room) {
+        public static Mesh Generate(Room room, bool[] connections) {
             List<Vertex> vertices = new List<Vertex>();
             List<ushort> topIndices = new List<ushort>();
             List<ushort> sideIndices = new List<ushort>();
@@ -40,10 +40,15 @@ namespace Levels {
                     Room.Tile tileNX = room.GetTileAt(x - 1, z);
                     if (tileNX.flags.HasFlag(Room.TileFlags.Wall)) {
                         float doorDelta = 0f;
-                        
-                        if (room.connectionPoints.Any(c => c.direction == Room.Direction.West && c.coordinate == z) && x == 0) {
-                            doorDelta = 2f;
+
+                        for (int i = 0; i < connections.Length; i++) {
+                            Room.ConnectionPoint c = room.connectionPoints[i];
+                            if (c.direction == Room.Direction.West && c.coordinate == z && x == 0 && connections[i]) {
+                                doorDelta = 2f;
+                                break;
+                            }
                         }
+                        
                         AddIndices(sideIndices, vertices.Count,0, 1, 2,  1, 3, 2);
                         vertices.Add(new Vertex(new Vector3(x, tile.Height + doorDelta, z), Vector3.right, Vector2.zero));
                         vertices.Add(new Vertex(new Vector3(x, room.Size.y, z), Vector3.right, Vector2.zero));
@@ -66,10 +71,15 @@ namespace Levels {
                     Room.Tile tilePX = room.GetTileAt(x + 1, z);
                     if (tilePX.flags.HasFlag(Room.TileFlags.Wall)) {
                         float doorDelta = 0f;
-                        
-                        if (room.connectionPoints.Any(c => c.direction == Room.Direction.East && c.coordinate == z) && x == room.Size.x - 1) {
-                            doorDelta = 2f;
+
+                        for (int i = 0; i < connections.Length; i++) {
+                            Room.ConnectionPoint c = room.connectionPoints[i];
+                            if (c.direction == Room.Direction.East && c.coordinate == z && x == room.Size.x - 1 && connections[i]) {
+                                doorDelta = 2f;
+                                break;
+                            }
                         }
+                        
                         AddIndices(sideIndices, vertices.Count,0, 2, 1,  1, 2, 3);
                         vertices.Add(new Vertex(new Vector3(x + 1, tile.Height + doorDelta, z), Vector3.left, Vector2.zero));
                         vertices.Add(new Vertex(new Vector3(x + 1, room.Size.y, z), Vector3.left, Vector2.zero));
@@ -93,9 +103,14 @@ namespace Levels {
                     if (tileNZ.flags.HasFlag(Room.TileFlags.Wall)) {
                         float doorDelta = 0f;
                         
-                        if (room.connectionPoints.Any(c => c.direction == Room.Direction.South && c.coordinate == x) && z == 0) {
-                            doorDelta = 2f;
+                        for (int i = 0; i < connections.Length; i++) {
+                            Room.ConnectionPoint c = room.connectionPoints[i];
+                            if (c.direction == Room.Direction.South && c.coordinate == x && z == 0 && connections[i]) {
+                                doorDelta = 2f;
+                                break;
+                            }
                         }
+                        
                         AddIndices(sideIndices, vertices.Count,0, 2, 1,  1, 2, 3);
                         vertices.Add(new Vertex(new Vector3(x, tile.Height + doorDelta, z), Vector3.forward, Vector2.zero));
                         vertices.Add(new Vertex(new Vector3(x, room.Size.y, z), Vector3.forward, Vector2.zero));
@@ -119,10 +134,15 @@ namespace Levels {
                     Room.Tile tilePZ = room.GetTileAt(x, z + 1);
                     if (tilePZ.flags.HasFlag(Room.TileFlags.Wall)) {
                         float doorDelta = 0f;
-                        
-                        if (room.connectionPoints.Any(c => c.direction == Room.Direction.North && c.coordinate == x) && z == room.Size.z - 1) {
-                            doorDelta = 2f;
+
+                        for (int i = 0; i < connections.Length; i++) {
+                            Room.ConnectionPoint c = room.connectionPoints[i];
+                            if (c.direction == Room.Direction.North && c.coordinate == x && z == room.Size.z - 1 && connections[i]) {
+                                doorDelta = 2f;
+                                break;
+                            }
                         }
+                        
                         AddIndices(sideIndices, vertices.Count,0, 1, 2,  1, 3, 2);
                         vertices.Add(new Vertex(new Vector3(x, tile.Height + doorDelta, z + 1), Vector3.back, Vector2.zero));
                         vertices.Add(new Vertex(new Vector3(x, room.Size.y, z + 1), Vector3.back, Vector2.zero));
