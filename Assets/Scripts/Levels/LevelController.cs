@@ -31,7 +31,7 @@ namespace Levels {
 
 			RoomController startingRoom = SpawnRoom(possibleStartRoom.Value, transform.position, "Starting Room");
 
-			IterativeBranching(startingRoom, 1);
+			IterativeBranching(startingRoom, 2);
 		}
 
 		private void IterativeBranching(RoomController root, int depth) {
