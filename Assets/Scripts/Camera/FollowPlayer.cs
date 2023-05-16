@@ -12,13 +12,12 @@ namespace Camera {
         /// 
         /// </summary>
 
-        private GameObject player;
-        public Quaternion cameraRotation;
-        public Vector3 transf;
+        public GameObject player;
+        private Quaternion cameraRotation;
+        private Vector3 transf;
 
-        void Start()
-        {
-            player = GameObject.Find("Player");
+        void Start() {
+            transf         = transform.position - player.transform.position;
             cameraRotation = transform.rotation;
         }
 

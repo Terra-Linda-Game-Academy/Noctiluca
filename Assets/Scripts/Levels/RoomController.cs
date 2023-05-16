@@ -104,7 +104,7 @@ namespace Levels {
 			RoomId       = new Guid();
 			meshRenderer = GetComponent<MeshRenderer>();
 			
-			connections = new bool[room.connectionPoints.Count];
+			connections ??= new bool[room.connectionPoints.Count];
 
 			foreach (var tile in room.TileAssets) {
 				if (!tile.CreateGameObject) return;
