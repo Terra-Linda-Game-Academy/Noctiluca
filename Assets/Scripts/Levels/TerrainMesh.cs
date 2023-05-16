@@ -41,7 +41,7 @@ namespace Levels {
                     if (tileNX.flags.HasFlag(Room.TileFlags.Wall)) {
                         float doorDelta = 0f;
                         
-                        if (room.connectionPoints.Any(c => c.direction == Room.Direction.West && c.coordinate == z)) {
+                        if (room.connectionPoints.Any(c => c.direction == Room.Direction.West && c.coordinate == z) && x == 0) {
                             doorDelta = 2f;
                         }
                         AddIndices(sideIndices, vertices.Count,0, 1, 2,  1, 3, 2);
@@ -67,7 +67,7 @@ namespace Levels {
                     if (tilePX.flags.HasFlag(Room.TileFlags.Wall)) {
                         float doorDelta = 0f;
                         
-                        if (room.connectionPoints.Any(c => c.direction == Room.Direction.East && c.coordinate == z)) {
+                        if (room.connectionPoints.Any(c => c.direction == Room.Direction.East && c.coordinate == z) && x == room.Size.x - 1) {
                             doorDelta = 2f;
                         }
                         AddIndices(sideIndices, vertices.Count,0, 2, 1,  1, 2, 3);
@@ -93,7 +93,7 @@ namespace Levels {
                     if (tileNZ.flags.HasFlag(Room.TileFlags.Wall)) {
                         float doorDelta = 0f;
                         
-                        if (room.connectionPoints.Any(c => c.direction == Room.Direction.South && c.coordinate == x)) {
+                        if (room.connectionPoints.Any(c => c.direction == Room.Direction.South && c.coordinate == x) && z == 0) {
                             doorDelta = 2f;
                         }
                         AddIndices(sideIndices, vertices.Count,0, 2, 1,  1, 2, 3);
@@ -120,7 +120,7 @@ namespace Levels {
                     if (tilePZ.flags.HasFlag(Room.TileFlags.Wall)) {
                         float doorDelta = 0f;
                         
-                        if (room.connectionPoints.Any(c => c.direction == Room.Direction.North && c.coordinate == x)) {
+                        if (room.connectionPoints.Any(c => c.direction == Room.Direction.North && c.coordinate == x) && z == room.Size.z - 1) {
                             doorDelta = 2f;
                         }
                         AddIndices(sideIndices, vertices.Count,0, 1, 2,  1, 3, 2);
