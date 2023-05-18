@@ -13,17 +13,20 @@ namespace Camera {
         /// </summary>
 
         private GameObject player;
+        public Quaternion cameraRotation;
         public Vector3 transf;
 
         void Start()
         {
             player = GameObject.Find("Player");
+            cameraRotation = transform.rotation;
         }
 
 
-        void Update()
+        void LateUpdate()
         {
             transform.position = player.transform.position + transf;
+            transform.rotation = cameraRotation;
         }
     }
 }

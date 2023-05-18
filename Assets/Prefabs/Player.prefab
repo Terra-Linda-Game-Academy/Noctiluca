@@ -1370,9 +1370,10 @@ GameObject:
   - component: {fileID: 5221544269160276579}
   - component: {fileID: 5221544269160276576}
   - component: {fileID: 5221544269160276582}
-  - component: {fileID: 5221544269160276583}
   - component: {fileID: 8970473935617575662}
-  - component: {fileID: 5903956118424647752}
+  - component: {fileID: 2025051539310536927}
+  - component: {fileID: 2838257205585319268}
+  - component: {fileID: 6131111996074893602}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1419,22 +1420,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &5221544269160276583
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5221544269160276580}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f151bc9dc8c7bf247a1f1d60c7c32fba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  movementSpeed: 6
-  rotationSpeed: 30
-  inputProvider: {fileID: 11400000, guid: 85a0328cbb693e44eb26529b3a2425d4, type: 2}
-  playerVar: {fileID: 11400000, guid: 771557aef5fdc44c9988a4d5e27e3180, type: 2}
 --- !u!114 &8970473935617575662
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1448,7 +1433,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   eyes: {fileID: 4093304259607004637}
---- !u!114 &5903956118424647752
+--- !u!54 &2025051539310536927
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5221544269160276580}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &2838257205585319268
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1457,10 +1458,33 @@ MonoBehaviour:
   m_GameObject: {fileID: 5221544269160276580}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7ac07a92cbff4ce9b3f354933ec637ce, type: 3}
+  m_Script: {fileID: 11500000, guid: 4270e8c3fb5b78c2aa26cbdb5cf8674d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  healthVar: {fileID: 0}
+  inputProvider: {fileID: 11400000, guid: 85a0328cbb693e44eb26529b3a2425d4, type: 2}
+  playerVar: {fileID: 11400000, guid: 771557aef5fdc44c9988a4d5e27e3180, type: 2}
+  maxAcceleration: 10
+  maxAirAcceleration: 1
+  maxSpeed: 10
+  maxGroundAngle: 25
+  maxRotationSpeed: 500
+  maxAirRotationSpeed: 0
+  minVelocityThreshold: 0.1
+--- !u!114 &6131111996074893602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5221544269160276580}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de7cef9bbbe06ac66ab462d3e6a5bd2b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackRadius: 2
+  attackAngle: 45
+  attackDir: {x: 0, y: 0, z: 0}
 --- !u!1 &5287219819129141156
 GameObject:
   m_ObjectHideFlags: 0

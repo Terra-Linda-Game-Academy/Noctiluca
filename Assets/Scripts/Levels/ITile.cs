@@ -12,7 +12,7 @@ namespace Levels {
         /// <summary>
         /// Where to place the created GameObject
         /// </summary>
-        public Vector3Int Position { get; }
+        public Vector2Int Position { get; }
         
         /// <summary>
         /// Initialize the given GameObject
@@ -21,6 +21,9 @@ namespace Levels {
         /// <param name="roomId">
         /// The ID of the current room, to support having multiple of the same room loaded at once
         /// </param>
-        public void Init(GameObject obj, Guid roomId);
+        /// <param name="room">
+        /// A reference to the current room data
+        /// </param>
+        public void Init(GameObject obj, Guid roomId, Room room);
     }
 } 
