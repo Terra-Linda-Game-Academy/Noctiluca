@@ -10,14 +10,14 @@ namespace Levels {
         
         private Dictionary<Guid, C> instances;
         protected C GetInstance(Guid roomId) => instances[roomId];
+        
+        protected abstract void Init(C component, Room room);
 
-        protected abstract void Init(C component);
-
-        public override void Init(GameObject obj, Guid roomId) {
+        public sealed override void Init(GameObject obj, Guid roomId, Room room) {
             var controller = obj.AddComponent<C>();
             instances.Add(roomId, controller);
             controller.Init((E) this, roomId);
-            Init(controller);
+            Init(controller, room);
         }
 
         public void RemoveInstance(Guid roomId) => instances.Remove(roomId);
