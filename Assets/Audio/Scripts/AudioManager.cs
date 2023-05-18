@@ -25,6 +25,8 @@ public class AudioManager : MonoBehaviour
     }
 
     public AudioObjectController PlayClip(AudioClipInfo audioClipInfo, Vector3 position, Action<AudioObjectController> OnEndCallback = null) {
+        if(audioClipInfo == null)
+            return null;
         AudioObjectController newAudioObject = Instantiate(audioObjectPrefab, position, Quaternion.identity);
         newAudioObject.Init(audioClipInfo, (audioObjectController) => {
             if(OnEndCallback != null)

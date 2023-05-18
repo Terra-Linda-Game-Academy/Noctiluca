@@ -22,6 +22,11 @@ public class PauseMenuButton : MonoBehaviour, IPointerEnterHandler, IPointerExit
     [SerializeField] private Color hoverColor;
     [SerializeField] private Color pressedColor;
 
+    [Header("Font Styles")]
+    [SerializeField] private FontStyles normalFontStyle;
+    [SerializeField] private FontStyles hoverFontStyle;
+    [SerializeField] private FontStyles pressedFontStyle;
+
     [Header("Sound")]
     [SerializeField] private AudioClipInfo clickSound;
 
@@ -34,20 +39,16 @@ public class PauseMenuButton : MonoBehaviour, IPointerEnterHandler, IPointerExit
     bool mouseDown = false;
     bool mouseHovering = false;
 
-    private void Update() {
-        if(mouseHovering) {
-            //buttonText.fontStyle = FontStyles.Underline;
-            buttonLeftArrow.gameObject.SetActive(true);
-            buttonRightArrow.gameObject.SetActive(true);
-        } else {
-            //buttonText.fontStyle = FontStyles.Normal;
-            buttonLeftArrow.gameObject.SetActive(false);
-            buttonRightArrow.gameObject.SetActive(false);
-        }
-    }
+    
 
-    private void Awake()
+    private void OnEnable()
     {
+        //if mouse over button when the gameobject is enabled
+        Vector2 mousePos = UnityEngine.Input.mousePosition;
+        if(mousePos.x > transform.position.x - (transform.localScale.x / 2) && mousePos.x < transform.position.x + (transform.localScale.x / 2) && mousePos.y > transform.position.y - (transform.localScale.y / 2) && mousePos.y < transform.position.y + (transform.localScale.y / 2))
+            OnEnter();
+
+
     }
 
     private void OnClick() {
@@ -58,12 +59,18 @@ public class PauseMenuButton : MonoBehaviour, IPointerEnterHandler, IPointerExit
     private void OnEnter() {
         mouseHovering = true;
         buttonText.color = hoverColor;
+        buttonText.fontStyle = hoverFontStyle;
+        buttonLeftArrow.gameObject.SetActive(true);
+        buttonRightArrow.gameObject.SetActive(true);
         _onEnter.Invoke();
     }
 
     private void OnExit() {
         mouseHovering = false;
         buttonText.color = normalColor;
+        buttonText.fontStyle = normalFontStyle;
+        buttonLeftArrow.gameObject.SetActive(false);
+        buttonRightArrow.gameObject.SetActive(false);
         _onExit.Invoke();
     }
 
@@ -94,6 +101,7 @@ public class PauseMenuButton : MonoBehaviour, IPointerEnterHandler, IPointerExit
     {
         if(!eventData.used) {
             buttonText.color = pressedColor;
+            buttonText.fontStyle = pressedFontStyle;
             mouseDown = true;
 
             if(InstantTrigger) {
@@ -107,6 +115,9 @@ public class PauseMenuButton : MonoBehaviour, IPointerEnterHandler, IPointerExit
     {
         if(!eventData.used && !justTriggered) {
             buttonText.color = normalColor;
+            buttonText.fontStyle = normalFontStyle;
+            buttonLeftArrow.gameObject.SetActive(false);
+            buttonRightArrow.gameObject.SetActive(false);
             mouseDown = false;
 
 
