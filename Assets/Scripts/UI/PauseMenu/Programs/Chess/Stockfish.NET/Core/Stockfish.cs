@@ -36,7 +36,7 @@ namespace Stockfish.NET.Core
         /// <summary>
         /// 
         /// </summary>
-        public Settings Settings { get; set; }
+        public SettingsStock Settings { get; set; }
 
         /// <summary>
         /// 

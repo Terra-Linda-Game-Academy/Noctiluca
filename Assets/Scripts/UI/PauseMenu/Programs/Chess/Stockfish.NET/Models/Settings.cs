@@ -2,7 +2,7 @@
 
 namespace Stockfish.NET.Models
 {
-    public class Settings
+    public class SettingsStock
     {
         public int Contempt { get; set; }
         public int Threads { get; set; }
@@ -13,7 +13,7 @@ namespace Stockfish.NET.Models
         public int SlowMover { get; set; }
         public bool UCIChess960 { get; set; }
 
-        public Settings(
+        public SettingsStock(
             int contempt = 0,
             int threads = 0,
             bool ponder = false,
