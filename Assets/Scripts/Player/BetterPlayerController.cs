@@ -46,7 +46,7 @@ namespace Player {
 
 			inputProvider.RequireInit(GetComponent<Perceptron>());
 			inputProvider.Events.Interact += () => { Debug.Log("interact"); };
-			inputProvider.Events.Attack   += _attack.Attack;
+			inputProvider.Events.Attack   += () => { GetComponent<PlayerHealthController>().Damage(1);};
 		}
 
 		private void OnValidate() {
