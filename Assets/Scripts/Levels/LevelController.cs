@@ -6,6 +6,8 @@ using Random = UnityEngine.Random;
 
 namespace Levels {
 	public class LevelController : MonoBehaviour {
+		public int spawnNum;
+
 		public GameObject roomPrefab;
 		public GameObject hallwayPrefab; //todo: procedurally generate hallway meshes?
 
@@ -18,9 +20,11 @@ namespace Levels {
 
 		private List<RoomController> _rooms;
 
-		private void Start() => Generate();
+		//private void Start() => Generate();
 
-		private void Generate() {
+		public void Generate() {
+			ClearChildren();
+
 			_rooms = new List<RoomController>();
 
 			var possibleStartRoom = starterRooms.One();
@@ -31,10 +35,30 @@ namespace Levels {
 
 			RoomController startingRoom = SpawnRoom(possibleStartRoom.Value, transform.position, "Starting Room");
 
-			IterativeBranching(startingRoom, 2);
+			//IterativeBranching(startingRoom, spawnNum);
+			RandomGrowth(spawnNum);
 
-			foreach (RoomController rc in _rooms) {
-				rc.GenerateTerrainMesh();
+			foreach (RoomController rc in _rooms) { rc.GenerateTerrainMesh(); }
+		}
+
+		private void RandomGrowth(int numRooms) {
+			for (int i = 0; i < numRooms; i++) {
+				Debug.Log(_rooms.Count(rc => rc.connections.Any(c => !c)));
+				var pickedRoomOpt = _rooms.Where(rc => rc.connections.Any(c => !c)).Random().One();
+
+				if (!pickedRoomOpt.Enabled) {
+					Debug.LogWarning("Ran out of valid rooms, stopping");
+					return;
+				}
+
+				var pickedRoom = pickedRoomOpt.Value;
+
+				for (int j = 0; j < pickedRoom.connections.Length; j++) {
+					if (!pickedRoom.connections[j]) {
+						SpawnBranch(pickedRoom, j);
+						break;
+					}
+				}
 			}
 		}
 
@@ -42,7 +66,7 @@ namespace Levels {
 			if (depth <= 0) return;
 
 			for (int i = 0; i < root.connections.Length; i++) {
-				if (root.connections[i]) continue;
+				if (root.connections[i] || Random.value < 0.3) continue;
 				var possibleNewRoom = SpawnBranch(root, i);
 				if (!possibleNewRoom.Enabled) return;
 
@@ -51,7 +75,7 @@ namespace Levels {
 		}
 
 		private Option<RoomController> SpawnBranch(RoomController root, int connIndex) {
-			bool spawningNormalRoom = Random.value >= 0.5; //todo: change this
+			bool spawningNormalRoom = Random.value <= 0.8; //todo: change this
 
 			int hallwaySectionLength = 5; //todo: tweak this? same length as prefab
 
@@ -202,6 +226,12 @@ namespace Levels {
 			_rooms.Add(controller);
 
 			return controller;
+		}
+
+		private void ClearChildren() {
+			int childCount = transform.childCount;
+
+			for (int i = childCount - 1; i >= 0; i--) { DestroyImmediate(transform.GetChild(i).gameObject); }
 		}
 	}
 }

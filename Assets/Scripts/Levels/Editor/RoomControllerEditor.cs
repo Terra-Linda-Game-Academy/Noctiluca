@@ -1,9 +1,7 @@
 using System;
 using Unity.VisualScripting;
 using UnityEditor;
-using UnityEditor.Rendering;
 using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Levels.Editor {
