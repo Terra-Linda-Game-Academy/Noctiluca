@@ -427,6 +427,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   providerTemplate: {fileID: 11400000, guid: 42cade871ebf54aa4bf6b7a33223fb00, type: 2}
+  _provider: {fileID: 0}
+  _perceptron: {fileID: 0}
+  _healthController: {fileID: 0}
   speed: 0.03
 --- !u!114 &267656063
 MonoBehaviour:
@@ -440,6 +443,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a587e50dab2249a093c24e3816e44047, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _health: 0
 --- !u!114 &267656064
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -533,7 +537,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   room: {fileID: 11400000, guid: 09a4839d2ec5f41d7bd76419d4c9cf91, type: 2}
-  connections: 00000000
+  connections: 
+  meshRenderer: {fileID: 0}
+  _initted: 0
 --- !u!33 &481159471
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -652,6 +658,7 @@ MonoBehaviour:
   treasureRooms: {fileID: 11400000, guid: 93e62062e61964605853377d446f6f0c, type: 2}
   starterRooms: {fileID: 11400000, guid: 47a7260b1a70b44a28acae4471ba4f80, type: 2}
   bossRooms: {fileID: 11400000, guid: 13e53469102ba41358a04cc907c3a3a2, type: 2}
+  _rooms: []
 --- !u!1 &942297556
 GameObject:
   m_ObjectHideFlags: 0
@@ -681,6 +688,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83f2086d2f3a62d49915569c03e64abd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  audioObjects: []
   audioObjectPrefab: {fileID: 5721530883551274474, guid: 9965924cf5cde174a925cc6a8200fac9,
     type: 3}
 --- !u!4 &942297558
