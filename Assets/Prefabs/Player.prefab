@@ -1395,6 +1395,7 @@ Transform:
   m_Children:
   - {fileID: 5763516413704448973}
   - {fileID: 4093304259607004637}
+  - {fileID: 8660923727401742731}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1463,12 +1464,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inputProvider: {fileID: 11400000, guid: 85a0328cbb693e44eb26529b3a2425d4, type: 2}
   playerVar: {fileID: 11400000, guid: 771557aef5fdc44c9988a4d5e27e3180, type: 2}
+  stepCheck: {fileID: 8660923727401742731}
+  headCheck: {fileID: 0}
   maxAcceleration: 100
   maxAirAcceleration: 1
+  jumpheight: 4.77
+  stepheight: 1
   maxSpeed: 5
   _animator: {fileID: 0}
   maxGroundAngle: 25
-  maxRotationSpeed: 500
+  maxRotationSpeed: 5254
   maxAirRotationSpeed: 0
   minVelocityThreshold: 0.1
 --- !u!114 &6131111996074893602
@@ -2122,6 +2127,37 @@ Transform:
   - {fileID: 4967018409574125497}
   m_Father: {fileID: 2204757258814515335}
   m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7802603199475881436
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8660923727401742731}
+  m_Layer: 0
+  m_Name: ':sniff:'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8660923727401742731
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7802603199475881436}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.993, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5221544269160276579}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7884089367966305660
 GameObject:
