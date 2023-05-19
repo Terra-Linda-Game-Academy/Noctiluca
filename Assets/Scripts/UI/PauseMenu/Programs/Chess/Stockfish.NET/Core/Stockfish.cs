@@ -6,7 +6,7 @@ using Stockfish.NET.Models;
 
 namespace Stockfish.NET.Core
 {
-    public class Stockfish : IStockfish
+    public class StockfishClass : IStockfish
     {
         #region private variables
 
@@ -36,7 +36,7 @@ namespace Stockfish.NET.Core
         /// <summary>
         /// 
         /// </summary>
-        public SettingsStock Settings { get; set; }
+        public Models.Settings Settings { get; set; }
 
         /// <summary>
         /// 
@@ -67,10 +67,10 @@ namespace Stockfish.NET.Core
         /// <param name="path"></param>
         /// <param name="depth"></param>
         /// <param name="settings"></param>
-        public Stockfish(
+        public StockfishClass(
             string path,
             int depth = 2,
-            Settings settings = null)
+            Stockfish.NET.Models.Settings settings = null)
         {
             Depth = depth;
             _stockfish = new StockfishProcess(path);
@@ -79,7 +79,7 @@ namespace Stockfish.NET.Core
 
             if (settings == null)
             {
-                Settings = new Settings();
+                Settings = new Stockfish.NET.Models.Settings();
             }
             else
             {

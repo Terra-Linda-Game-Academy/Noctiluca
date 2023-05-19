@@ -1629,6 +1629,8 @@ public class ChessWindow : MonoBehaviour
 
     private Texture2D triangle;
 
+    private Texture2D closeButton;
+
 
     AudioClip moveSound;
     AudioClip captureSound;
@@ -1665,6 +1667,8 @@ public class ChessWindow : MonoBehaviour
 
         circle = Resources.Load<Texture2D>("chess/circle");
         hollowCircle = Resources.Load<Texture2D>("chess/hollow_circle");
+
+        closeButton = Resources.Load<Texture2D>("chess/close_button");
 
         //load sounds
 
@@ -1769,8 +1773,21 @@ public class ChessWindow : MonoBehaviour
     Vector2Int lastMoveStart = new Vector2Int(-1, -1);
     Vector2Int lastMoveEnd = new Vector2Int(-1, -1);
 
+    bool initialized = false;
+    bool drawBoard = true;
+
+    public void Initilize() {
+        Initilize(true, 5);
+    }
+
     public void Initilize(bool playAsWhite, int difficulty)
     {
+        if(initialized) {
+            drawBoard = true;
+            return;
+        }
+
+        drawBoard = true;
         if(playAsWhite) {
             playerColor = ChessPieceColor.White;
             Debug.Log("Player is white");
@@ -1935,7 +1952,7 @@ public class ChessWindow : MonoBehaviour
         };
 
         
-        
+        initialized = true;
     }
 
     bool wrongMove = false;
@@ -2086,15 +2103,15 @@ public class ChessWindow : MonoBehaviour
             {
                 case RuntimePlatform.WindowsEditor:
                 case RuntimePlatform.WindowsPlayer:
-                    stockfish = new Stockfish.NET.Core.Stockfish(dataPath+ "/stockfish-win.exe");
+                    stockfish = new Stockfish.NET.Core.StockfishClass(dataPath+ "/stockfish-win.exe");
                     break;
                 case RuntimePlatform.OSXEditor:
                 case RuntimePlatform.OSXPlayer:
-                    stockfish = new Stockfish.NET.Core.Stockfish(dataPath + "/stockfish-mac");
+                    stockfish = new Stockfish.NET.Core.StockfishClass(dataPath + "/stockfish-mac");
                     break;
                 case RuntimePlatform.LinuxEditor:
                 case RuntimePlatform.LinuxPlayer:
-                    stockfish = new Stockfish.NET.Core.Stockfish(dataPath + "/stockfish-linux");
+                    stockfish = new Stockfish.NET.Core.StockfishClass(dataPath + "/stockfish-linux");
                     break;
             }
 
@@ -2266,6 +2283,11 @@ public class ChessWindow : MonoBehaviour
     bool gameStarted = false;
 
     void Update() {
+        if(!initialized || !drawBoard)
+            return;
+
+
+
         if(UnityEngine.Input.GetKeyDown(KeyCode.F)) {
             boardFlipped = !boardFlipped;
             Debug.Log("Flipped: " + boardFlipped);
@@ -2311,6 +2333,7 @@ public class ChessWindow : MonoBehaviour
         }
 
     }
+
 
     bool mouseInPromotion = false;
 
@@ -2424,7 +2447,7 @@ public class ChessWindow : MonoBehaviour
     }
 
     public void Close() {
-        Destroy(gameObject);
+        drawBoard = false;
     }
 
     Color defaultLightTile = new Color(235f/255f, 236f/255f, 208f/255f);
@@ -2450,6 +2473,9 @@ public class ChessWindow : MonoBehaviour
     Color hintLightColor = new Color(133f/255f, 205f/255f, 188f/255f, 1f);
     void OnGUI()
     {
+
+        if(!initialized || !drawBoard)
+            return;
 
         if(rainbow) {
             //get rainbow spectrum with sin wave
@@ -2509,6 +2535,14 @@ public class ChessWindow : MonoBehaviour
         Rect boxRect = new Rect(boxPos.x, boxPos.y, boxSize, boxSize);
         Rect borderRect = new Rect(boxPos.x - margin / 2f, boxPos.y - margin / 2f, boxSize + margin, boxSize + margin);
         GUI.Box(borderRect, "");
+
+        //close button
+        Rect closeButtonRect = new Rect(borderRect.x+borderRect.width- margin*0.275f, borderRect.y + margin*0.125f, margin*0.25f, margin*0.25f);
+        GUI.DrawTexture(closeButtonRect, closeButton);
+        if(closeButtonRect.Contains(mousePos) && mousePressedFrame) {
+            //are you sure you want to quit? warning
+            Close();
+        }
 
         // Variables to store initial mouse position and board offset
 

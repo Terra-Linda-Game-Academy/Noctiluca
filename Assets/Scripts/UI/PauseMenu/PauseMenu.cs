@@ -40,11 +40,11 @@ public class PauseMenu : MonoBehaviour
             }
         }
 
-        if(isOpen) {
-            Time.timeScale = 0f;
-        } else {
-            Time.timeScale = 1f;
-        }
+        // if(isOpen) {
+        //     Time.timeScale = 0f;
+        // } else {
+        //     Time.timeScale = 1f;
+        // }
     }
 
     public void OpenPage(int pageID) {
