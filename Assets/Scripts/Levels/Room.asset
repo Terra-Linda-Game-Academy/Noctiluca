@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9735f589568b4ca28072e35eb1498b4b, type: 3}
   m_Name: Room
   m_EditorClassIdentifier: 
-  size: {x: 16, y: 5, z: 16}
+  size: {x: 30, y: 6, z: 21}
   tileMap:
   - flags: 4
     packedHeight: 0
@@ -105,6 +105,754 @@ MonoBehaviour:
   - flags: 4
     packedHeight: 0
   - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 15766
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 15766
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 15766
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 4
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
+    packedHeight: 0
+  - flags: 0
     packedHeight: 0
   - flags: 4
     packedHeight: 0
