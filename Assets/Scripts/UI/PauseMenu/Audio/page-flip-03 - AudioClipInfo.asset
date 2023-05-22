@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   audioClip: {fileID: 8300000, guid: 9e892126c4270a342881394b289c6b12, type: 3}
   loop: 0
-  range: 10
+  range: -1

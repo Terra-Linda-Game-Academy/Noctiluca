@@ -7,6 +7,7 @@ using System.Threading;
 using System.IO;
 using System;
 using System.Linq;
+using UnityEngine.Events;
 
 public enum ChessPieceType
 {
@@ -1646,6 +1647,10 @@ public class ChessWindow : MonoBehaviour
 
     Dictionary<string, string> puzzles = new Dictionary<string, string>();
 
+
+    public UnityEvent OnOpen;
+    public UnityEvent OnClose;
+
     
 
     
@@ -1774,7 +1779,23 @@ public class ChessWindow : MonoBehaviour
     Vector2Int lastMoveEnd = new Vector2Int(-1, -1);
 
     bool initialized = false;
-    bool drawBoard = true;
+
+    private bool m_DrawBoard = false;
+    public bool DrawBoard
+    {
+        get { return m_DrawBoard; }
+        set {
+            if(m_DrawBoard==value) return;
+            m_DrawBoard = value; 
+            
+            if(value) {
+                OnOpen.Invoke();
+            } else {
+                OnClose.Invoke();
+            }
+        }
+    }
+    
 
     public void Initilize() {
         Initilize(true, 5);
@@ -1783,11 +1804,11 @@ public class ChessWindow : MonoBehaviour
     public void Initilize(bool playAsWhite, int difficulty)
     {
         if(initialized) {
-            drawBoard = true;
+            DrawBoard = true;
             return;
         }
 
-        drawBoard = true;
+        DrawBoard = true;
         if(playAsWhite) {
             playerColor = ChessPieceColor.White;
             Debug.Log("Player is white");
@@ -2283,7 +2304,7 @@ public class ChessWindow : MonoBehaviour
     bool gameStarted = false;
 
     void Update() {
-        if(!initialized || !drawBoard)
+        if(!initialized || !DrawBoard)
             return;
 
 
@@ -2447,7 +2468,7 @@ public class ChessWindow : MonoBehaviour
     }
 
     public void Close() {
-        drawBoard = false;
+        DrawBoard = false;
     }
 
     Color defaultLightTile = new Color(235f/255f, 236f/255f, 208f/255f);
@@ -2474,7 +2495,7 @@ public class ChessWindow : MonoBehaviour
     void OnGUI()
     {
 
-        if(!initialized || !drawBoard)
+        if(!initialized || !DrawBoard)
             return;
 
         if(rainbow) {
