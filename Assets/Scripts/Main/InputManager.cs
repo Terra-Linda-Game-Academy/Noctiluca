@@ -13,6 +13,7 @@ namespace Main {
 
 		public event Action OnInteract;
 		public event Action OnAttack;
+		public event Action OnThrow;
 
 		private void Awake() {
 			_inputActions = new InputActions();
