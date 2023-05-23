@@ -1,0 +1,184 @@
+fileFormatVersion: 2
+guid: b17808a387d3acc4889f9de128e68402
+ModelImporter:
+  serializedVersion: 21300
+  internalIDToNameTable:
+  - first:
+      74: 4781951162920444690
+    second: Armature|ArmatureAction
+  - first:
+      74: -5763857213893791824
+    second: Front Right Leg|Back Left LegAction
+  - first:
+      74: 1892580509235371478
+    second: Front Right Leg|Back Right LegAction.001
+  - first:
+      74: -8404704554290678948
+    second: Front Right Leg|Front Left LegAction
+  - first:
+      74: -3481898122414606069
+    second: Front Right Leg|Front Right LegAction.001
+  - first:
+      74: 5115077570863163477
+    second: Front Right Leg|HeadAction
+  - first:
+      74: 5036043877976097361
+    second: Back Right Leg|Back Left LegAction
+  - first:
+      74: -6537439650149512029
+    second: Back Right Leg|Back Right LegAction.001
+  - first:
+      74: 6723838992673118694
+    second: Back Right Leg|Front Left LegAction
+  - first:
+      74: 4750057539339985810
+    second: Back Right Leg|Front Right LegAction.001
+  - first:
+      74: 936374762854541866
+    second: Back Right Leg|HeadAction
+  - first:
+      74: -3034491423942559595
+    second: Back Left Leg|Back Left LegAction
+  - first:
+      74: -2922474546803970055
+    second: Back Left Leg|Back Right LegAction.001
+  - first:
+      74: -2438448205396842882
+    second: Back Left Leg|Front Left LegAction
+  - first:
+      74: -3030128304251553808
+    second: Back Left Leg|Front Right LegAction.001
+  - first:
+      74: 2384387849240819678
+    second: Back Left Leg|HeadAction
+  - first:
+      74: -5055253929297922901
+    second: Front Left Leg|Back Left LegAction
+  - first:
+      74: 5123259651079500923
+    second: Front Left Leg|Back Right LegAction.001
+  - first:
+      74: -1824507716947075859
+    second: Front Left Leg|Front Left LegAction
+  - first:
+      74: 5046853430764296503
+    second: Front Left Leg|Front Right LegAction.001
+  - first:
+      74: -1407364663316971970
+    second: Front Left Leg|HeadAction
+  - first:
+      74: 3898848042451749169
+    second: Head|Back Left LegAction
+  - first:
+      74: 4908609473936107742
+    second: Head|Back Right LegAction.001
+  - first:
+      74: -8331017453322701181
+    second: Head|Front Left LegAction
+  - first:
+      74: -7805379875249739196
+    second: Head|Front Right LegAction.001
+  - first:
+      74: 8999604976272010351
+    second: Head|HeadAction
+  externalObjects: {}
+  materials:
+    materialImportMode: 0
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 1
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    nodeNameCollisionStrategy: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 2
+  humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  remapMaterialsIfMaterialImportModeIsNone: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
