@@ -9,6 +9,8 @@ public class GameUIController : MonoBehaviour
 
     private float startTime;
 
+    public TalkingPopup talkingPopup;
+
     public void Start() {
         startTime = UnityEngine.Time.time;
     }
@@ -20,6 +22,10 @@ public class GameUIController : MonoBehaviour
         string seconds = (t % 60).ToString("f2");
 
         TimerText.text = minutes + ":" + seconds;
+    }
+
+    public void ShowPopup(string text, float timeBetween) {
+        talkingPopup.StartDialog(text, timeBetween);
     }
 
 
