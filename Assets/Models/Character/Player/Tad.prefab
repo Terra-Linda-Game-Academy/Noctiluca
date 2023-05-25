@@ -855,8 +855,9 @@ GameObject:
   - component: {fileID: 6073829254350432107}
   - component: {fileID: 3036372006793040521}
   - component: {fileID: 2462367417411379963}
+  - component: {fileID: 5528139932370851450}
   m_Layer: 0
-  m_Name: '1Diem Q Main Character Model W working rig '
+  m_Name: Tad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -961,6 +962,26 @@ CapsuleCollider:
   m_Height: 1.5851403
   m_Direction: 1
   m_Center: {x: 0.0041115284, y: 0.741044, z: 0}
+--- !u!95 &5528139932370851450
+Animator:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7800799640189794189}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: c12bbc61c556172498120e0564404a09, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &8247317691883070008
 GameObject:
   m_ObjectHideFlags: 0
