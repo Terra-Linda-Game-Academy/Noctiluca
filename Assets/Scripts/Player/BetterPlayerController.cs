@@ -30,6 +30,7 @@ namespace Player {
 		private bool      OnGround => _groundContactCount > 0;
 		private bool      _desiredJump;
 		private float     _minGroundDotProduct;
+		Animator m_Animator;
 
 		private SwordAttack _attack;
 
@@ -68,9 +69,16 @@ namespace Player {
 			UpdateState();
 			AdjustVelocity();
 			RotatePlayer(_desiredVelocity);
-
+			/*if(_desiredVelocity.magnitude > 0)
+			{
+				//start moving anim
+				m_Animator.SetTrigger("JogStart");
+			} else {
+				//stop moving anim
+			}
+			*/
 			_body.velocity = _velocity;
-			ClearState();
+			ClearState();	
 		}
 
 		void UpdateState() {
