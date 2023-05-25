@@ -27,7 +27,7 @@ namespace Levels {
 
 			_rooms = new List<RoomController>();
 
-			var possibleStartRoom = starterRooms.One();
+			var possibleStartRoom = starterRooms/*.Random()*/.One();
 			if (!possibleStartRoom.Enabled) {
 				Debug.LogError($"Level {name} couldn't find a valid starting room!");
 				return;
@@ -43,7 +43,7 @@ namespace Levels {
 
 		private void RandomGrowth(int numRooms) {
 			for (int i = 0; i < numRooms; i++) {
-				Debug.Log(_rooms.Count(rc => rc.connections.Any(c => !c)));
+				Debug.Log($"count: {_rooms.Count(rc => rc.connections.Any(c => !c))}");
 				var pickedRoomOpt = _rooms.Where(rc => rc.connections.Any(c => !c)).Random().One();
 
 				if (!pickedRoomOpt.Enabled) {
@@ -85,8 +85,8 @@ namespace Levels {
 				conn.direction == rootConnection.InverseDirection && !root.connections[connIndex];
 
 			var possibleNewRoom = spawningNormalRoom
-				                      ? normalRooms.Where(room => room.connectionPoints.Any(ConnCheck)).One()
-				                      : treasureRooms.Where(room => room.connectionPoints.Any(ConnCheck)).One();
+				                      ? normalRooms.Where(room => room.connectionPoints.Any(ConnCheck)).Random().One()
+				                      : treasureRooms.Where(room => room.connectionPoints.Any(ConnCheck)).Random().One();
 
 			if (!possibleNewRoom.Enabled) {
 				Debug.LogError($"Couldn't find a valid room to spawn {rootConnection.direction} of {root.Room.name}");
@@ -95,7 +95,7 @@ namespace Levels {
 
 			Room newRoom = possibleNewRoom.Value;
 
-			var possibleNewRoomConnection = newRoom.connectionPoints.Where(ConnCheck).One();
+			var possibleNewRoomConnection = newRoom.connectionPoints.Where(ConnCheck).Random().One();
 
 			if (!possibleNewRoomConnection.Enabled) {
 				Debug.LogError("Newly generated room had no valid connections!");

@@ -127,9 +127,9 @@ namespace Player {
 			if (_body.velocity != Vector3.zero && !_animator.GetCurrentAnimatorStateInfo(0).IsName("Throwing") && !_animator.GetCurrentAnimatorStateInfo(0).IsName("Attack"))
 			{
 				_animator.SetTrigger("Saunter");
-				Debug.Log("sauntering");
+				/*Debug.Log("sauntering");*/
 			}
-			else{ _animator.SetTrigger("Idle"); Debug.Log("idling");}
+			else{ _animator.SetTrigger("Idle"); /*Debug.Log("idling");*/}
 
 			//if (true)
 			//{

@@ -675,6 +675,37 @@ Transform:
   m_Father: {fileID: 9126191679323199153}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3685834382709630127
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7011968292967931081}
+  m_Layer: 0
+  m_Name: Head Check
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7011968292967931081
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3685834382709630127}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5221544269160276579}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3719570836390175249
 GameObject:
   m_ObjectHideFlags: 0
@@ -1375,6 +1406,7 @@ GameObject:
   - component: {fileID: 2838257205585319268}
   - component: {fileID: 6131111996074893602}
   - component: {fileID: 4496872494186781148}
+  - component: {fileID: 2012383616455134259}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1397,6 +1429,7 @@ Transform:
   - {fileID: 5763516413704448973}
   - {fileID: 4093304259607004637}
   - {fileID: 8660923727401742731}
+  - {fileID: 7011968292967931081}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1466,13 +1499,13 @@ MonoBehaviour:
   inputProvider: {fileID: 11400000, guid: 85a0328cbb693e44eb26529b3a2425d4, type: 2}
   playerVar: {fileID: 11400000, guid: 771557aef5fdc44c9988a4d5e27e3180, type: 2}
   stepCheck: {fileID: 8660923727401742731}
-  headCheck: {fileID: 0}
+  headCheck: {fileID: 7011968292967931081}
   maxAcceleration: 100
   maxAirAcceleration: 1
   jumpheight: 4.77
   stepheight: 1
   maxSpeed: 5
-  _animator: {fileID: 0}
+  _animator: {fileID: 2012383616455134259}
   maxGroundAngle: 25
   maxRotationSpeed: 5254
   maxAirRotationSpeed: 0
@@ -1510,6 +1543,26 @@ MonoBehaviour:
   healthBarHidden: 0
   maxHealth: 6
   OnZero: {fileID: 0}
+--- !u!95 &2012383616455134259
+Animator:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5221544269160276580}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &5287219819129141156
 GameObject:
   m_ObjectHideFlags: 0
