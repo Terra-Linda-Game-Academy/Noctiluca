@@ -47,7 +47,7 @@ public class MapCamera : MonoBehaviour
     {
         Vector3 screenPos = mapCamera.WorldToScreenPoint(worldObject.transform.position);
         Debug.Log("Screen position: " + screenPos);
-        Vector2 screenPos2D = ScreenToMapPoint(new Vector2(screenPos.x, screenPos.y));
+        Vector2 screenPos2D = ScreenToMapPoint(new Vector2(screenPos.x, mapCamera.pixelHeight - screenPos.y));
         return new MapItemInfo {
             gameObject = worldObject,
             position = screenPos2D,
@@ -60,15 +60,15 @@ public class MapCamera : MonoBehaviour
         Vector3 mapPositon = mapImage.gameObject.transform.position;
         Vector2 mapSize = mapImage.rectTransform.sizeDelta;
         //map top left corner
-        mapPositon.x -= mapSize.x / 2;
-        mapPositon.y -= mapSize.y / 2;
+        mapPositon.x -= mapSize.x / 2f;
+        mapPositon.y += mapSize.y / 2f;
         return new Vector3(mapPositon.x + screenPoint.x, mapPositon.y - screenPoint.y, mapPositon.z);
     }
 
     public void UpdatePlayerIcon() {
         MapItemInfo playerInfo = GetGameObjectUIPosition(playerTransform.gameObject);
         playerUIIcon.transform.position = playerInfo.position;
-        playerUIIcon.transform.rotation = Quaternion.Euler(0, 0, playerInfo.rotation);
+        playerUIIcon.transform.rotation = Quaternion.Euler(0, 0, -playerInfo.rotation);
         
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.IO;
+using UnityEngine.UI;
 
 
 [Serializable]
@@ -15,6 +16,10 @@ public class PausePageInfo {
 public class PauseMenu : MonoBehaviour
 {
     private GameObject pauseMenuCanvas;
+    public float bookOpenCloseTime = 0.1f;
+    bool inOpenCloseTransition = false;
+
+    public BookOpenTransition BookOpenCloseTransition;
 
     public int currentPageID = 0;
 
@@ -22,9 +27,15 @@ public class PauseMenu : MonoBehaviour
 
     [SerializeField] private PausePageInfo[] pausePages;
 
+    [SerializeField] private AudioClipInfo closeBookSound;
+
     [SerializeField] private AudioClipInfo[] pageFlipSounds;
 
     private bool isOpen = false;
+
+
+
+
 
     public void Start() {
         pauseMenuCanvas = transform.GetComponentInChildren<Canvas>(true).gameObject;
@@ -32,19 +43,13 @@ public class PauseMenu : MonoBehaviour
     }
 
     public void Update() {
-        if(UnityEngine.Input.GetKeyDown(KeyCode.Escape)) {
+        if(UnityEngine.Input.GetKeyDown(KeyCode.Escape) && !inOpenCloseTransition) {
             if(pauseMenuCanvas.activeSelf) {
                 ClosePauseMenu();
             } else {
                 OpenPauseMenu();
             }
         }
-
-        // if(isOpen) {
-        //     Time.timeScale = 0f;
-        // } else {
-        //     Time.timeScale = 1f;
-        // }
     }
 
     public void OpenPage(int pageID) {
@@ -71,14 +76,50 @@ public class PauseMenu : MonoBehaviour
     }
 
     private void ClosePauseMenu() {
-        pauseMenuCanvas.SetActive(false);
+        StartCoroutine(C_ClosePauseMenu());
+    }
+
+    private IEnumerator C_ClosePauseMenu() {
+        inOpenCloseTransition = true;
+
+        if(currentPageObject != null) {
+            for (int i = 8; i > 0; i--)
+            {
+                currentPageObject.transform.localScale = new Vector3(0.2f + (i * 0.1f), 1f, 1f);
+                yield return new WaitForSeconds(0.01f);
+                
+            }
+            currentPageObject.SetActive(false);
+        }
+        AudioManager.Instance.PlayClip(closeBookSound, Vector3.zero);
+            
+        BookOpenCloseTransition.Close(bookOpenCloseTime);
+        yield return new WaitForSeconds(bookOpenCloseTime);
         isOpen = false;
+        pauseMenuCanvas.SetActive(false);
+        inOpenCloseTransition = false;
+        
     }
 
     public void OpenPauseMenu() {
+        StartCoroutine(C_OpenPauseMenu());
+    }
+
+    public IEnumerator C_OpenPauseMenu() {
+        inOpenCloseTransition = true;
         pauseMenuCanvas.SetActive(true);
+        if(currentPageObject != null)
+            currentPageObject.SetActive(false);
+        BookOpenCloseTransition.Open(bookOpenCloseTime);
+        yield return new WaitForSeconds(bookOpenCloseTime);
         isOpen = true;
         OpenPage(0);
+        for (int i = 0; i < 8; i++)
+        {
+            currentPageObject.transform.localScale = new Vector3(0.2f + (i * 0.1f), 1f, 1f);
+            yield return new WaitForSeconds(0.01f);
+        }
+        inOpenCloseTransition = false;
     }
 
     public void Resume() {
