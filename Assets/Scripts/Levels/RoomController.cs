@@ -24,7 +24,7 @@ namespace Levels {
 			set => room = value;
 		}
 
-		/*[HideInInspector] */public bool[] connections;
+		public bool[] connections;
 
 		public Guid RoomId { get; private set; }
 
@@ -102,7 +102,7 @@ namespace Levels {
 			#if UNITY_EDITOR
 			EditorSceneManager.sceneSaving += OnSceneSave;
 			#endif
-			RoomId       = new Guid();
+			RoomId       = Guid.NewGuid();
 			meshRenderer = GetComponent<MeshRenderer>();
 
 			if (connections.Length != room.connectionPoints.Count) connections = new bool[room.connectionPoints.Count];

@@ -19,9 +19,6 @@ namespace Levels.Editor {
                 element.Add(new PropertyField(sizeProp));
             }
 
-            var connectionsProp = serializedObject.FindProperty("connections");
-            element.Add(new PropertyField(connectionsProp, "Connections"));
-
             element.Bind(serializedObject);
             return element;
         }

@@ -55,8 +55,6 @@ namespace Util {
 
 			var availableItems = new HashSet<WeightedItem<T>>(items);
 
-			bool foundSomething = false;
-
 			while (availableItems.Count > 0) {
 				totalWeight = availableItems.Sum(i => i.Weight);
 
@@ -71,25 +69,21 @@ namespace Util {
 					}
 				}
 				//todo: unique checking
-				/*if (toReturn.Unique) {
+				if (toReturn.Unique) {
 					availableItems.Remove(toReturn);
 					totalWeight -= toReturn.Weight;
-				}*/
+				}
 
-				availableItems.Remove(toReturn);
-
-				foundSomething = true;
 				yield return toReturn.Item;
 			}
 
 			//if no available items remaining, default to searching whole set
-			while (!foundSomething) { //todo: implement unique room exclusion
+			while (true) { //todo: implement unique room exclusion
 				int rand          = Random.Range(0, totalWeight);
 				int currentWeight = 0;
 				foreach (WeightedItem<T> i in items) {
 					currentWeight += i.Weight;
 					if (currentWeight >= rand) {
-						foundSomething = true;
 						yield return i.Item;
 					}
 				}

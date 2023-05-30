@@ -1,12 +1,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Util;
 using Random = UnityEngine.Random;
 
 namespace Levels {
 	public class LevelController : MonoBehaviour {
 		public int spawnNum;
+
+		public int maxHallwayLength = 5;
 
 		public GameObject roomPrefab;
 		public GameObject hallwayPrefab; //todo: procedurally generate hallway meshes?
@@ -16,9 +19,8 @@ namespace Levels {
 		public RoomPool starterRooms;
 		public RoomPool bossRooms;
 
-		private const int MaxHallwayLength = 5;
-
-		private List<RoomController> _rooms;
+		private List<RoomController>       _rooms;
+		private RandomPool<RoomController> _roomPool;
 
 		//private void Start() => Generate();
 
@@ -27,7 +29,7 @@ namespace Levels {
 
 			_rooms = new List<RoomController>();
 
-			var possibleStartRoom = starterRooms/*.Random()*/.One();
+			var possibleStartRoom = starterRooms.One();
 			if (!possibleStartRoom.Enabled) {
 				Debug.LogError($"Level {name} couldn't find a valid starting room!");
 				return;
@@ -43,21 +45,32 @@ namespace Levels {
 
 		private void RandomGrowth(int numRooms) {
 			for (int i = 0; i < numRooms; i++) {
-				var pickedRoomOpt = _rooms.Where(rc => rc.connections.Any(c => !c)).Random().One();
+				var openRooms = _rooms.Where(rc => rc.connections.Any(c => !c)).ToArray();
 
-				if (!pickedRoomOpt.Enabled) {
+				if (!openRooms.Any()) {
 					Debug.LogWarning("Ran out of valid rooms, stopping");
 					return;
 				}
 
-				var pickedRoom = pickedRoomOpt.Value;
+				RoomController pickedRoom = openRooms[Random.Range(0, openRooms.Length)];
+
+				List<int> openConnIndices = new List<int>();
 
 				for (int j = 0; j < pickedRoom.connections.Length; j++) {
-					if (!pickedRoom.connections[j]) {
-						SpawnBranch(pickedRoom, j);
-						break;
-					}
+					if (!pickedRoom.connections[j]) { openConnIndices.Add(j); }
 				}
+
+				bool roomSpawned = false;
+
+				while (!roomSpawned && openConnIndices.Any()) {
+					int pickedConnIndex = Random.Range(0, openConnIndices.Count);
+
+					if (SpawnBranch(pickedRoom, openConnIndices[pickedConnIndex]).Enabled) {
+						roomSpawned = true;
+					} else { openConnIndices.Remove(pickedConnIndex); }
+				}
+
+				if (!roomSpawned) Debug.LogWarning($"Could not spawn a branch off of {pickedRoom.gameObject.name}");
 			}
 		}
 
@@ -74,7 +87,7 @@ namespace Levels {
 		}
 
 		private Option<RoomController> SpawnBranch(RoomController root, int connIndex) {
-			bool spawningNormalRoom = /*Random.value <= 0.8*/true; //todo: change this
+			bool spawningNormalRoom = Random.value <= 0.8; //todo: change this
 
 			int hallwaySectionLength = 5; //todo: tweak this? same length as prefab
 
@@ -83,25 +96,19 @@ namespace Levels {
 			bool ConnCheck(Room.ConnectionPoint conn) =>
 				conn.direction == rootConnection.InverseDirection && !root.connections[connIndex];
 
-			/*var possibleNewRoom = spawningNormalRoom
-				                      ? normalRooms.Where(room => room.connectionPoints.Any(ConnCheck)).Random().One()
-				                      : treasureRooms.Where(room => room.connectionPoints.Any(ConnCheck)).Random().One();*/
-			Option<Room> possibleNewRoom;
-
-			if (spawningNormalRoom) {
-				possibleNewRoom = normalRooms.Where(room => room.connectionPoints.Any(ConnCheck)).Random().One();
-			} else {
-				possibleNewRoom = treasureRooms.Where(room => room.connectionPoints.Any(ConnCheck)).Random().One();
-			}
+			var possibleNewRoom = spawningNormalRoom
+				                      ? normalRooms.Where(room => room.connectionPoints.Any(ConnCheck)).One()
+				                      : treasureRooms.Where(room => room.connectionPoints.Any(ConnCheck)).One();
 
 			if (!possibleNewRoom.Enabled) {
-				Debug.LogError($"Couldn't find a valid room to spawn {rootConnection.direction} of {root.Room.name}");
+				Debug.LogError(
+					$"Couldn't find a valid room to spawn {rootConnection.direction} of {root.gameObject.name}");
 				return Option<RoomController>.None();
 			}
 
 			Room newRoom = possibleNewRoom.Value;
 
-			var possibleNewRoomConnection = newRoom.connectionPoints.Where(ConnCheck).Random().One();
+			var possibleNewRoomConnection = newRoom.connectionPoints.Where(ConnCheck).One();
 
 			if (!possibleNewRoomConnection.Enabled) {
 				Debug.LogError("Newly generated room had no valid connections!");
@@ -143,7 +150,7 @@ namespace Levels {
 
 			bool foundRoomPlacement = false;
 			int  numHallwaySegments = 1;
-			for (; numHallwaySegments <= MaxHallwayLength; numHallwaySegments++) {
+			for (; numHallwaySegments <= maxHallwayLength; numHallwaySegments++) {
 				if (ValidRoomPlacement(newRoom, proposedNewRoomPos)) {
 					foundRoomPlacement = true;
 					break;
@@ -158,11 +165,9 @@ namespace Levels {
 				                      };
 			}
 
-			if (!foundRoomPlacement)
-				Debug.LogWarning(
-					$"Could not find a valid room placement {rootConnection.direction} of {root.Room.name}, there may be some room clipping.");
+			if (!foundRoomPlacement) return Option<RoomController>.None();
 
-			RoomController newRoomController = SpawnRoom(newRoom, proposedNewRoomPos, newRoom.name);
+			RoomController newRoomController = SpawnRoom(newRoom, proposedNewRoomPos);
 
 			for (int i = 0; i < numHallwaySegments; i++) {
 				Vector3 newHallwayPos = rootConnection.direction switch {
@@ -220,14 +225,17 @@ namespace Levels {
 			return true;
 		}
 
-		private RoomController SpawnRoom(Room room, Vector3 position, string objName) {
+		private RoomController SpawnRoom(Room room, Vector3 position, string objName = "") {
 			GameObject obj = Instantiate(roomPrefab, transform);
-			obj.name               = objName;
 			obj.transform.position = position;
 
 			RoomController controller = obj.GetComponent<RoomController>();
 			controller.Room = room;
 			controller.Init();
+
+			if (objName == "") { obj.name = room.name + $" {controller.RoomId.ToString()}"; } else {
+				obj.name = objName;
+			}
 
 			_rooms.Add(controller);
 
