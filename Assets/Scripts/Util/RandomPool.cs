@@ -10,76 +10,86 @@ namespace Util {
 		private readonly HashSet<WeightedItem<T>> items;
 
 		public int Count => items.Count;
-		
+
 		public RandomPool(params T[] items) : this(items.AsEnumerable()) { }
-		
+
 		public RandomPool(IEnumerable<T> items) : this(items.Select(i => new WeightedItem<T>(i))) { }
-		
+
 		public RandomPool(Func<T, int> weightFn, params T[] items) : this(weightFn, items.AsEnumerable()) { }
-		
-		public RandomPool(Func<T, int> weightFn, IEnumerable<T> items) : 
+
+		public RandomPool(Func<T, int> weightFn, IEnumerable<T> items) :
 			this(items.Select(i => new WeightedItem<T>(i, weightFn.Invoke(i)))) { }
-		
+
 		public RandomPool(Func<T, (int, bool)> weightFn, params T[] items) : this(weightFn, items.AsEnumerable()) { }
-		
-		public RandomPool(Func<T, (int, bool)> weightFn, IEnumerable<T> items) : 
+
+		public RandomPool(Func<T, (int, bool)> weightFn, IEnumerable<T> items) :
 			this(items.Select(i => {
-				var (weight, unique) = weightFn.Invoke(i);
-				return new WeightedItem<T>(i, weight, unique);
-			})) { }
+				                  var (weight, unique) = weightFn.Invoke(i);
+				                  return new WeightedItem<T>(i, weight, unique);
+			                  })) { }
 
 		public RandomPool(params (T, int)[] items) : this(items.AsEnumerable()) { }
 
-		public RandomPool(IEnumerable<(T, int)> items) : 
+		public RandomPool(IEnumerable<(T, int)> items) :
 			this(items.Select(i => new WeightedItem<T>(i.Item1, i.Item2))) { }
-		
+
 		public RandomPool(params (T, int, bool)[] items) : this(items.AsEnumerable()) { }
 
-		public RandomPool(IEnumerable<(T, int, bool)> items) : 
+		public RandomPool(IEnumerable<(T, int, bool)> items) :
 			this(items.Select(i => new WeightedItem<T>(i.Item1, i.Item2, i.Item3))) { }
-		
+
 		public RandomPool(params WeightedItem<T>[] items) : this(items.AsEnumerable()) { }
 
 		public RandomPool(IEnumerable<WeightedItem<T>> items) {
 			this.items = new HashSet<WeightedItem<T>>();
-			foreach (var weightedItem in items) {
-				this.items.Add(weightedItem);
-			}
+			foreach (var weightedItem in items) { this.items.Add(weightedItem); }
 		}
-		
+
 		public bool Equals(RandomPool<T> other) =>
 			other is not null && items.Equals(other.items);
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-		
+
 		public IEnumerator<T> GetEnumerator() {
-			int totalWeight = items.Sum(i => i.Weight);
+			int totalWeight = 1;
+
 			var availableItems = new HashSet<WeightedItem<T>>(items);
-				
+
+			bool foundSomething = false;
+
 			while (availableItems.Count > 0) {
-				int rand = Random.Range(0, totalWeight);
-				int currentWeight = 0;
+				totalWeight = availableItems.Sum(i => i.Weight);
+
+				int             rand          = Random.Range(0, totalWeight + 1);
+				int             currentWeight = 0;
+				WeightedItem<T> toReturn      = null;
 				foreach (WeightedItem<T> i in availableItems) {
 					currentWeight += i.Weight;
 					if (currentWeight >= rand) {
-						if (i.Unique) {
-							availableItems.Remove(i);
-							totalWeight -= i.Weight;
-						}
-
-						availableItems.Remove(i);
-						yield return i.Item;
+						toReturn = i;
+						break;
 					}
 				}
+				//todo: unique checking
+				/*if (toReturn.Unique) {
+					availableItems.Remove(toReturn);
+					totalWeight -= toReturn.Weight;
+				}*/
+
+				availableItems.Remove(toReturn);
+
+				foundSomething = true;
+				yield return toReturn.Item;
 			}
 
 			//if no available items remaining, default to searching whole set
-			while (true) { //todo: implement unique room exclusion
-				int rand = Random.Range(0, totalWeight);
+			while (!foundSomething) { //todo: implement unique room exclusion
+				int rand          = Random.Range(0, totalWeight);
 				int currentWeight = 0;
 				foreach (WeightedItem<T> i in items) {
 					currentWeight += i.Weight;
 					if (currentWeight >= rand) {
+						foundSomething = true;
 						yield return i.Item;
 					}
 				}
@@ -87,7 +97,6 @@ namespace Util {
 		}
 
 		public IEnumerable<WeightedItem<T>> NonRandom => items;
-
 
 
 		/*public Option<T> One() => One(_ => true);

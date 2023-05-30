@@ -43,7 +43,6 @@ namespace Levels {
 
 		private void RandomGrowth(int numRooms) {
 			for (int i = 0; i < numRooms; i++) {
-				Debug.Log($"count: {_rooms.Count(rc => rc.connections.Any(c => !c))}");
 				var pickedRoomOpt = _rooms.Where(rc => rc.connections.Any(c => !c)).Random().One();
 
 				if (!pickedRoomOpt.Enabled) {
@@ -75,7 +74,7 @@ namespace Levels {
 		}
 
 		private Option<RoomController> SpawnBranch(RoomController root, int connIndex) {
-			bool spawningNormalRoom = Random.value <= 0.8; //todo: change this
+			bool spawningNormalRoom = /*Random.value <= 0.8*/true; //todo: change this
 
 			int hallwaySectionLength = 5; //todo: tweak this? same length as prefab
 
@@ -84,9 +83,16 @@ namespace Levels {
 			bool ConnCheck(Room.ConnectionPoint conn) =>
 				conn.direction == rootConnection.InverseDirection && !root.connections[connIndex];
 
-			var possibleNewRoom = spawningNormalRoom
+			/*var possibleNewRoom = spawningNormalRoom
 				                      ? normalRooms.Where(room => room.connectionPoints.Any(ConnCheck)).Random().One()
-				                      : treasureRooms.Where(room => room.connectionPoints.Any(ConnCheck)).Random().One();
+				                      : treasureRooms.Where(room => room.connectionPoints.Any(ConnCheck)).Random().One();*/
+			Option<Room> possibleNewRoom;
+
+			if (spawningNormalRoom) {
+				possibleNewRoom = normalRooms.Where(room => room.connectionPoints.Any(ConnCheck)).Random().One();
+			} else {
+				possibleNewRoom = treasureRooms.Where(room => room.connectionPoints.Any(ConnCheck)).Random().One();
+			}
 
 			if (!possibleNewRoom.Enabled) {
 				Debug.LogError($"Couldn't find a valid room to spawn {rootConnection.direction} of {root.Room.name}");
