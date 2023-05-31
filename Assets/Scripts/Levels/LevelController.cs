@@ -25,6 +25,8 @@ namespace Levels {
 
 		private List<GameObject> _hallways;
 
+		private void Start() => Generate();
+
 		public void Generate() {
 			DateTime start = DateTime.Now;
 
@@ -327,7 +329,13 @@ namespace Levels {
 		private void ClearChildren() {
 			int childCount = transform.childCount;
 
-			for (int i = childCount - 1; i >= 0; i--) { DestroyImmediate(transform.GetChild(i).gameObject); }
+			for (int i = childCount - 1; i >= 0; i--) {
+				#if UNITY_EDITOR
+				DestroyImmediate(transform.GetChild(i).gameObject);
+				#else
+				Destroy(transform.GetChild(i).gameObject);
+				#endif
+			}
 		}
 	}
 }
