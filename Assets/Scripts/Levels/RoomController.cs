@@ -7,6 +7,7 @@ using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
+using Util;
 using Color = UnityEngine.Color;
 
 #if UNITY_EDITOR
@@ -28,41 +29,40 @@ namespace Levels {
 
 		public Guid RoomId { get; private set; }
 
+		[SerializeField] private GameObject testHallway;
+
 		public bool Intersect(RoomController other) => Intersect(other.Room, other.transform.position);
 
 		public bool Intersect(Room other, Vector3 otherPos) {
-			Vector3 pos       = transform.position;
-			float   minX      = pos.x;
-			float   minZ      = pos.z;
-			float   maxX      = minX + Room.Size.x;
-			float   maxZ      = minZ + Room.Size.z;
-			
-			float   otherMinX = otherPos.x;
-			float   otherMinZ = otherPos.z;
-			float   otherMaxX = otherMinX + other.Size.x;
-			float   otherMaxZ = otherMinZ + other.Size.z;
-			
-			return minX <= otherMaxX && maxX >= otherMinX && minZ <= otherMaxZ && maxZ >= otherMinZ;
+			Vector3 pos = transform.position;
+
+			Vector2 min = new Vector2(pos.x, pos.z);
+			Vector2 max = new Vector2(min.x + Room.Size.x, min.y + Room.Size.z);
+
+			Vector2 otherMin = new Vector2(otherPos.x, otherPos.z);
+			Vector2 otherMax = new Vector2(otherMin.x + other.Size.x, otherMin.y + other.Size.z);
+
+			return AABB.Overlap(min, max, otherMin, otherMax);
 		}
 
 		private MeshRenderer meshRenderer;
 
 		private bool _initted;
-		
+
 		private void OnDrawGizmos() {
 			if (connections.Length != room.connectionPoints.Count) connections = new bool[room.connectionPoints.Count];
-			
+
 			Vector3 localScale = transform.localScale;
 
 			for (int i = 0; i < connections.Length; i++) {
 				Room.ConnectionPoint connection = room.connectionPoints[i];
-				bool connected = connections[i];
-				
+				bool                 connected  = connections[i];
+
 				Vector3 pos;
 				Vector3 scale;
 
 				Gizmos.color = connected ? Color.red : Color.green;
-				
+
 				switch (connection.direction) {
 					case Room.Direction.North:
 						pos = new Vector3((connection.coordinate + .5f) * localScale.x, 0,
@@ -280,6 +280,38 @@ namespace Levels {
 
 			GetComponent<MeshFilter>().mesh         = mesh;
 			GetComponent<MeshCollider>().sharedMesh = mesh;
+		}
+
+		private void Update() {
+			//if (HallwayCollision(Room, transform.position, testHallway)) Debug.Log("collision");
+		}
+		
+		private bool HallwayCollision(Room inRoom, Vector3 pos, GameObject hall) {
+			Vector2 min = new Vector2(pos.x, pos.z);
+			Vector2 max = new Vector2(min.x + inRoom.Size.x, min.y + inRoom.Size.z);
+
+			Vector3 hallwayPos = hall.transform.position;
+			float   hallwayRot = hall.transform.rotation.eulerAngles.y;
+
+			switch (hallwayRot) {
+				case 0f: { //east-west
+					Vector2 hallMin = new Vector2(hallwayPos.x - LevelController.HallwaySectionLength / 2f,
+					                              hallwayPos.z - 0.5f);
+					Vector2 hallMax = new Vector2(hallwayPos.x + LevelController.HallwaySectionLength / 2f,
+					                              hallwayPos.z + 0.5f);
+					return AABB.Overlap(min, max, hallMin, hallMax);
+				}
+				case 90f: { //north-south
+					Vector2 hallMin = new Vector2(hallwayPos.x - 0.5f,
+					                              hallwayPos.z - LevelController.HallwaySectionLength / 2f);
+					Vector2 hallMax = new Vector2(hallwayPos.x + 0.5f,
+					                              hallwayPos.z + LevelController.HallwaySectionLength / 2f);
+					return AABB.Overlap(min, max, hallMin, hallMax);
+				}
+				default:
+					Debug.LogWarning($"{hall.name} had an unknown rotation!");
+					return false;
+			}
 		}
 	}
 }

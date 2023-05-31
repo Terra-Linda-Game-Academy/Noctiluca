@@ -9,7 +9,8 @@ namespace Levels {
 	public class LevelController : MonoBehaviour {
 		public int spawnNum;
 
-		public int maxHallwayLength = 5;
+		public       int maxHallwayLength     = 5;
+		public const int HallwaySectionLength = 5; //todo: tweak this? same length as prefab
 
 		public GameObject roomPrefab;
 		public GameObject hallwayPrefab; //todo: procedurally generate hallway meshes?
@@ -20,8 +21,9 @@ namespace Levels {
 		public RoomPool bossRooms;
 
 		private List<RoomController>        _rooms;
-		private RandomPool<RoomController>  _roomPool;
 		private List<(RoomController, int)> _openConnections;
+
+		private List<GameObject> _hallways;
 
 		public void Generate() {
 			DateTime start = DateTime.Now;
@@ -30,6 +32,7 @@ namespace Levels {
 
 			_rooms           = new List<RoomController>();
 			_openConnections = new List<(RoomController, int)>();
+			_hallways        = new List<GameObject>();
 
 			var possibleStartRoom = starterRooms.One();
 			if (!possibleStartRoom.Enabled) {
@@ -44,7 +47,7 @@ namespace Levels {
 			RandomGrowth(spawnNum);
 
 			foreach (RoomController rc in _rooms) { rc.GenerateTerrainMesh(); }
-			
+
 			Debug.Log($"Generation took {DateTime.Now.Subtract(start).Milliseconds} ms");
 		}
 
@@ -88,8 +91,6 @@ namespace Levels {
 		private Option<RoomController> SpawnBranch(RoomController root, int connIndex) {
 			bool spawningNormalRoom = Random.value <= 0.8; //todo: change this
 
-			int hallwaySectionLength = 5; //todo: tweak this? same length as prefab
-
 			Room.ConnectionPoint rootConnection = root.Room.connectionPoints[connIndex];
 
 			bool ConnCheck(Room.ConnectionPoint conn) =>
@@ -125,10 +126,10 @@ namespace Levels {
 					                                                     rootConnection.coordinate
 					                                                   - newRoomConnection.coordinate,
 					                                                     0,
-					                                                     root.Room.Size.z + hallwaySectionLength),
+					                                                     root.Room.Size.z + HallwaySectionLength),
 				                             Room.Direction.East => rootPos
 				                                                  + new Vector3(
-					                                                    root.Room.Size.x + hallwaySectionLength,
+					                                                    root.Room.Size.x + HallwaySectionLength,
 					                                                    0,
 					                                                    rootConnection.coordinate
 					                                                  - newRoomConnection.coordinate),
@@ -137,10 +138,10 @@ namespace Levels {
 					                                                     rootConnection.coordinate
 					                                                   - newRoomConnection.coordinate,
 					                                                     0,
-					                                                     -(newRoom.Size.z + hallwaySectionLength)),
+					                                                     -(newRoom.Size.z + HallwaySectionLength)),
 				                             Room.Direction.West => rootPos
 				                                                  + new Vector3(
-					                                                    -(newRoom.Size.x + hallwaySectionLength),
+					                                                    -(newRoom.Size.x + HallwaySectionLength),
 					                                                    0,
 					                                                    rootConnection.coordinate
 					                                                  - newRoomConnection.coordinate),
@@ -156,17 +157,17 @@ namespace Levels {
 				}
 
 				proposedNewRoomPos += rootConnection.direction switch {
-					                      Room.Direction.North => new Vector3(0, 0, hallwaySectionLength),
-					                      Room.Direction.East  => new Vector3(hallwaySectionLength, 0, 0),
-					                      Room.Direction.South => new Vector3(0, 0, -hallwaySectionLength),
-					                      Room.Direction.West  => new Vector3(-hallwaySectionLength, 0, 0),
+					                      Room.Direction.North => new Vector3(0, 0, HallwaySectionLength),
+					                      Room.Direction.East  => new Vector3(HallwaySectionLength, 0, 0),
+					                      Room.Direction.South => new Vector3(0, 0, -HallwaySectionLength),
+					                      Room.Direction.West  => new Vector3(-HallwaySectionLength, 0, 0),
 					                      _                    => Vector3.zero
 				                      };
 			}
 
 			if (!foundRoomPlacement) return Option<RoomController>.None();
 
-			RoomController newRoomController = SpawnRoom(newRoom, proposedNewRoomPos);
+			var propHalls = new (Vector3, float)[numHallwaySegments];
 
 			for (int i = 0; i < numHallwaySegments; i++) {
 				Vector3 newHallwayPos = rootConnection.direction switch {
@@ -174,35 +175,49 @@ namespace Levels {
 					                                              + new Vector3(
 						                                                rootConnection.coordinate + .5f, 0,
 						                                                root.Room.Size.z
-						                                              + hallwaySectionLength / 2f
-						                                              + i                    * hallwaySectionLength),
+						                                              + HallwaySectionLength / 2f
+						                                              + i                    * HallwaySectionLength),
 					                        Room.Direction.East => rootPos
 					                                             + new Vector3(
 						                                               root.Room.Size.x
-						                                             + hallwaySectionLength / 2f
-						                                             + i                    * hallwaySectionLength,
+						                                             + HallwaySectionLength / 2f
+						                                             + i                    * HallwaySectionLength,
 						                                               0,
 						                                               rootConnection.coordinate + .5f),
 					                        Room.Direction.South => rootPos
 					                                              + new Vector3(
 						                                                rootConnection.coordinate + .5f, 0,
-						                                                -(hallwaySectionLength / 2f
-						                                                + i                    * hallwaySectionLength)),
+						                                                -(HallwaySectionLength / 2f
+						                                                + i                    * HallwaySectionLength)),
 					                        Room.Direction.West => rootPos
 					                                             + new Vector3(
-						                                               -(hallwaySectionLength / 2f
-						                                               + i * hallwaySectionLength), 0,
+						                                               -(HallwaySectionLength / 2f
+						                                               + i * HallwaySectionLength), 0,
 						                                               rootConnection.coordinate + .5f),
 					                        _ => Vector3.zero
 				                        };
 
-				GameObject newHallwayObj = Instantiate(hallwayPrefab, root.transform);
-				newHallwayObj.name               = $"{root.Room.name} {rootConnection.direction} Hallway {i + 1}";
-				newHallwayObj.transform.position = newHallwayPos;
-				newHallwayObj.transform.rotation = (int) rootConnection.direction % 2 == 0
-					                                   ? Quaternion.Euler(0, 90, 0)
-					                                   : Quaternion.identity;
+				float newHallwayRot = (int) rootConnection.direction % 2 == 0 ? 90 : 0;
+
+				if (!ValidHallwayPlacement(newHallwayPos, newHallwayRot, root)) {
+					return Option<RoomController>.None();
+				}
+
+				propHalls[i] = (newHallwayPos, newHallwayRot);
 			}
+
+			for (int i = 0; i < propHalls.Length; i++) {
+				(Vector3, float) hall = propHalls[i];
+
+				GameObject newHallwayObj = Instantiate(hallwayPrefab, root.transform);
+				newHallwayObj.name               = $"{rootConnection.direction} Hallway {i + 1}";
+				newHallwayObj.transform.position = hall.Item1;
+				newHallwayObj.transform.rotation = Quaternion.Euler(0, hall.Item2, 0);
+
+				_hallways.Add(newHallwayObj);
+			}
+
+			RoomController newRoomController = SpawnRoom(newRoom, proposedNewRoomPos);
 
 			root.connections[connIndex] = true;
 			_openConnections.Remove((root, connIndex));
@@ -225,7 +240,70 @@ namespace Levels {
 				if (other.Intersect(room, pos)) return false;
 			}
 
+			foreach (GameObject hallway in _hallways) {
+				if (HallwayCollision(room, pos, hallway)) return false;
+			}
+
 			return true;
+		}
+
+		//todo: find smth better than looping every room and hallway for every new hallway
+		private bool ValidHallwayPlacement(Vector3 hallPos, float hallRot, RoomController rootRc) {
+			foreach (RoomController rc in _rooms) {
+				if (rc == rootRc) continue;
+
+				if (HallwayCollision(rc.Room, rc.transform.position, hallPos, hallRot)) return false;
+			}
+
+			foreach (GameObject otherHall in _hallways) {
+				(Vector2, Vector2) hallBounds      = HallwayBounds(hallPos, hallRot);
+				(Vector2, Vector2) otherHallBounds = HallwayBounds(otherHall);
+
+				if (AABB.Overlap(hallBounds.Item1, hallBounds.Item2, otherHallBounds.Item1, otherHallBounds.Item2)) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		private bool HallwayCollision(Room room, Vector3 pos, GameObject hall) =>
+			HallwayCollision(room, pos, hall.transform.position, hall.transform.rotation.eulerAngles.y);
+
+		private bool HallwayCollision(Room room, Vector3 pos, Vector3 hallPos, float hallRot) {
+			Vector2 min = new Vector2(pos.x, pos.z);
+			Vector2 max = new Vector2(min.x + room.Size.x, min.y + room.Size.z);
+
+			(Vector2, Vector2) hallBounds = HallwayBounds(hallPos, hallRot);
+
+			return AABB.Overlap(min, max, hallBounds.Item1, hallBounds.Item2);
+		}
+
+		private (Vector2, Vector2) HallwayBounds(GameObject hall) =>
+			HallwayBounds(hall.transform.position, hall.transform.rotation.eulerAngles.y);
+
+		private (Vector2, Vector2) HallwayBounds(Vector3 hallPos, float hallRot) {
+			Vector2 hallMin = Vector2.zero;
+			Vector2 hallMax = Vector2.zero;
+
+			switch (hallRot) {
+				case 0f: {
+					hallMin = new Vector2(hallPos.x - HallwaySectionLength / 2f, hallPos.z - 0.5f);
+					hallMax = new Vector2(hallPos.x + HallwaySectionLength / 2f, hallPos.z + 0.5f);
+					break;
+				}
+				case 90f: {
+					hallMin = new Vector2(hallPos.x - 0.5f, hallPos.z - HallwaySectionLength / 2f);
+					hallMax = new Vector2(hallPos.x + 0.5f, hallPos.z + HallwaySectionLength / 2f);
+					break;
+				}
+				default: {
+					Debug.LogWarning($"Hall at {hallPos} had an unknown rotation!");
+					break;
+				}
+			}
+
+			return (hallMin, hallMax);
 		}
 
 		private RoomController SpawnRoom(Room room, Vector3 position, string objName = "") {

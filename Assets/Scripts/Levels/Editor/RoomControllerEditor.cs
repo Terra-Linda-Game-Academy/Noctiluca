@@ -18,6 +18,8 @@ namespace Levels.Editor {
                 var sizeProp = room.FindPropertyOrFail("size");
                 element.Add(new PropertyField(sizeProp));
             }
+            
+            element.Add(new PropertyField(serializedObject.FindProperty("testHallway"), "Test Hallway"));
 
             element.Bind(serializedObject);
             return element;
