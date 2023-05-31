@@ -1,7 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Util;
 using Random = UnityEngine.Random;
 
@@ -19,15 +19,17 @@ namespace Levels {
 		public RoomPool starterRooms;
 		public RoomPool bossRooms;
 
-		private List<RoomController>       _rooms;
-		private RandomPool<RoomController> _roomPool;
-
-		//private void Start() => Generate();
+		private List<RoomController>        _rooms;
+		private RandomPool<RoomController>  _roomPool;
+		private List<(RoomController, int)> _openConnections;
 
 		public void Generate() {
+			DateTime start = DateTime.Now;
+
 			ClearChildren();
 
-			_rooms = new List<RoomController>();
+			_rooms           = new List<RoomController>();
+			_openConnections = new List<(RoomController, int)>();
 
 			var possibleStartRoom = starterRooms.One();
 			if (!possibleStartRoom.Enabled) {
@@ -35,45 +37,42 @@ namespace Levels {
 				return;
 			}
 
+			// ReSharper disable once UnusedVariable
 			RoomController startingRoom = SpawnRoom(possibleStartRoom.Value, transform.position, "Starting Room");
 
 			//IterativeBranching(startingRoom, spawnNum);
 			RandomGrowth(spawnNum);
 
 			foreach (RoomController rc in _rooms) { rc.GenerateTerrainMesh(); }
+			
+			Debug.Log($"Generation took {DateTime.Now.Subtract(start).Milliseconds} ms");
 		}
 
 		private void RandomGrowth(int numRooms) {
 			for (int i = 0; i < numRooms; i++) {
-				var openRooms = _rooms.Where(rc => rc.connections.Any(c => !c)).ToArray();
-
-				if (!openRooms.Any()) {
-					Debug.LogWarning("Ran out of valid rooms, stopping");
-					return;
-				}
-
-				RoomController pickedRoom = openRooms[Random.Range(0, openRooms.Length)];
-
-				List<int> openConnIndices = new List<int>();
-
-				for (int j = 0; j < pickedRoom.connections.Length; j++) {
-					if (!pickedRoom.connections[j]) { openConnIndices.Add(j); }
-				}
-
 				bool roomSpawned = false;
 
-				while (!roomSpawned && openConnIndices.Any()) {
-					int pickedConnIndex = Random.Range(0, openConnIndices.Count);
+				while (_openConnections.Count > 0) {
+					int index = Random.Range(0, _openConnections.Count);
 
-					if (SpawnBranch(pickedRoom, openConnIndices[pickedConnIndex]).Enabled) {
+					var conn = _openConnections[index];
+
+					if (SpawnBranch(conn.Item1, conn.Item2).Enabled) {
 						roomSpawned = true;
-					} else { openConnIndices.Remove(pickedConnIndex); }
+						break;
+					}
+
+					_openConnections.RemoveAt(index);
 				}
 
-				if (!roomSpawned) Debug.LogWarning($"Could not spawn a branch off of {pickedRoom.gameObject.name}");
+				if (!roomSpawned) {
+					Debug.LogWarning("Ran out of valid connections in the level, ending generation");
+					return;
+				}
 			}
 		}
 
+		// ReSharper disable once UnusedMember.Local
 		private void IterativeBranching(RoomController root, int depth) {
 			if (depth <= 0) return;
 
@@ -205,8 +204,12 @@ namespace Levels {
 					                                   : Quaternion.identity;
 			}
 
-			root.connections[connIndex]                                                                       = true;
-			newRoomController.connections[newRoomController.Room.connectionPoints.IndexOf(newRoomConnection)] = true;
+			root.connections[connIndex] = true;
+			_openConnections.Remove((root, connIndex));
+
+			int newRoomConnIndex = newRoomController.Room.connectionPoints.IndexOf(newRoomConnection);
+			newRoomController.connections[newRoomConnIndex] = true;
+			_openConnections.Remove((newRoomController, newRoomConnIndex));
 
 			return Option<RoomController>.Some(newRoomController);
 		}
@@ -238,6 +241,7 @@ namespace Levels {
 			}
 
 			_rooms.Add(controller);
+			for (int i = 0; i < controller.connections.Length; i++) { _openConnections.Add((controller, i)); }
 
 			return controller;
 		}
