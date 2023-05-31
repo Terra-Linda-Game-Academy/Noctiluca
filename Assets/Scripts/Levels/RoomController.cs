@@ -29,8 +29,6 @@ namespace Levels {
 
 		public Guid RoomId { get; private set; }
 
-		[SerializeField] private GameObject testHallway;
-
 		public bool Intersect(RoomController other) => Intersect(other.Room, other.transform.position);
 
 		public bool Intersect(Room other, Vector3 otherPos) {
@@ -280,38 +278,6 @@ namespace Levels {
 
 			GetComponent<MeshFilter>().mesh         = mesh;
 			GetComponent<MeshCollider>().sharedMesh = mesh;
-		}
-
-		private void Update() {
-			//if (HallwayCollision(Room, transform.position, testHallway)) Debug.Log("collision");
-		}
-		
-		private bool HallwayCollision(Room inRoom, Vector3 pos, GameObject hall) {
-			Vector2 min = new Vector2(pos.x, pos.z);
-			Vector2 max = new Vector2(min.x + inRoom.Size.x, min.y + inRoom.Size.z);
-
-			Vector3 hallwayPos = hall.transform.position;
-			float   hallwayRot = hall.transform.rotation.eulerAngles.y;
-
-			switch (hallwayRot) {
-				case 0f: { //east-west
-					Vector2 hallMin = new Vector2(hallwayPos.x - LevelController.HallwaySectionLength / 2f,
-					                              hallwayPos.z - 0.5f);
-					Vector2 hallMax = new Vector2(hallwayPos.x + LevelController.HallwaySectionLength / 2f,
-					                              hallwayPos.z + 0.5f);
-					return AABB.Overlap(min, max, hallMin, hallMax);
-				}
-				case 90f: { //north-south
-					Vector2 hallMin = new Vector2(hallwayPos.x - 0.5f,
-					                              hallwayPos.z - LevelController.HallwaySectionLength / 2f);
-					Vector2 hallMax = new Vector2(hallwayPos.x + 0.5f,
-					                              hallwayPos.z + LevelController.HallwaySectionLength / 2f);
-					return AABB.Overlap(min, max, hallMin, hallMax);
-				}
-				default:
-					Debug.LogWarning($"{hall.name} had an unknown rotation!");
-					return false;
-			}
 		}
 	}
 }
