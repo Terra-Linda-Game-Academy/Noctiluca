@@ -46,7 +46,7 @@ public class MapCamera : MonoBehaviour
     public MapItemInfo GetGameObjectUIPosition(GameObject worldObject)
     {
         Vector3 screenPos = mapCamera.WorldToScreenPoint(worldObject.transform.position);
-        Debug.Log("Screen position: " + screenPos);
+        //Debug.Log("Screen position: " + screenPos);
         Vector2 screenPos2D = ScreenToMapPoint(new Vector2(screenPos.x, mapCamera.pixelHeight - screenPos.y));
         return new MapItemInfo {
             gameObject = worldObject,

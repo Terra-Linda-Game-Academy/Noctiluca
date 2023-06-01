@@ -40,6 +40,10 @@ public class PauseMenu : MonoBehaviour
     public void Start() {
         pauseMenuCanvas = transform.GetComponentInChildren<Canvas>(true).gameObject;
         pauseMenuCanvas.SetActive(false);
+
+        foreach(PausePageInfo pageInfo in pausePages) {
+            pageInfo.pageObject.SetActive(false);
+        }
     }
 
     public void Update() {

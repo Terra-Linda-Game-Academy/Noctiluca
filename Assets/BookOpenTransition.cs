@@ -5,10 +5,10 @@ using UnityEngine.UI;
 
 public class BookOpenTransition : MonoBehaviour
 {
-    private Image image;
+    public Image image;
 
-    void Start() {
-        image = GetComponent<Image>();
+    void Awake() {
+        // image = GetComponent<Image>();
         image.enabled = false;
     }
 

@@ -1651,24 +1651,26 @@ public class ChessWindow : MonoBehaviour
     public UnityEvent OnOpen;
     public UnityEvent OnClose;
 
+    float pieceScale = 0.9f;
+
     
 
     
     void LoadTextures() {
         
-        whitePawn = Resources.Load<Texture2D>("chess/Chess_plt60");
-        whiteRook = Resources.Load<Texture2D>("chess/Chess_rlt60");
-        whiteKnight = Resources.Load<Texture2D>("chess/Chess_nlt60");
-        whiteBishop = Resources.Load<Texture2D>("chess/Chess_blt60");
-        whiteQueen = Resources.Load<Texture2D>("chess/Chess_qlt60");
-        whiteKing = Resources.Load<Texture2D>("chess/Chess_klt60");
+        whitePawn = Resources.Load<Texture2D>("chess/pieces/wp");
+        whiteRook = Resources.Load<Texture2D>("chess/pieces/wr");
+        whiteKnight = Resources.Load<Texture2D>("chess/pieces/wn");
+        whiteBishop = Resources.Load<Texture2D>("chess/pieces/wb");
+        whiteQueen = Resources.Load<Texture2D>("chess/pieces/wq");
+        whiteKing = Resources.Load<Texture2D>("chess/pieces/wk");
 
-        blackPawn = Resources.Load<Texture2D>("chess/Chess_pdt60");
-        blackRook = Resources.Load<Texture2D>("chess/Chess_rdt60");
-        blackKnight = Resources.Load<Texture2D>("chess/Chess_ndt60");
-        blackBishop = Resources.Load<Texture2D>("chess/Chess_bdt60");
-        blackQueen = Resources.Load<Texture2D>("chess/Chess_qdt60");
-        blackKing = Resources.Load<Texture2D>("chess/Chess_kdt60");
+        blackPawn = Resources.Load<Texture2D>("chess/pieces/bp");
+        blackRook = Resources.Load<Texture2D>("chess/pieces/br");
+        blackKnight = Resources.Load<Texture2D>("chess/pieces/bn");
+        blackBishop = Resources.Load<Texture2D>("chess/pieces/bb");
+        blackQueen = Resources.Load<Texture2D>("chess/pieces/bq");
+        blackKing = Resources.Load<Texture2D>("chess/pieces/bk");
 
         circle = Resources.Load<Texture2D>("chess/circle");
         hollowCircle = Resources.Load<Texture2D>("chess/hollow_circle");
@@ -2267,6 +2269,34 @@ public class ChessWindow : MonoBehaviour
 
     List<Vector2Int> legalMoves = new List<Vector2Int>();
 
+    public void MysteryMode() {
+        int random = UnityEngine.Random.Range(0, 4);
+        switch (random) {
+            case 0:
+                screenSaverMode = true;
+                break;
+            case 1:
+                rainbow = true;
+                break;
+            case 2:
+                pieceScale = UnityEngine.Random.Range(0.5f, 1.5f);
+                break;
+            case 3:
+                pieceScale = UnityEngine.Random.Range(0.5f, 1.5f);
+                screenSaverMode = true;
+                rainbow = true;
+                break;
+        }
+
+    }
+
+    public void NormalMode() {
+        screenSaverMode = false;
+        rainbow = false;
+        pieceScale = 0.9f;
+        ResetTileColors();
+    }
+
 
     void RestartGame() {
         Debug.Log("Restarting Game");
@@ -2825,7 +2855,13 @@ public class ChessWindow : MonoBehaviour
                             }
                             break;
                     }
-                    GUI.DrawTexture(new Rect((boardFlipped?(7-x):x) * board.squareSize+board.xOffset, (boardFlipped?(7-y):y) * board.squareSize+board.yOffset, board.squareSize, board.squareSize), texture);
+                    //pieceScale
+                    float trueX = (boardFlipped?(7-x):x) * board.squareSize+board.xOffset;
+                    float trueY = (boardFlipped?(7-y):y) * board.squareSize+board.yOffset;
+                    float pieceSize = (board.squareSize * pieceScale);
+                    Rect pieceRect = new Rect(trueX + (board.squareSize - pieceSize) / 2f, trueY + (board.squareSize - pieceSize) / 2f, pieceSize, pieceSize);
+                    
+                    GUI.DrawTexture(pieceRect, texture);
                 }
             }
             
