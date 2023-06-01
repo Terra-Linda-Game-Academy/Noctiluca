@@ -20,7 +20,7 @@ namespace Potions {
         }
 
         public void Add(Potion potion) {
-            potions.Insert(activeIndex++, potion);
+            potions.Insert(activeIndex, potion);
         }
 
         public void Remove() {

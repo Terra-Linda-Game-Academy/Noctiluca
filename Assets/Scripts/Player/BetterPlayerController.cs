@@ -125,12 +125,12 @@ namespace Player {
 
 			float distFromEyes = .2f;
 
-			Vector3 throwDir       = _attack.attackDir         + transform.up;
-			Vector3 potionSpawnPos = _perceptron.eyes.position + throwDir * distFromEyes;
+			Vector3 potionSpawnPos = _perceptron.eyes.position + transform.up + _attack.attackDir;
 
 			GameObject potionObj = Instantiate(thrownPotionPrefab, potionSpawnPos, Quaternion.identity);
 			
-			potionObj.GetComponent<Rigidbody>().AddForce(throwDir * 1, ForceMode.Impulse);
+			Vector3 throwVec = transform.up + _attack.attackDir * 3;
+			potionObj.GetComponent<Rigidbody>().AddForce(throwVec, ForceMode.Impulse);
 
 			ThrownPotionController thrownPotion = potionObj.GetComponent<ThrownPotionController>();
 

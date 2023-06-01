@@ -75,5 +75,5 @@ MonoBehaviour:
   sizeRandom: 0.2
   lifetime: 5
   lifetimeRandom: 1.2
-  exponent: 3
+  exponent: 7
   strength: 4

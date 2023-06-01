@@ -21,11 +21,9 @@ namespace Potions {
 		}
 
 		private void OnCollisionEnter(Collision other) {
-			if (other.gameObject.layer != LayerMask.GetMask("Room")) return;
-			
-			Debug.Log("potion land");
+			if (other.gameObject.layer != LayerMask.NameToLayer("Room")) return;
 
-			GameObject puddleObj = new GameObject {transform = {position = transform.position}};
+			GameObject puddleObj = new GameObject {transform = {position = transform.position}, name = "Puddle"};
 
 			Puddle puddle = puddleObj.AddComponent<Puddle>();
 			puddle.Fluid = _potion.Fluid;
