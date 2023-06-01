@@ -1,17 +1,14 @@
 fileFormatVersion: 2
-guid: f5b440892558f01438fd77b85e4861a5
+guid: 7d008f1c19a5dc74eaa0d682f6927a7c
 ModelImporter:
   serializedVersion: 21300
   internalIDToNameTable:
   - first:
       74: 4781951162920444690
     second: Armature|ArmatureAction
-  - first:
-      74: -6910200275956609963
-    second: Armature|Cube.002Action.010
   externalObjects: {}
   materials:
-    materialImportMode: 2
+    materialImportMode: 0
     materialName: 0
     materialSearch: 1
     materialLocation: 1
