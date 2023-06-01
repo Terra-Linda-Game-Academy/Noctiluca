@@ -2135,6 +2135,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inputProvider: {fileID: 11400000, guid: 85a0328cbb693e44eb26529b3a2425d4, type: 2}
   playerVar: {fileID: 11400000, guid: 771557aef5fdc44c9988a4d5e27e3180, type: 2}
+  inventory: {fileID: 11400000, guid: cc9ce27fba6374266af29bd9563a7bc1, type: 2}
+  thrownPotionPrefab: {fileID: 7475762715754529217, guid: 70bb457756b2744558911de688d8378e,
+    type: 3}
   stepCheck: {fileID: 8660923727401742731}
   headCheck: {fileID: 7011968292967931081}
   maxAcceleration: 100

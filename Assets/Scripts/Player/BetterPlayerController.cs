@@ -1,12 +1,10 @@
-using System.Collections;
 using AI;
 using Input.ConcreteInputProviders;
 using Input.Data;
+using Potions;
+using Potions.Fluids;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
-using UnityEngine.UI;
 using Util;
-using System.Collections;
 using UnityEngine.Serialization;
 
 namespace Player {
@@ -15,6 +13,12 @@ namespace Player {
 	public class BetterPlayerController : MonoBehaviour {
 		[SerializeField] private PlayerInputProvider       inputProvider;
 		[SerializeField] private RuntimeVar<MonoBehaviour> playerVar;
+
+		private Perceptron _perceptron;
+
+		[SerializeField] private Inventory  inventory;
+		[SerializeField] private GameObject thrownPotionPrefab;
+		[SerializeField] private FluidAsset defaultPotionFluid;
 
 		[SerializeField] private Transform stepCheck;
 		[SerializeField] private Transform headCheck;
@@ -42,7 +46,7 @@ namespace Player {
 		private bool      OnGround => _groundContactCount > 0;
 		private bool      _desiredJump;
 		private float     _minGroundDotProduct;
-		Animator          m_Animator;
+		private Animator  _animator;
 
 		private SwordAttack _attack;
 
@@ -62,12 +66,15 @@ namespace Player {
 
 			_attack = GetComponent<SwordAttack>();
 
-			inputProvider.RequireInit(GetComponent<Perceptron>());
+			_perceptron = GetComponent<Perceptron>();
+			inputProvider.RequireInit(_perceptron);
 			inputProvider.Events.Interact += () => { Debug.Log("interact"); };
 			//inputProvider.Events.Attack   += _attack.Attack;
 			inputProvider.Events.Attack += () => { animator.SetTrigger(Attack); };
 
-			inputProvider.Events.Throw += () => { animator.SetTrigger(Throwing); };
+			inputProvider.Events.Throw += ThrowPotion;
+
+			if (inventory.IsEmpty) inventory.Add(new Potion(defaultPotionFluid.GetFluid(), 1f, 1f));
 		}
 
 
@@ -110,7 +117,27 @@ namespace Player {
 			ClearState();
 		}
 
-		void UpdateAnimation() {
+		private void ThrowPotion() {
+			animator.SetTrigger(Throwing);
+
+			//Potion potion = inventory.Current;
+			Potion potion = new Potion(defaultPotionFluid.GetFluid(), 1f, 1f);
+
+			float distFromEyes = .2f;
+
+			Vector3 throwDir       = _attack.attackDir         + transform.up;
+			Vector3 potionSpawnPos = _perceptron.eyes.position + throwDir * distFromEyes;
+
+			GameObject potionObj = Instantiate(thrownPotionPrefab, potionSpawnPos, Quaternion.identity);
+			
+			potionObj.GetComponent<Rigidbody>().AddForce(throwDir * 1, ForceMode.Impulse);
+
+			ThrownPotionController thrownPotion = potionObj.GetComponent<ThrownPotionController>();
+
+			thrownPotion.Init(potion);
+		}
+
+		private void UpdateAnimation() {
 			if (_body.velocity != Vector3.zero
 			 && !animator.GetCurrentAnimatorStateInfo(0).IsName("Throwing")
 			 && !animator.GetCurrentAnimatorStateInfo(0).IsName("Attack")) {

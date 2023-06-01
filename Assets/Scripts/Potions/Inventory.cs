@@ -5,8 +5,8 @@ using UnityEngine;
 namespace Potions {
     [CreateAssetMenu(fileName = "Inventory", menuName = "Inventory", order = 0)]
     public class Inventory : ScriptableObject {
-        [NonSerialized] private List<Potion> potions;
-        [NonSerialized] private int activeIndex = 0;
+        [NonSerialized] private List<Potion> potions     = new List<Potion>();
+        [NonSerialized] private int          activeIndex = 0;
 
         public Potion Current => potions[activeIndex];
         public bool IsEmpty => potions.Count <= 0;

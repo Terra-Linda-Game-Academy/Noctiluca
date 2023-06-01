@@ -7,6 +7,9 @@ namespace Potions.Fluids {
         public readonly Gradient SecondaryColor;
         public readonly float Cooldown;
         private readonly float size;
+
+        public float Size => size;
+
         private readonly float sizeRandom;
         private readonly float lifetime;
         private readonly float lifetimeRandom;

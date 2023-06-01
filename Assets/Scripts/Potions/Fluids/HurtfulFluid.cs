@@ -15,7 +15,7 @@ namespace Potions.Fluids {
 
         public override void ApplyEffect(GameObject obj, float lifetimeProgress) {
             if (obj.GetComponent<PlayerHealthController>() is { } ph) {
-                ph.Damage();
+                ph.Damage(1);
             } else if (obj.GetComponent<EnemyHealthController>() is { } eh) {
                 eh.Health -= Mathf.CeilToInt(damage * (1 - lifetimeProgress));
             }

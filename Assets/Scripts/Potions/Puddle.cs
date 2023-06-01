@@ -137,7 +137,7 @@ namespace Potions {
         }
 
         private void OnEnable() {
-            Fluid = fluidAsset.GetFluid();
+            //Fluid = fluidAsset.GetFluid();
             for (int x = 0; x < 4; x++) {
                 for (int z = 0; z < 4; z++) {
                     var pos = transform.position + new Vector3(x * 2, z * 2, x * 2);
