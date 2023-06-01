@@ -26,16 +26,16 @@ namespace Util.Editor {
 			Default      = ListSize  | AddButton    | RemoveButton | MoveButtons
 		}
 
-		private void Init(SerializedProperty list, Action addButtonEvt) {
+		private void Init(SerializedProperty list, Action addButtonEvt, string listName) {
 			_serializedList = list;
 
 			VisualTreeAsset tree =
 				AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Scripts/Util/Editor/ManagedListViewer.uxml");
 			tree.CloneTree(this);
 
-			this.Q<Foldout>("header").text = ObjectNames.NicifyVariableName(_serializedList.name);
+			this.Q<Foldout>("header").text = listName == "" ? ObjectNames.NicifyVariableName(_serializedList.name) : listName;
 
-			_body          = this.Q<VisualElement>("body");
+			_body              = this.Q<VisualElement>("body");
 			_listSizeContainer = new VisualElement {style = {flexGrow = 1}};
 			ElementAt(0).Q<VisualElement>(className: "unity-base-field__input").Add(_listSizeContainer);
 
@@ -50,19 +50,23 @@ namespace Util.Editor {
 			Regenerate();
 		}
 
-		public ManagedListViewer(SerializedProperty list, Options options = Options.Default) {
+		public ManagedListViewer(SerializedProperty list, Options options = Options.Default, string name = "") {
 			_options = options;
-			Init(list, () => { AddItem(new T()); });
+			Init(list, () => { AddItem(Activator.CreateInstance(typeof(T))); }, name);
 		}
 
-		public ManagedListViewer(SerializedProperty list, Type[] creationTypes, Options options = Options.Default) {
+		public ManagedListViewer(SerializedProperty list, Type[] creationTypes, Options options = Options.Default, string name = "") {
 			_options = options;
-			Init(list, () => {
-				           AddItemPopup addItemPopup =
-					           new AddItemPopup(creationTypes.Select(t => t.Name).ToArray());
-				           addItemPopup.OnSelect += i => { AddItem(Activator.CreateInstance(creationTypes[i])); };
-				           PopupWindow.Show(worldBound, addItemPopup);
-			           });
+			if (creationTypes.Length == 1) {
+				Init(list, () => { AddItem(Activator.CreateInstance(creationTypes[0])); }, name);
+			} else {
+				Init(list, () => {
+					           AddItemPopup addItemPopup =
+						           new AddItemPopup(creationTypes.Select(t => t.Name).ToArray());
+					           addItemPopup.OnSelect += i => { AddItem(Activator.CreateInstance(creationTypes[i])); };
+					           PopupWindow.Show(worldBound, addItemPopup);
+				           }, name);
+			}
 		}
 
 		private void Regenerate() {
@@ -70,8 +74,12 @@ namespace Util.Editor {
 
 			if ((_options & Options.ListSize) != 0) {
 				_listSizeContainer.Clear();
-				
-				_listSizeContainer.Add(new TextField {value = $"{_serializedList.arraySize}", isReadOnly = true, style = { paddingLeft = 10}});
+
+				_listSizeContainer.Add(new TextField {
+					                                     value      = $"{_serializedList.arraySize}",
+					                                     isReadOnly = true,
+					                                     style      = {paddingLeft = 10}
+				                                     });
 			}
 
 			for (int i = 0; i < _serializedList.arraySize; i++) {

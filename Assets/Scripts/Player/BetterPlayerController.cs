@@ -1,8 +1,13 @@
+using System.Collections;
 using AI;
 using Input.ConcreteInputProviders;
 using Input.Data;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
+using UnityEngine.UI;
 using Util;
+using System.Collections;
+using UnityEngine.Serialization;
 
 namespace Player {
 	[RequireComponent(typeof(Perceptron))]
@@ -11,16 +16,23 @@ namespace Player {
 		[SerializeField] private PlayerInputProvider       inputProvider;
 		[SerializeField] private RuntimeVar<MonoBehaviour> playerVar;
 
+		[SerializeField] private Transform stepCheck;
+		[SerializeField] private Transform headCheck;
+
 		[SerializeField, Range(0f, 100f)] //How fast the player can change direction, how snappy the control is.
 		float maxAcceleration = 10f, maxAirAcceleration = 1f; //acceleration should be more sluggish in the air.
 
-		[SerializeField, Range(0f, 100f)] float maxSpeed = 10f;
+		[SerializeField] float jumpheight;
+		[SerializeField] float stepheight;
+
+		[SerializeField, Range(0f, 100f)]          float    maxSpeed = 10f;
+		[FormerlySerializedAs("_animator")] public Animator animator;
 
 		[SerializeField, Range(0f, 90f)] float
 			maxGroundAngle =
 				25f; // Threshold to determine if ground below player is a valid to walk on, See: OnValidate()
 
-		[SerializeField, Range(100, 1000)] public float maxRotationSpeed     = 500f, maxAirRotationSpeed;
+		[SerializeField, Range(100, 9000)] public float maxRotationSpeed     = 500f, maxAirRotationSpeed;
 		[SerializeField]                   public float minVelocityThreshold = 0.1f;
 
 		private Rigidbody _body;
@@ -30,9 +42,14 @@ namespace Player {
 		private bool      OnGround => _groundContactCount > 0;
 		private bool      _desiredJump;
 		private float     _minGroundDotProduct;
-		Animator m_Animator;
+		Animator          m_Animator;
 
 		private SwordAttack _attack;
+
+		private static readonly int Saunter  = Animator.StringToHash("Saunter");
+		private static readonly int Idle     = Animator.StringToHash("Idle");
+		private static readonly int Attack   = Animator.StringToHash("Attack");
+		private static readonly int Throwing = Animator.StringToHash("Throwing");
 
 		private void OnEnable() { playerVar.Value = this; }
 
@@ -47,8 +64,12 @@ namespace Player {
 
 			inputProvider.RequireInit(GetComponent<Perceptron>());
 			inputProvider.Events.Interact += () => { Debug.Log("interact"); };
-			inputProvider.Events.Attack   += _attack.Attack;
+			//inputProvider.Events.Attack   += _attack.Attack;
+			inputProvider.Events.Attack += () => { animator.SetTrigger(Attack); };
+
+			inputProvider.Events.Throw += () => { animator.SetTrigger(Throwing); };
 		}
+
 
 		private void OnValidate() {
 			_minGroundDotProduct = Mathf.Cos(maxGroundAngle * Mathf.Deg2Rad);
@@ -60,10 +81,17 @@ namespace Player {
 		}
 
 		private void FixedUpdate() {
+			if (Physics.Raycast(stepCheck.position, stepCheck.TransformDirection(Vector3.forward), .6f)
+			 && !Physics.Raycast(headCheck.position, headCheck.TransformDirection(Vector3.forward), .6f)) {
+				Debug.Log("blame jackson for the jank, not me");
+				transform.position = new Vector3(transform.position.x + transform.forward.x * 1.005f,
+				                                 transform.position.y + .1f,
+				                                 transform.position.z + transform.forward.z * 1.005f);
+			}
+
 			PlayerInput input = inputProvider.GetInput();
 
-			_desiredVelocity = new Vector3(input.Movement.x, 0f, input.Movement.y) * maxSpeed;
-
+			_desiredVelocity  = new Vector3(input.Movement.x, 0f, input.Movement.y) * maxSpeed;
 			_attack.attackDir = new Vector3(input.Aim.x, 0f, input.Aim.y);
 
 			UpdateState();
@@ -78,7 +106,26 @@ namespace Player {
 			}
 			*/
 			_body.velocity = _velocity;
-			ClearState();	
+			UpdateAnimation();
+			ClearState();
+		}
+
+		void UpdateAnimation() {
+			if (_body.velocity != Vector3.zero
+			 && !animator.GetCurrentAnimatorStateInfo(0).IsName("Throwing")
+			 && !animator.GetCurrentAnimatorStateInfo(0).IsName("Attack")) {
+				animator.SetTrigger(Saunter);
+				animator.ResetTrigger(Idle);
+				/*Debug.Log("sauntering");*/
+			} else {
+				animator.ResetTrigger(Saunter);
+				animator.SetTrigger(Idle); /*Debug.Log("idling");*/
+			}
+
+			//if (true)
+			//{
+			//🍿
+			//
 		}
 
 		void UpdateState() {
@@ -126,14 +173,13 @@ namespace Player {
 		//TODO: Change this method because its so bad
 		// it is pretty funny tho - jackson r
 		void RotatePlayer(Vector3 vector) {
-			if (vector.magnitude > minVelocityThreshold) {
-				Quaternion targetRotation = Quaternion.LookRotation(vector.normalized, Vector3.up);
-				targetRotation.x = 0f;
-				targetRotation.z = 0f;
-				float rotationSpeed = OnGround ? maxRotationSpeed : maxAirRotationSpeed;
-				transform.rotation =
-					Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-			}
+			if (!(vector.magnitude > minVelocityThreshold)) return;
+			Quaternion targetRotation = Quaternion.LookRotation(vector.normalized, Vector3.up);
+			targetRotation.x = 0f;
+			targetRotation.z = 0f;
+			float rotationSpeed = OnGround ? maxRotationSpeed : maxAirRotationSpeed;
+			transform.rotation =
+				Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
 		}
 
 

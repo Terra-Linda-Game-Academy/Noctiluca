@@ -12,11 +12,11 @@ namespace Levels.Editor {
 
 		private void OnEnable() {
 			controller = (RoomController) target;
-			SetMeshes();
+			if (Room != null) SetMeshes();
 		}
 
 		private void SetMeshes() {
-			Mesh mesh = TerrainMesh.Generate(controller.Room);
+			Mesh mesh = TerrainMesh.Generate(controller.Room, controller.connections);
 
 			controller.GetComponent<MeshFilter>().sharedMesh   = mesh;
 			controller.GetComponent<MeshCollider>().sharedMesh = mesh;

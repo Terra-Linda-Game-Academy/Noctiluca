@@ -850,9 +850,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7424695660864187703}
-  - component: {fileID: -7009539912839164244}
-  - component: {fileID: 8393305087066787375}
-  - component: {fileID: 6073829254350432107}
   - component: {fileID: 3036372006793040521}
   - component: {fileID: 2462367417411379963}
   - component: {fileID: 901279273217723454}
@@ -883,55 +880,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &-7009539912839164244
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7800799640189794189}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4270e8c3fb5b78c2aa26cbdb5cf8674d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inputProvider: {fileID: 11400000, guid: 85a0328cbb693e44eb26529b3a2425d4, type: 2}
-  playerVar: {fileID: 11400000, guid: 771557aef5fdc44c9988a4d5e27e3180, type: 2}
-  maxAcceleration: 100
-  maxAirAcceleration: 4
-  maxSpeed: 4.2
-  maxGroundAngle: 25
-  maxRotationSpeed: 500
-  maxAirRotationSpeed: 0
-  minVelocityThreshold: 0.1
---- !u!114 &8393305087066787375
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7800799640189794189}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8eeeb3610326a4d46bad51d75303134b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  eyes: {fileID: 9033823986417161811}
---- !u!114 &6073829254350432107
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7800799640189794189}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de7cef9bbbe06ac66ab462d3e6a5bd2b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attackRadius: 2
-  attackAngle: 45
-  attackDir: {x: 0, y: 0, z: 0}
 --- !u!54 &3036372006793040521
 Rigidbody:
   m_ObjectHideFlags: 0
