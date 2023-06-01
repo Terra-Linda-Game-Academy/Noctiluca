@@ -1,9 +1,7 @@
 using System;
 using Unity.VisualScripting;
 using UnityEditor;
-using UnityEditor.Rendering;
 using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Levels.Editor {
@@ -13,13 +11,15 @@ namespace Levels.Editor {
             VisualElement element = new VisualElement();
 
             var roomProp = serializedObject.FindProperty("room");
-            element.Add(new PropertyField(roomProp, "room"));
+            element.Add(new PropertyField(roomProp, "Room"));
 
             if (roomProp.objectReferenceValue is not null) {
                 SerializedObject room = new SerializedObject(roomProp.objectReferenceValue);
                 var sizeProp = room.FindPropertyOrFail("size");
                 element.Add(new PropertyField(sizeProp));
             }
+            
+            element.Add(new PropertyField(serializedObject.FindProperty("testHallway"), "Test Hallway"));
 
             element.Bind(serializedObject);
             return element;

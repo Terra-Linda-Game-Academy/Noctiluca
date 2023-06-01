@@ -73,6 +73,15 @@ namespace Input
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Throw"",
+                    ""type"": ""Button"",
+                    ""id"": ""f78eaaf5-10f7-485b-ab3b-031f67aa6385"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -271,6 +280,28 @@ namespace Input
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
                     ""action"": ""Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3f748369-e79a-40e9-9747-049c1cfacf4f"",
+                    ""path"": ""<Keyboard>/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Throw"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0a22ef69-a093-454e-8a77-55a9fc74373c"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Throw"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -556,6 +587,7 @@ namespace Input
             m_InGame_PotionSwap = m_InGame.FindAction("Potion Swap", throwIfNotFound: true);
             m_InGame_Interact = m_InGame.FindAction("Interact", throwIfNotFound: true);
             m_InGame_Attack = m_InGame.FindAction("Attack", throwIfNotFound: true);
+            m_InGame_Throw = m_InGame.FindAction("Throw", throwIfNotFound: true);
             // Menu
             m_Menu = asset.FindActionMap("Menu", throwIfNotFound: true);
             m_Menu_SelectorMovement = m_Menu.FindAction("SelectorMovement", throwIfNotFound: true);
@@ -626,6 +658,7 @@ namespace Input
         private readonly InputAction m_InGame_PotionSwap;
         private readonly InputAction m_InGame_Interact;
         private readonly InputAction m_InGame_Attack;
+        private readonly InputAction m_InGame_Throw;
         public struct InGameActions
         {
             private @InputActions m_Wrapper;
@@ -635,6 +668,7 @@ namespace Input
             public InputAction @PotionSwap => m_Wrapper.m_InGame_PotionSwap;
             public InputAction @Interact => m_Wrapper.m_InGame_Interact;
             public InputAction @Attack => m_Wrapper.m_InGame_Attack;
+            public InputAction @Throw => m_Wrapper.m_InGame_Throw;
             public InputActionMap Get() { return m_Wrapper.m_InGame; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -659,6 +693,9 @@ namespace Input
                     @Attack.started -= m_Wrapper.m_InGameActionsCallbackInterface.OnAttack;
                     @Attack.performed -= m_Wrapper.m_InGameActionsCallbackInterface.OnAttack;
                     @Attack.canceled -= m_Wrapper.m_InGameActionsCallbackInterface.OnAttack;
+                    @Throw.started -= m_Wrapper.m_InGameActionsCallbackInterface.OnThrow;
+                    @Throw.performed -= m_Wrapper.m_InGameActionsCallbackInterface.OnThrow;
+                    @Throw.canceled -= m_Wrapper.m_InGameActionsCallbackInterface.OnThrow;
                 }
                 m_Wrapper.m_InGameActionsCallbackInterface = instance;
                 if (instance != null)
@@ -678,6 +715,9 @@ namespace Input
                     @Attack.started += instance.OnAttack;
                     @Attack.performed += instance.OnAttack;
                     @Attack.canceled += instance.OnAttack;
+                    @Throw.started += instance.OnThrow;
+                    @Throw.performed += instance.OnThrow;
+                    @Throw.canceled += instance.OnThrow;
                 }
             }
         }
@@ -764,6 +804,7 @@ namespace Input
             void OnPotionSwap(InputAction.CallbackContext context);
             void OnInteract(InputAction.CallbackContext context);
             void OnAttack(InputAction.CallbackContext context);
+            void OnThrow(InputAction.CallbackContext context);
         }
         public interface IMenuActions
         {

@@ -68,7 +68,7 @@ namespace Levels.Editor {
 		}
 
 		private void SetMeshes() {
-			Mesh mesh = TerrainMesh.Generate(_controller.Room);
+			Mesh mesh = TerrainMesh.Generate(_controller.Room, _controller.connections);
 
 			_controller.GetComponent<MeshFilter>().sharedMesh   = mesh;
 			_controller.GetComponent<MeshCollider>().sharedMesh = mesh;

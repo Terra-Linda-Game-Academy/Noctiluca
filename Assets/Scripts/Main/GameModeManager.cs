@@ -23,5 +23,9 @@ namespace Main
             //todo: disable loading screen
             isSwitchingMode = false;
         }
+
+        public void StartGame() {
+            StartCoroutine(App.GameModeManager.SwitchMode(new DungeonGameMode()));
+        }
     }
 }

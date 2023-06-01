@@ -12,6 +12,7 @@ namespace Main {
 
 		public event Action OnInteract;
 		public event Action OnAttack;
+		public event Action OnThrow;
 
 
 		private void Awake() {
@@ -31,6 +32,7 @@ namespace Main {
 			_inputActions.InGame.Movement.canceled  += _ => { playerInput.Movement   = Vector2.zero; };
 			_inputActions.InGame.Interact.performed += _ => { OnInteract?.Invoke(); };
 			_inputActions.InGame.Attack.performed   += _ => { OnAttack?.Invoke(); };
+			_inputActions.InGame.Throw.performed    += _ => { OnThrow?.Invoke(); };
 		}
 	}
 }
