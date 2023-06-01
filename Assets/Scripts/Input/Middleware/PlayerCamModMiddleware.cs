@@ -22,7 +22,7 @@ namespace Input.Middleware {
 			} else {
 				Ray ray = _camera.ScreenPointToRay(inputData.Aim);
 
-				if (Physics.Raycast(ray, out RaycastHit hit, 100f)) {
+				if (Physics.Raycast(ray, out RaycastHit hit, 100f, LayerMask.GetMask("Raycast Floor"))) {
 					Vector3 playerToPoint = (hit.point - perceptron.transform.position).normalized;
 					inputData.Aim = new Vector2(playerToPoint.x, playerToPoint.z);
 				} else { inputData.Aim = Vector2.zero; }

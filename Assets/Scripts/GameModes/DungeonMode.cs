@@ -1,10 +1,18 @@
 using System.Collections;
-using Levels;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace GameModes {
     public class DungeonGameMode : GameMode {
-        protected override IEnumerator _OnStart() { throw new System.NotImplementedException(); }
-        protected override IEnumerator _OnEnd() { throw new System.NotImplementedException(); }
+        protected override IEnumerator _OnStart() {
+            Debug.Log("going to dungeon");
+            SceneManager.LoadScene("Game");
+            yield break;
+        }
+
+        protected override IEnumerator _OnEnd() {
+            Debug.Log("leaving dungeon");
+            yield break;
+        }
     }
 }

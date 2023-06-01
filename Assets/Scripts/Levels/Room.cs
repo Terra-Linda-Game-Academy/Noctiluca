@@ -2,15 +2,31 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Levels {
-	[CreateAssetMenu(fileName = "Room", menuName = "Room", order = 0)]
+	[CreateAssetMenu(fileName = "Room", menuName = "Levels/Room", order = 0)]
 	public class Room : ScriptableObject {
 		[Serializable, Flags]
 		public enum TileFlags : ushort {
 			Wall = 0b0000000000000001,
 			Pit  = 0b0000000000000010,
 			None = 0b0000000000000100
+		}
+
+		[Serializable]
+		public enum Direction : byte {
+			North = 0,
+			East  = 1,
+			South = 2,
+			West  = 3
+		}
+
+		[Serializable, StructLayout(LayoutKind.Sequential)]
+		public struct ConnectionPoint {
+			public byte      coordinate;
+			public Direction direction;
+			public Direction InverseDirection => (Direction) ((int) (direction + 2) % 4);
 		}
 
 		[Serializable, StructLayout(LayoutKind.Sequential)]
@@ -37,6 +53,8 @@ namespace Levels {
 
 		[SerializeField]     private TileAsset[]  tileAssets;
 		[SerializeReference] private SimpleTile[] tiles;
+
+		[SerializeField] public List<ConnectionPoint> connectionPoints;
 
 		public Tile GetTileAt(int x, int z) {
 			if (tileMap.Length <= 0) ResetTiles();
@@ -85,8 +103,8 @@ namespace Levels {
 
 			for (int i = 0; i < newSize.x; i++) {
 				for (int j = 0; j < newSize.z; j++) {
-					int oldLinearIndex = ToLinearIndex(i, j);
-					int newLinearIndex = ToLinearIndex(i, j);
+					int oldLinearIndex = ToLinearIndex(i, j, size);
+					int newLinearIndex = ToLinearIndex(i, j, newSize);
 
 					if (i >= size.x || j >= size.z) {
 						newArray[newLinearIndex] = new Tile(TileFlags.None, 0f);
@@ -101,10 +119,14 @@ namespace Levels {
 			size    = newSize;
 		}
 
-		public int ToLinearIndex(int x, int z) { return z * size.x + x; }
+		public int ToLinearIndex(int x, int z) => ToLinearIndex(x, z, size);
 
-		public Vector2Int FromLinearIndex(int i) {
-			int z = Math.DivRem(i, size.x, out int x);
+		public static int ToLinearIndex(int x, int z, Vector3Int specificSize) { return z * specificSize.x + x; }
+
+		public Vector2Int FromLinearIndex(int i) => FromLinearIndex(i, size);
+
+		public static Vector2Int FromLinearIndex(int i, Vector3Int specificSize) {
+			int z = Math.DivRem(i, specificSize.x, out int x);
 			return new Vector2Int(x, z);
 		}
 	}
