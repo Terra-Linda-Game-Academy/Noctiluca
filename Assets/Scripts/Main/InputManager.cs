@@ -1,23 +1,10 @@
 using Input;
-<<<<<<< HEAD
-using Input.Data;
-using System;
-=======
->>>>>>> main
 using UnityEngine;
 using PlayerInput = Input.Data.PlayerInput;
 
-<<<<<<< HEAD
-namespace Main
-{
-    public class InputManager : MonoBehaviour
-    {
-        private InputActions _inputActions;
-=======
 namespace Main {
 	public class InputManager : MonoBehaviour {
 		private InputActions _inputActions;
->>>>>>> main
 
 		private PlayerInput playerInput;
 
@@ -26,16 +13,10 @@ namespace Main {
 		public event Action OnInteract;
 		public event Action OnAttack;
 
-<<<<<<< HEAD
-        private void Awake()
-        {
-            _inputActions = new InputActions();
-            _inputActions.Enable();
-=======
+
 		private void Awake() {
 			_inputActions = new InputActions();
 			_inputActions.Enable();
->>>>>>> main
 
 			_inputActions.InGame.Aim.performed += ctx => {
 				                                      playerInput.Aim = ctx.ReadValue<Vector2>();
