@@ -1,5 +1,5 @@
-#ifndef PUDDLE_UTIL
-#define PUDDLE_UTIL
+#ifndef PUDDLE_UTIL_INCLUDED
+#define PUDDLE_UTIL_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
 
@@ -35,17 +35,19 @@ struct Point {
 };
 
 StructuredBuffer<Point> Points;
+
 uint PointCount;
 float4 ScaleOffset;
 
-void GetPointColor_float(float2 UV, out float4 Out) {
+void GetPointColor_float(in float2 UV, out float4 Out) {
+    #ifndef SHADERGRAPH_PREVIEW
     const float2 pos = UV * ScaleOffset.xy + ScaleOffset.zw;
     Point closest = ZERO_INITIALIZE(Point, closest);
     float minDist2 = FLT_MAX;
     UNITY_LOOP
-    for (int i = 0; i < PointCount; i++) {
+    for (uint i = 0; i < PointCount; i++) {
         Point p = Points.Load(i);
-        const float relPos = p.Pos() - pos;
+        const float2 relPos = p.Pos() - pos;
         const float dist2 = dot(relPos, relPos);
         if (dist2 < minDist2) {
             closest = p;
@@ -53,8 +55,32 @@ void GetPointColor_float(float2 UV, out float4 Out) {
         }
     }
     const float normDist = sqrt(minDist2) / closest.size;
-
     Out = float4(lerp(closest.Color1(), closest.Color2(), normDist), normDist <= 1);
+    #else
+    Out = float4(UV, 0, 1);
+    #endif
+}
+
+void GetPointColor_half(in half2 UV, out half4 Out) {
+    #ifndef SHADERGRAPH_PREVIEW
+    const half2 pos = UV * ScaleOffset.xy + ScaleOffset.zw;
+    Point closest = ZERO_INITIALIZE(Point, closest);
+    float minDist2 = FLT_MAX;
+    UNITY_LOOP
+    for (uint i = 0; i < PointCount; i++) {
+        Point p = Points.Load(i);
+        const half2 relPos = p.Pos() - pos;
+        const half dist2 = dot(relPos, relPos);
+        if (dist2 < minDist2) {
+            closest = p;
+            minDist2 = dist2;
+        }
+    }
+    const float normDist = sqrt(minDist2) / closest.size;
+    Out = half4(lerp(closest.Color1(), closest.Color2(), normDist), normDist <= 1);
+    #else
+    Out = half4(UV, 0, 1);
+    #endif
 }
 
 #endif

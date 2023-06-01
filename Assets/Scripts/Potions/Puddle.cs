@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Potions.Fluids;
 using UnityEngine;
@@ -7,16 +7,18 @@ using UnityEngine.Rendering;
 
 namespace Potions {
     [RequireComponent(typeof(BoxCollider))]
+    [ExecuteInEditMode]
     public class Puddle : MonoBehaviour { 
-        private struct PointMetadata {
-            private readonly float lifetime;
+        private class PointMetadata {
+            public readonly float Lifetime;
             private readonly float initialSize;
             private float secondsActive;
+            public float SecondsActive => secondsActive;
             public Point Point { get; private set; }
             public bool IsActive { get; private set; }
 
             public PointMetadata(Fluid fluid, Vector2 position) {
-                lifetime = fluid.InitialLifetime;
+                Lifetime = fluid.InitialLifetime;
                 initialSize = fluid.InitialSize;
                 Point = new Point(fluid, position, initialSize);
                 secondsActive = 0;
@@ -25,15 +27,16 @@ namespace Potions {
 
             public void Update(Fluid fluid) {
                 secondsActive += Time.deltaTime;
-                var lifetimeProgress = fluid.LifeProgress(lifetime, secondsActive);
+                var lifetimeProgress = fluid.LifeProgress(Lifetime, secondsActive);
                 Point.Update(fluid, lifetimeProgress, initialSize);
-                if (secondsActive >= lifetime) { IsActive = false; }
+                if (secondsActive >= Lifetime) { IsActive = false; }
             }
         }
 
         [StructLayout(LayoutKind.Sequential)]
         private struct Point {
             private float size;
+            public float Size => size;
             
             private readonly ushort x;
             private readonly ushort z;
@@ -103,7 +106,7 @@ namespace Potions {
         private Dictionary<GameObject, float> cooldowns;
         [SerializeField] private FluidAsset fluidAsset;
 
-        private Vector3 Scale => new Vector3(xPoints.Max - xPoints.Min, maxY - minY, zPoints.Max - zPoints.Min);
+        private Vector3 Scale => new Vector3(xPoints.Max - xPoints.Min, Mathf.Max(maxY - minY, 1), zPoints.Max - zPoints.Min);
         private Vector3 Min => new Vector3(xPoints.Min, minY, zPoints.Min);
         private Vector3 Center => 
             new Vector3(
@@ -114,7 +117,7 @@ namespace Potions {
 
         private void Awake() {
             cubeMesh = CoreUtils.CreateCubeMesh(Vector3.zero, Vector3.one);
-            puddleMaterial = CoreUtils.CreateEngineMaterial("Puddle");
+            puddleMaterial = CoreUtils.CreateEngineMaterial("Hidden/FixedPuddle");
             boxCollider = GetComponent<BoxCollider>();
             boxCollider.isTrigger = true;
             ResetFluid();
@@ -135,9 +138,9 @@ namespace Potions {
 
         private void OnEnable() {
             Fluid = fluidAsset.GetFluid();
-            for (int x = 0; x < 100; x++) {
-                for (int z = 0; z < 100; z++) {
-                    var pos = transform.position + new Vector3(x * .1f, z * .1f, x * .1f);
+            for (int x = 0; x < 4; x++) {
+                for (int z = 0; z < 4; z++) {
+                    var pos = transform.position + new Vector3(x * 2, z * 2, x * 2);
                     AddPoint(pos);
                 }
             }
@@ -145,7 +148,28 @@ namespace Potions {
 
         private void LateUpdate() {
             UpdatePoints();
-            RenderPuddle();
+            if (points.Count > 0)
+                RenderPuddle();
+            //Debug.Log("Rendering Puddle!!!!");
+        }
+
+        private void OnTriggerStay(Collider other) {
+            if (!(
+                    Physics.Raycast(new Ray(other.transform.position, Vector3.down), out var hit) && 
+                    cooldowns[other.gameObject] <= 0
+                )) return;
+
+            Vector2 pos = hit.point;
+            foreach (var ptMetadata in points) {
+                var pt = ptMetadata.Point;
+                Vector2 dist = pt.Pos - pos;
+                if (dist.sqrMagnitude <= pt.Size * pt.Size) {
+                    fluid.ApplyEffect(
+                        other.gameObject, 
+                        fluid.LifeProgress(ptMetadata.Lifetime, ptMetadata.SecondsActive)
+                    );
+                }
+            }
         }
 
         private void UpdateCooldowns() {
@@ -160,16 +184,14 @@ namespace Potions {
         }
 
         private void UpdatePoints() {
-            int i = 0;
-            while (i < points.Count) {
+            if (points.Count <= 0) return;
+            for (int i = points.Count - 1; i >= 0; i--) {
                 points[i].Update(Fluid);
                 if (!points[i].IsActive) {
-                    points.RemoveAt(i);
                     var pos = points[i].Point.Pos;
                     xPoints.Remove(pos.x);
                     zPoints.Remove(pos.y);
-                } else {
-                    i++;
+                    points.RemoveAt(i);
                 }
             }
         }
@@ -178,24 +200,24 @@ namespace Potions {
             var pointMetadata = new PointMetadata(Fluid, new Vector2(pos.x, pos.y));
             points.Add(pointMetadata);
             xPoints.Add(pos.x);
-            minY = Mathf.Min(minY, pos.z);
-            maxY = Mathf.Max(maxY, pos.z);
+            zPoints.Add(pos.z);
+            minY = Mathf.Min(minY, pos.y);
+            maxY = Mathf.Max(maxY, pos.y);
             boxCollider.size = Scale;
             boxCollider.center = Center;
         }
 
         private void RenderPuddle() {
+            var pointsArray = points.Select(metaData => metaData.Point).ToArray();
             var pointsBuffer = new ComputeBuffer(
-                points.Count, Marshal.SizeOf<Point>(),
-                ComputeBufferType.Structured, ComputeBufferMode.SubUpdates
+                pointsArray.Length, Marshal.SizeOf<Point>(), 
+                ComputeBufferType.Structured
             );
-            var pointsData = pointsBuffer.BeginWrite<Point>(0, points.Count);
-            for (int i = 0; i <= points.Count; i++) pointsData[i] = points[i].Point;
-            pointsBuffer.EndWrite<Point>(points.Count);
+            pointsBuffer.SetData(pointsArray);
 
             var min = Min; 
             var scale = Scale;
-            var localToWorld = Matrix4x4.TRS(Min, Quaternion.identity, Scale);
+            var localToWorld = Matrix4x4.TRS(min, Quaternion.identity, scale);
             
             puddleMaterial.SetBuffer("Points", pointsBuffer);
             puddleMaterial.SetInteger("PointCount", points.Count);
@@ -203,7 +225,7 @@ namespace Potions {
 
             Graphics.DrawMesh(cubeMesh, localToWorld, puddleMaterial, 0);
 
-            pointsBuffer.Dispose();
+            //pointsBuffer.Release();
         }
 
         private void OnDestroy() {
