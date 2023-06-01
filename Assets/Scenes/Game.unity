@@ -188,7 +188,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   room: {fileID: 11400000, guid: dd1c127fb6c834174863371e614c0218, type: 2}
   connections: 00010000
-  testHallway: {fileID: 0}
 --- !u!33 &10431586
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -466,12 +465,6 @@ Mesh:
     offset: 0
     size: 0
     path: 
---- !u!4 &154492731 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5221544269160276579, guid: 02da8529c10fa4d15a8f094c18f13226,
-    type: 3}
-  m_PrefabInstance: {fileID: 1670707874}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &203844586
 GameObject:
   m_ObjectHideFlags: 0
@@ -870,7 +863,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   room: {fileID: 11400000, guid: 09a4839d2ec5f41d7bd76419d4c9cf91, type: 2}
   connections: 01010101
-  testHallway: {fileID: 0}
 --- !u!33 &481159471
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -1959,75 +1951,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e24e44b7914c744f9bbe9427bfe11b67, type: 3}
---- !u!1001 &1176580820
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 154492731}
-    m_Modifications:
-    - target: {fileID: 7424695660864187703, guid: e5c6bb25a8f9d714bbc6921cd7769d2b,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 7424695660864187703, guid: e5c6bb25a8f9d714bbc6921cd7769d2b,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7424695660864187703, guid: e5c6bb25a8f9d714bbc6921cd7769d2b,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7424695660864187703, guid: e5c6bb25a8f9d714bbc6921cd7769d2b,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7424695660864187703, guid: e5c6bb25a8f9d714bbc6921cd7769d2b,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7424695660864187703, guid: e5c6bb25a8f9d714bbc6921cd7769d2b,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7424695660864187703, guid: e5c6bb25a8f9d714bbc6921cd7769d2b,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7424695660864187703, guid: e5c6bb25a8f9d714bbc6921cd7769d2b,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7424695660864187703, guid: e5c6bb25a8f9d714bbc6921cd7769d2b,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7424695660864187703, guid: e5c6bb25a8f9d714bbc6921cd7769d2b,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7424695660864187703, guid: e5c6bb25a8f9d714bbc6921cd7769d2b,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7800799640189794189, guid: e5c6bb25a8f9d714bbc6921cd7769d2b,
-        type: 3}
-      propertyPath: m_Name
-      value: '1Diem Q Main Character Model W working rig '
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: e5c6bb25a8f9d714bbc6921cd7769d2b, type: 3}
 --- !u!4 &1249022582 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7634842851694224241, guid: e24e44b7914c744f9bbe9427bfe11b67,
@@ -2537,6 +2460,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2012383616455134259, guid: 02da8529c10fa4d15a8f094c18f13226,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4951653952162427255, guid: 02da8529c10fa4d15a8f094c18f13226,
         type: 3}
       propertyPath: m_IsActive
@@ -2602,25 +2530,15 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 5221544269160276582, guid: 02da8529c10fa4d15a8f094c18f13226,
+    - target: {fileID: 5221544269160276580, guid: 02da8529c10fa4d15a8f094c18f13226,
         type: 3}
-      propertyPath: m_Height
-      value: 1.6689575
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5221544269160276582, guid: 02da8529c10fa4d15a8f094c18f13226,
         type: 3}
-      propertyPath: m_Radius
-      value: 0.28351974
-      objectReference: {fileID: 0}
-    - target: {fileID: 5221544269160276582, guid: 02da8529c10fa4d15a8f094c18f13226,
-        type: 3}
-      propertyPath: m_Center.y
-      value: -0.16552126
-      objectReference: {fileID: 0}
-    - target: {fileID: 5221544269160276582, guid: 02da8529c10fa4d15a8f094c18f13226,
-        type: 3}
-      propertyPath: m_Center.z
-      value: -0.0003786087
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 02da8529c10fa4d15a8f094c18f13226, type: 3}
@@ -2790,7 +2708,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   room: {fileID: 11400000, guid: 90fdd47302a3f4b77af207ecb79aa88a, type: 2}
   connections: 00000001
-  testHallway: {fileID: 0}
 --- !u!33 &1723956379
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -2996,7 +2913,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   room: {fileID: 11400000, guid: 90fdd47302a3f4b77af207ecb79aa88a, type: 2}
   connections: 01000000
-  testHallway: {fileID: 0}
 --- !u!33 &1833847148
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -3137,12 +3053,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e24e44b7914c744f9bbe9427bfe11b67, type: 3}
---- !u!1 &1940263356 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7453205967449695116, guid: e24e44b7914c744f9bbe9427bfe11b67,
-    type: 3}
-  m_PrefabInstance: {fileID: 1940263355}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2026504730
 GameObject:
   m_ObjectHideFlags: 0
@@ -3177,7 +3087,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   room: {fileID: 11400000, guid: 90fdd47302a3f4b77af207ecb79aa88a, type: 2}
   connections: 00000000
-  testHallway: {fileID: 1940263356}
 --- !u!33 &2026504732
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -3323,7 +3232,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   room: {fileID: 11400000, guid: 90fdd47302a3f4b77af207ecb79aa88a, type: 2}
   connections: 00000100
-  testHallway: {fileID: 0}
 --- !u!33 &2049737240
 MeshFilter:
   m_ObjectHideFlags: 0

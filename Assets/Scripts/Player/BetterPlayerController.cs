@@ -7,6 +7,7 @@ using UnityEngine.PlayerLoop;
 using UnityEngine.UI;
 using Util;
 using System.Collections;
+using UnityEngine.Serialization;
 
 namespace Player {
 	[RequireComponent(typeof(Perceptron))]
@@ -17,22 +18,23 @@ namespace Player {
 
 		[SerializeField] private Transform stepCheck;
 		[SerializeField] private Transform headCheck;
-		
+
 		[SerializeField, Range(0f, 100f)] //How fast the player can change direction, how snappy the control is.
 		float maxAcceleration = 10f, maxAirAcceleration = 1f; //acceleration should be more sluggish in the air.
 
 		[SerializeField] float jumpheight;
 		[SerializeField] float stepheight;
-		
-		[SerializeField, Range(0f, 100f)] float maxSpeed = 10f;
-		public Animator _animator;
+
+		[SerializeField, Range(0f, 100f)]          float    maxSpeed = 10f;
+		[FormerlySerializedAs("_animator")] public Animator animator;
+
 		[SerializeField, Range(0f, 90f)] float
-				maxGroundAngle =
+			maxGroundAngle =
 				25f; // Threshold to determine if ground below player is a valid to walk on, See: OnValidate()
-		
+
 		[SerializeField, Range(100, 9000)] public float maxRotationSpeed     = 500f, maxAirRotationSpeed;
 		[SerializeField]                   public float minVelocityThreshold = 0.1f;
-		
+
 		private Rigidbody _body;
 		private Vector3   _contactNormal;
 		private Vector3   _velocity, _desiredVelocity;
@@ -40,57 +42,56 @@ namespace Player {
 		private bool      OnGround => _groundContactCount > 0;
 		private bool      _desiredJump;
 		private float     _minGroundDotProduct;
-		Animator m_Animator;
+		Animator          m_Animator;
 
 		private SwordAttack _attack;
-		
+
+		private static readonly int Saunter  = Animator.StringToHash("Saunter");
+		private static readonly int Idle     = Animator.StringToHash("Idle");
+		private static readonly int Attack   = Animator.StringToHash("Attack");
+		private static readonly int Throwing = Animator.StringToHash("Throwing");
+
 		private void OnEnable() { playerVar.Value = this; }
 
 		private void OnDisable() { playerVar.Value = null; }
-		
-		IEnumerator attack()
-		{
-			_animator.SetTrigger("Attack");
-			
+
+		IEnumerator attack() {
+			animator.SetTrigger(Attack);
+
 			Debug.Log("attacdking");
 			new WaitForSeconds(.5f);
 
-			_animator.SetTrigger("idle");
+			animator.SetTrigger(Idle);
 
 			yield return null;
 		}
 
-		IEnumerator throwtion()
-		{
-			
-			_animator.SetTrigger("Throwing");
+		IEnumerator throwtion() {
+			animator.SetTrigger(Throwing);
 			Debug.Log("throwing");
 			new WaitForSeconds(3);
-			
-			_animator.SetTrigger("idle");
+
+			animator.SetTrigger(Idle);
 
 			yield return null;
-
 		}
-		
+
 		private void Start() {
 			//initialize some variables...
 			_body = GetComponent<Rigidbody>();
 			OnValidate();
-			
+
 			_attack = GetComponent<SwordAttack>();
-			
+
 			inputProvider.RequireInit(GetComponent<Perceptron>());
 			inputProvider.Events.Interact += () => { Debug.Log("interact"); };
 			//inputProvider.Events.Attack   += _attack.Attack;
 			inputProvider.Events.Attack += () => { StartCoroutine(nameof(attack)); };
 
 			inputProvider.Events.Throw += () => { StartCoroutine(nameof(throwtion)); };
-			
 		}
 
-		
-		
+
 		private void OnValidate() {
 			_minGroundDotProduct = Mathf.Cos(maxGroundAngle * Mathf.Deg2Rad);
 			/* Checks how perpendicular the contact normal is to determine if the player is on the ground or not.
@@ -99,18 +100,19 @@ namespace Player {
 		 * OnValidate() is used to update the value when values are changed in the editor.
 		*/
 		}
-		
-		private void FixedUpdate() {
 
-			if (Physics.Raycast(stepCheck.position, stepCheck.TransformDirection(Vector3.forward), .6f) && !Physics.Raycast(headCheck.position, headCheck.TransformDirection(Vector3.forward), .6f))
-			{
+		private void FixedUpdate() {
+			if (Physics.Raycast(stepCheck.position, stepCheck.TransformDirection(Vector3.forward), .6f)
+			 && !Physics.Raycast(headCheck.position, headCheck.TransformDirection(Vector3.forward), .6f)) {
 				Debug.Log("blame jackson for the jank, not me");
-				transform.position = new Vector3(transform.position.x + transform.forward.x * 1.005f, transform.position.y +.1f, transform.position.z+transform.forward.z * 1.005f);
+				transform.position = new Vector3(transform.position.x + transform.forward.x * 1.005f,
+				                                 transform.position.y + .1f,
+				                                 transform.position.z + transform.forward.z * 1.005f);
 			}
-			
+
 			PlayerInput input = inputProvider.GetInput();
-	
-			_desiredVelocity = new Vector3(input.Movement.x, 0f, input.Movement.y) * maxSpeed;
+
+			_desiredVelocity  = new Vector3(input.Movement.x, 0f, input.Movement.y) * maxSpeed;
 			_attack.attackDir = new Vector3(input.Aim.x, 0f, input.Aim.y);
 
 			UpdateState();
@@ -125,18 +127,21 @@ namespace Player {
 			}
 			*/
 			_body.velocity = _velocity;
-			ClearState();	
+			UpdateAnimation();
+			ClearState();
 		}
 
-		void UpdateAnimation()
-		{
-			
-			if (_body.velocity != Vector3.zero && !_animator.GetCurrentAnimatorStateInfo(0).IsName("Throwing") && !_animator.GetCurrentAnimatorStateInfo(0).IsName("Attack"))
-			{
-				_animator.SetTrigger("Saunter");
+		void UpdateAnimation() {
+			if (_body.velocity != Vector3.zero
+			 && !animator.GetCurrentAnimatorStateInfo(0).IsName("Throwing")
+			 && !animator.GetCurrentAnimatorStateInfo(0).IsName("Attack")) {
+				animator.SetTrigger(Saunter);
+				animator.ResetTrigger(Idle);
 				/*Debug.Log("sauntering");*/
+			} else {
+				animator.ResetTrigger(Saunter);
+				animator.SetTrigger(Idle); /*Debug.Log("idling");*/
 			}
-			else{ _animator.SetTrigger("Idle"); /*Debug.Log("idling");*/}
 
 			//if (true)
 			//{
@@ -188,8 +193,7 @@ namespace Player {
 
 		//TODO: Change this method because its so bad
 		// it is pretty funny tho - jackson r
-		void RotatePlayer(Vector3 vector)
-		{
+		void RotatePlayer(Vector3 vector) {
 			if (!(vector.magnitude > minVelocityThreshold)) return;
 			Quaternion targetRotation = Quaternion.LookRotation(vector.normalized, Vector3.up);
 			targetRotation.x = 0f;
@@ -199,7 +203,7 @@ namespace Player {
 				Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
 		}
 
-				
+
 		void OnCollisionEnter(Collision collision) { EvaluateCollision(collision); }
 
 		void OnCollisionStay(Collision collision) { EvaluateCollision(collision); }
