@@ -55,16 +55,6 @@ namespace Player {
 
 		private void OnDisable() { playerVar.Value = null; }
 
-		IEnumerator throwtion() {
-			animator.SetTrigger(Throwing);
-			Debug.Log("throwing");
-			new WaitForSeconds(3);
-
-			animator.SetTrigger(Idle);
-
-			yield return null;
-		}
-
 		private void Start() {
 			//initialize some variables...
 			_body = GetComponent<Rigidbody>();
@@ -77,7 +67,7 @@ namespace Player {
 			//inputProvider.Events.Attack   += _attack.Attack;
 			inputProvider.Events.Attack += () => { animator.SetTrigger(Attack); };
 
-			inputProvider.Events.Throw += () => { StartCoroutine(nameof(throwtion)); };
+			inputProvider.Events.Throw += () => { animator.SetTrigger(Throwing); };
 		}
 
 

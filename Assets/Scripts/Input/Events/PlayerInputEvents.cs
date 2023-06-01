@@ -10,7 +10,7 @@ namespace Input.Events {
 
 		private void InvokeInteract() => Interact?.Invoke();
 		private void InvokeAttack()   => Attack?.Invoke();
-		private void InvokeThrow() => Throw?.Invoke();	
+		private void InvokeThrow()    => Throw?.Invoke();
 
 		public Dispatcher GetDispatcher(Func<PlayerInput> inputFunc) {
 			Dispatcher dispatcher = new Dispatcher(inputFunc, InvokeInteract, InvokeAttack, InvokeThrow);
@@ -22,11 +22,14 @@ namespace Input.Events {
 			private readonly Action _invokeAttack;
 			private readonly Action _invokeThrow;
 
-			public Dispatcher(Func<PlayerInput> inputFunc, Action invokeInteract, Action invokeAttack, Action invokeThrow) :
+			public Dispatcher(Func<PlayerInput> inputFunc,
+			                  Action            invokeInteract,
+			                  Action            invokeAttack,
+			                  Action            invokeThrow) :
 				base(inputFunc) {
 				_invokeInteract = invokeInteract;
 				_invokeAttack   = invokeAttack;
-				_invokeThrow = invokeThrow;
+				_invokeThrow    = invokeThrow;
 			}
 
 			public void Interact() {
@@ -34,13 +37,10 @@ namespace Input.Events {
 				PlayerInput input = GetInput();
 				if (input.Movement.magnitude < .2) _invokeInteract?.Invoke();
 			}
-	
+
 			public void Attack() { _invokeAttack?.Invoke(); }
 
-			public void Throw()
-			{
-				_invokeThrow?.Invoke();
-			}
+			public void Throw() { _invokeThrow?.Invoke(); }
 		}
 	}
 }
