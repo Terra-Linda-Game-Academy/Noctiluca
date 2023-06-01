@@ -55,17 +55,6 @@ namespace Player {
 
 		private void OnDisable() { playerVar.Value = null; }
 
-		IEnumerator attack() {
-			animator.SetTrigger(Attack);
-
-			Debug.Log("attacdking");
-			new WaitForSeconds(.5f);
-
-			animator.SetTrigger(Idle);
-
-			yield return null;
-		}
-
 		IEnumerator throwtion() {
 			animator.SetTrigger(Throwing);
 			Debug.Log("throwing");
@@ -86,7 +75,7 @@ namespace Player {
 			inputProvider.RequireInit(GetComponent<Perceptron>());
 			inputProvider.Events.Interact += () => { Debug.Log("interact"); };
 			//inputProvider.Events.Attack   += _attack.Attack;
-			inputProvider.Events.Attack += () => { StartCoroutine(nameof(attack)); };
+			inputProvider.Events.Attack += () => { animator.SetTrigger(Attack); };
 
 			inputProvider.Events.Throw += () => { StartCoroutine(nameof(throwtion)); };
 		}
