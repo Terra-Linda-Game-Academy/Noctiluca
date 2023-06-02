@@ -88,12 +88,19 @@ namespace Player {
 		}
 
 		private void FixedUpdate() {
-			if (Physics.Raycast(stepCheck.position, stepCheck.TransformDirection(Vector3.forward), .6f)
-			 && !Physics.Raycast(headCheck.position, headCheck.TransformDirection(Vector3.forward), .6f)) {
-				Debug.Log("blame jackson for the jank, not me");
-				transform.position = new Vector3(transform.position.x + transform.forward.x * 1.005f,
-				                                 transform.position.y + .1f,
-				                                 transform.position.z + transform.forward.z * 1.005f);
+			if (Physics.Raycast(stepCheck.position, stepCheck.forward, out var hit, .6f)
+			 && !Physics.Raycast(headCheck.position, headCheck.forward, .6f)
+			 && !hit.collider.isTrigger) {
+				float headCheckHeight = headCheck.localPosition.y - stepCheck.localPosition.y;
+
+				float forward = hit.distance;
+
+				Vector3 downRayOrigin = headCheck.position + headCheck.forward * forward;
+
+				Physics.Raycast(downRayOrigin, -headCheck.up, out var downHit, 1f);
+				float up = headCheckHeight - downHit.distance;
+
+				transform.position += transform.forward * forward + transform.up * up;
 			}
 
 			PlayerInput input = inputProvider.GetInput();
@@ -128,7 +135,7 @@ namespace Player {
 			Vector3 potionSpawnPos = _perceptron.eyes.position + transform.up + _attack.attackDir;
 
 			GameObject potionObj = Instantiate(thrownPotionPrefab, potionSpawnPos, Quaternion.identity);
-			
+
 			Vector3 throwVec = transform.up + _attack.attackDir * 3;
 			potionObj.GetComponent<Rigidbody>().AddForce(throwVec, ForceMode.Impulse);
 

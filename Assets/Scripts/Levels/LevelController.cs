@@ -315,7 +315,7 @@ namespace Levels {
 			RoomController controller = obj.GetComponent<RoomController>();
 			controller.Room = room;
 			controller.Init();
-			obj.layer = LayerMask.GetMask("Room");
+			obj.layer = LayerMask.NameToLayer("Room");
 
 			if (objName == "") { obj.name = room.name + $" {controller.RoomId.ToString()}"; } else {
 				obj.name = objName;
