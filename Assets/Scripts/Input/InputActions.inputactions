@@ -15,9 +15,18 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Aim",
+                    "name": "MouseAim",
                     "type": "Value",
                     "id": "6645ce86-5f04-49dc-8862-8c04af563f7e",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "GamepadAim",
+                    "type": "Value",
+                    "id": "4ed7df5d-498f-4f2c-a782-f9567d830481",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
@@ -178,18 +187,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard & Mouse",
-                    "action": "Aim",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "db3560d3-bb8d-4a42-af4c-209edad4c0fd",
-                    "path": "<Gamepad>/rightStick",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Gamepad",
-                    "action": "Aim",
+                    "action": "MouseAim",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -278,6 +276,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Throw",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "db3560d3-bb8d-4a42-af4c-209edad4c0fd",
+                    "path": "<Gamepad>/rightStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "GamepadAim",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
