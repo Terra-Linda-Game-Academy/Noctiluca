@@ -180,10 +180,9 @@ namespace Potions {
             cooldowns.TryAdd(other.gameObject, Fluid.Cooldown);
 
             if (!(
-                    Physics.Raycast(new Ray(other.transform.position, Vector3.down), out var hit)
-                    && cooldowns[other.gameObject] <= 0
-                ))
-                return;
+                Physics.Raycast(new Ray(other.transform.position, Vector3.down), out var hit)
+                && cooldowns[other.gameObject] <= 0
+            )) return;
 
             Vector2 pos = hit.point;
             foreach (var ptMetadata in points) {
