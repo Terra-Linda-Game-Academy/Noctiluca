@@ -127,6 +127,8 @@ namespace Player {
 			
 			Potion potion = inventory.Current;
 
+			if (potion.IsEmpty) return;
+
 			Vector3 potionSpawnPos = _perceptron.eyes.position + transform.up + _attack.attackDir;
 
 			GameObject potionObj = Instantiate(thrownPotionPrefab, potionSpawnPos, Quaternion.identity);
@@ -139,6 +141,10 @@ namespace Player {
 			thrownPotion.Init(potion);
 
 			animator.SetTrigger(Throwing);
+
+			potion.Remaining -= 0.1f;
+			if (potion.IsEmpty) potion.Remaining = 0;
+			inventory.OnPotionChange?.Invoke();
 		}
 
 		private void UpdateAnimation() {

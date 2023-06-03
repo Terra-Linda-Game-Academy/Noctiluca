@@ -5,11 +5,15 @@ namespace Potions {
     public class Potion {
         public readonly Fluid Fluid;
         public readonly float Capacity;
-        public float Remaining { get; }
+        public          float Remaining;
 
         public float NormalizedRemaining => Remaining / Capacity;
 
+        public bool IsEmpty => Remaining <= 0;
+
         public string Name() {
+            if (IsEmpty) return "Empty Potion";
+            
             string fluidTypeName = Fluid.GetType().Name;
 
             string[] words = ObjectNames.NicifyVariableName(fluidTypeName).Split(" ");

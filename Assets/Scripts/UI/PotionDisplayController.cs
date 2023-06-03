@@ -27,7 +27,7 @@ namespace UI {
 		private void Start() {
 			_player = (BetterPlayerController) player.Value;
 
-			_player.inventory.OnSelectionChange += () => {
+			_player.inventory.OnPotionChange += () => {
 				                                       SetPotion(
 					                                       !_player.inventory.IsEmpty
 						                                       ? _player.inventory.Current
@@ -39,7 +39,7 @@ namespace UI {
 
 		public void Empty() => SetPotion(null);
 
-		private void SetPotion([CanBeNull] Potion potion) {
+		private void SetPotion(Potion potion) {
 			Sprite newSprite = GeneratePotionImage(potion);
 
 			potionImage.sprite = newSprite;
@@ -47,9 +47,11 @@ namespace UI {
 			potionLabel.text = potion != null ? potion.Name() : "Empty";
 		}
 
-		private Sprite GeneratePotionImage([CanBeNull] Potion potion) {
+		private Sprite GeneratePotionImage(Potion potion) {
 			const float edgeEpsilon = .5f;
 			const int   edgePadding = 1;
+
+			bool empty = potion == null || potion.IsEmpty;
 
 			Texture2D tex = new Texture2D(imageSize, imageSize) {filterMode = FilterMode.Point};
 
@@ -82,9 +84,9 @@ namespace UI {
 					                 && dx > -neckWidth / 2
 					                 && dy > 0;
 
-					Color potColor = potion != null ? potion.Fluid.PrimaryColor.Evaluate(val) : Color.clear;
+					Color potColor = !empty ? potion.Fluid.PrimaryColor.Evaluate(val) : Color.clear;
 
-					float top = potion?.NormalizedRemaining ?? 1;
+					float top = !empty ? potion.NormalizedRemaining : 1;
 
 					if (potionInBottle || potionInNeck) {
 						if (y < maxPotionHeight * top + edgePadding) { col = potColor; } else { col = Color.clear; }

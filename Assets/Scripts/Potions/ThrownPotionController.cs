@@ -35,8 +35,8 @@ namespace Potions {
 			Puddle puddle = puddleObj.AddComponent<Puddle>();
 			puddle.Fluid = _potion.Fluid;
 
-			float radius      = _potion.Remaining * _potion.Fluid.Size;
-			int   numOfPoints = (int) (_potion.Remaining * 10f);
+			float radius      = 1/*_potion.Remaining*/ * _potion.Fluid.Size;
+			int   numOfPoints = (int) (1/*_potion.Remaining*/ * 10f);
 
 			for (int i = 0; i < numOfPoints; i++) {
 				Vector2 point = Random.insideUnitCircle * radius;
