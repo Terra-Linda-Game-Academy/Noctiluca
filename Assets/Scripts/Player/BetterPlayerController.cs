@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using AI;
 using Input.ConcreteInputProviders;
 using Input.Data;
@@ -16,18 +17,15 @@ namespace Player {
 
 		private Perceptron _perceptron;
 
-		[SerializeField] private Inventory  inventory;
+		public Inventory inventory;
+
 		[SerializeField] private GameObject thrownPotionPrefab;
-		[SerializeField] private FluidAsset defaultPotionFluid;
 
 		[SerializeField] private Transform stepCheck;
 		[SerializeField] private Transform headCheck;
 
 		[SerializeField, Range(0f, 100f)] //How fast the player can change direction, how snappy the control is.
-		float maxAcceleration = 10f, maxAirAcceleration = 1f; //acceleration should be more sluggish in the air.
-
-		[SerializeField] float jumpheight;
-		[SerializeField] float stepheight;
+		float maxAcceleration = 10f, maxAirAcceleration = 1f;
 
 		[SerializeField, Range(0f, 100f)]          float    maxSpeed = 10f;
 		[FormerlySerializedAs("_animator")] public Animator animator;
@@ -55,6 +53,8 @@ namespace Player {
 		private static readonly int Attack   = Animator.StringToHash("Attack");
 		private static readonly int Throwing = Animator.StringToHash("Throwing");
 
+		[SerializeField] private List<FluidAsset> startingPotions;
+
 		private void OnEnable() { playerVar.Value = this; }
 
 		private void OnDisable() { playerVar.Value = null; }
@@ -74,7 +74,13 @@ namespace Player {
 
 			inputProvider.Events.Throw += ThrowPotion;
 
-			if (inventory.IsEmpty) inventory.Add(new Potion(defaultPotionFluid.GetFluid(), 1f, 1f));
+			inputProvider.Events.PotionSwap += inventory.SelectNext;
+
+			foreach (FluidAsset fluidAsset in startingPotions) {
+				Potion pot = new Potion(fluidAsset.GetFluid(), 1f, 1f);
+
+				inventory.Add(pot);
+			}
 		}
 
 
@@ -111,26 +117,15 @@ namespace Player {
 			UpdateState();
 			AdjustVelocity();
 			RotatePlayer(_desiredVelocity);
-			/*if(_desiredVelocity.magnitude > 0)
-			{
-				//start moving anim
-				m_Animator.SetTrigger("JogStart");
-			} else {
-				//stop moving anim
-			}
-			*/
 			_body.velocity = _velocity;
 			UpdateAnimation();
 			ClearState();
 		}
 
 		private void ThrowPotion() {
-			animator.SetTrigger(Throwing);
-
-			//Potion potion = inventory.Current;
-			Potion potion = new Potion(defaultPotionFluid.GetFluid(), 1f, 1f);
-
-			float distFromEyes = .2f;
+			if (inventory.IsEmpty) return;
+			
+			Potion potion = inventory.Current;
 
 			Vector3 potionSpawnPos = _perceptron.eyes.position + transform.up + _attack.attackDir;
 
@@ -142,6 +137,8 @@ namespace Player {
 			ThrownPotionController thrownPotion = potionObj.GetComponent<ThrownPotionController>();
 
 			thrownPotion.Init(potion);
+
+			animator.SetTrigger(Throwing);
 		}
 
 		private void UpdateAnimation() {
@@ -162,7 +159,7 @@ namespace Player {
 			//
 		}
 
-		void UpdateState() {
+		private void UpdateState() {
 			_velocity = _body.velocity;
 			if (OnGround) {
 				if (_groundContactCount > 1) { _contactNormal.Normalize(); }
@@ -170,7 +167,7 @@ namespace Player {
 		}
 
 		// This method adjusts the velocity of the character based on input and the current state.
-		void AdjustVelocity() {
+		private void AdjustVelocity() {
 			//Projects the x and z axis to line up with the ground contact plane so that movement follows the slope of the ground.
 			Vector3 xAxis = ProjectOnContactPlane(Vector3.right).normalized;
 			Vector3 zAxis = ProjectOnContactPlane(Vector3.forward).normalized;
@@ -192,12 +189,12 @@ namespace Player {
 			_velocity += xAxis * (newX - currentX) + zAxis * (newZ - currentZ);
 		}
 
-		void ClearState() {
+		private void ClearState() {
 			_groundContactCount = 0;
 			_contactNormal      = Vector3.zero;
 		}
 
-		Vector3 ProjectOnContactPlane(Vector3 vector) {
+		private Vector3 ProjectOnContactPlane(Vector3 vector) {
 			return vector - _contactNormal * Vector3.Dot(vector, _contactNormal);
 			/* Project planes along contact normal. E. g. player movement x axis is projected along contact normal so
 		 * that movement follows the slope of the ground instead of clipping into it.
@@ -206,7 +203,7 @@ namespace Player {
 
 		//TODO: Change this method because its so bad
 		// it is pretty funny tho - jackson r
-		void RotatePlayer(Vector3 vector) {
+		private void RotatePlayer(Vector3 vector) {
 			if (!(vector.magnitude > minVelocityThreshold)) return;
 			Quaternion targetRotation = Quaternion.LookRotation(vector.normalized, Vector3.up);
 			targetRotation.x = 0f;
@@ -217,11 +214,11 @@ namespace Player {
 		}
 
 
-		void OnCollisionEnter(Collision collision) { EvaluateCollision(collision); }
+		private void OnCollisionEnter(Collision collision) { EvaluateCollision(collision); }
 
-		void OnCollisionStay(Collision collision) { EvaluateCollision(collision); }
+		private void OnCollisionStay(Collision collision) { EvaluateCollision(collision); }
 
-		void EvaluateCollision(Collision collision) {
+		private void EvaluateCollision(Collision collision) {
 			/* I forgot what this method does. Looks like it might be a traversal to add up the contact point normals
 		 * that are not overly steep to create the contactNormal but your guess is probably better than mine.
 		 */

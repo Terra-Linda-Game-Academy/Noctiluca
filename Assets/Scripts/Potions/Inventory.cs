@@ -11,6 +11,8 @@ namespace Potions {
         public Potion Current => potions[activeIndex];
         public bool IsEmpty => potions.Count <= 0;
 
+        public event Action OnSelectionChange;
+
         public Potion this[int offset] {
             get {
                 int newIndex = (activeIndex + offset) % potions.Count;
@@ -21,12 +23,14 @@ namespace Potions {
 
         public void Add(Potion potion) {
             potions.Insert(activeIndex, potion);
+            OnSelectionChange?.Invoke();
         }
 
         public void Remove() {
             potions.RemoveAt(activeIndex);
             if (activeIndex >= potions.Count) 
                 activeIndex = potions.Count - 1;
+            OnSelectionChange?.Invoke();
         }
 
         public void SelectNext() {
@@ -35,6 +39,7 @@ namespace Potions {
             } else { 
                 activeIndex++;
             }
+            OnSelectionChange?.Invoke();
         }
 
         public void SelectPrevious() {
@@ -43,6 +48,7 @@ namespace Potions {
             } else {
                 activeIndex--;
             }
+            OnSelectionChange?.Invoke();
         }
     }
 }
