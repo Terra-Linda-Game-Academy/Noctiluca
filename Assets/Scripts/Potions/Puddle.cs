@@ -3,10 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Potions.Fluids;
+using UnityEditor.SceneTemplate;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 namespace Potions {
+    [RequireComponent(typeof(BoxCollider), typeof(DecalProjector))]
+    [ExecuteInEditMode]
+    public class Puddle : MonoBehaviour { 
+        private class PointMetadata {
+            public readonly float Lifetime;
+            private readonly float initialSize;
+            private float secondsActive;
+            public float SecondsActive => secondsActive;
+            public Point Point { get; private set; }
+            public bool IsActive { get; private set; }
 	[RequireComponent(typeof(BoxCollider))]
 	[ExecuteInEditMode]
 	public class Puddle : MonoBehaviour {

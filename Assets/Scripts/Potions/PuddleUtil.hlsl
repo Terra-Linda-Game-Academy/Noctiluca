@@ -39,6 +39,13 @@ StructuredBuffer<Point> Points;
 uint PointCount;
 float4 ScaleOffset;
 
+static const float2 testPoints[16] {
+    float2(0, 0), float2(0, 1), float2(0, 2), float2(0, 3),
+    float2(1, 0), float2(1, 1), float2(1, 2), float2(1, 3),
+    float2(2, 0), float2(2, 1), float2(2, 2), float2(2, 3),
+    float2(3, 0), float2(3, 1), float2(3, 2), float2(3, 3), 
+};
+
 void GetPointColor_float(in float2 UV, out float4 Out) {
     #ifndef SHADERGRAPH_PREVIEW
     const float2 pos = UV * ScaleOffset.xy + ScaleOffset.zw;
