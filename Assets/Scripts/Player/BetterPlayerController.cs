@@ -69,8 +69,10 @@ namespace Player {
 			_perceptron = GetComponent<Perceptron>();
 			inputProvider.RequireInit(_perceptron);
 			inputProvider.Events.Interact += () => { Debug.Log("interact"); };
-			//inputProvider.Events.Attack   += _attack.Attack;
-			inputProvider.Events.Attack += () => { animator.SetTrigger(Attack); };
+			inputProvider.Events.Attack += () => {
+				                               _attack.Attack();
+				                               animator.SetTrigger(Attack);
+			                               };
 
 			inputProvider.Events.Throw += ThrowPotion;
 
@@ -81,6 +83,8 @@ namespace Player {
 
 				inventory.Add(pot);
 			}
+
+			inventory.OnPotionChange?.Invoke();
 		}
 
 
@@ -124,7 +128,7 @@ namespace Player {
 
 		private void ThrowPotion() {
 			if (inventory.IsEmpty) return;
-			
+
 			Potion potion = inventory.Current;
 
 			if (potion.IsEmpty) return;
