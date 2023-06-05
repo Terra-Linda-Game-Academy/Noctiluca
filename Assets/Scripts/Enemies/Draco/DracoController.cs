@@ -16,6 +16,10 @@ namespace Enemies.Draco {
 
 		public float speed = 1.0f;
 
+		public GameObject projectilePrefab;
+
+		private Vector3 _playerPos;
+
 		private void OnEnable() {
 			_perceptron = GetComponent<Perceptron>();
 
@@ -23,7 +27,9 @@ namespace Enemies.Draco {
 
 			_provider = (DracoInputProvider) providerTemplate.Clone(_perceptron);
 
-			_provider.Events.Shoot += () => { Debug.Log($"{this} shoots"); };
+			_provider.Events.Shoot += Shoot;
+
+			_healthController.OnZero += () => { Destroy(gameObject); };
 		}
 
 		private void FixedUpdate() { HandleInput(_provider.GetInput()); }
@@ -32,6 +38,15 @@ namespace Enemies.Draco {
 			transform.position += inputData.Movement * speed;
 
 			if (inputData.LookDir != Quaternion.identity) transform.rotation = inputData.LookDir;
+
+			_playerPos = inputData.PlayerPos;
+		}
+
+		private void Shoot() {
+			Vector3 offset = transform.forward;
+
+			GameObject obj = Instantiate(projectilePrefab, transform.position + offset, Quaternion.identity);
+			obj.transform.LookAt(_playerPos);
 		}
 	}
 }

@@ -578,6 +578,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   providerTemplate: {fileID: 11400000, guid: 37ceee4eb73a9446a846ba888e19c04e, type: 2}
+  player:
+    useConstant: 0
+    variable: {fileID: 11400000, guid: 771557aef5fdc44c9988a4d5e27e3180, type: 2}
+    constant: {fileID: 0}
   speed: 0.05
 --- !u!136 &321903540165562383
 CapsuleCollider:
