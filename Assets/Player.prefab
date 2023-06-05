@@ -1065,18 +1065,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inputProvider: {fileID: 11400000, guid: 85a0328cbb693e44eb26529b3a2425d4, type: 2}
   playerVar: {fileID: 11400000, guid: 771557aef5fdc44c9988a4d5e27e3180, type: 2}
+  inventory: {fileID: 11400000, guid: cc9ce27fba6374266af29bd9563a7bc1, type: 2}
+  thrownPotionPrefab: {fileID: 7475762715754529217, guid: 70bb457756b2744558911de688d8378e,
+    type: 3}
   stepCheck: {fileID: 4619149090902838289}
   headCheck: {fileID: 6441501666301354323}
   maxAcceleration: 100
   maxAirAcceleration: 1
-  jumpheight: 4.77
-  stepheight: 1
   maxSpeed: 5
   animator: {fileID: 3790228564791133821}
   maxGroundAngle: 25
   maxRotationSpeed: 5254
   maxAirRotationSpeed: 0
   minVelocityThreshold: 0.1
+  startingPotions:
+  - {fileID: 11400000, guid: 7ec88563d0b984c99a04978783133d2a, type: 2}
+  - {fileID: 11400000, guid: 12d6e6f75f47b44e3b36911f30f5a1cf, type: 2}
 --- !u!114 &7871551360157834424
 MonoBehaviour:
   m_ObjectHideFlags: 0
