@@ -149,7 +149,7 @@ namespace Player {
 
 			animator.SetTrigger(Throwing);
 
-			potion.Remaining -= 0.1f;
+			potion.Remaining -= 0.05f;
 			if (potion.IsEmpty) potion.Remaining = 0;
 			inventory.OnPotionChange?.Invoke();
 		}

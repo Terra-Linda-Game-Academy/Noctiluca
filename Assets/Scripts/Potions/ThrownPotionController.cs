@@ -28,15 +28,17 @@ namespace Potions {
 		}
 
 		private void OnCollisionEnter(Collision other) {
-			if (other.gameObject.layer != LayerMask.NameToLayer("Room")) return;
+			if (other.gameObject.layer != LayerMask.NameToLayer("Room")
+			 && other.gameObject.layer != LayerMask.NameToLayer("Enemy"))
+				return;
 
 			GameObject puddleObj = new GameObject {transform = {position = transform.position}, name = "Puddle"};
 
 			Puddle puddle = puddleObj.AddComponent<Puddle>();
 			puddle.Fluid = _potion.Fluid;
 
-			float radius      = 1/*_potion.Remaining*/ * _potion.Fluid.Size;
-			int   numOfPoints = (int) (1/*_potion.Remaining*/ * 10f);
+			float radius      = 1 /*_potion.Remaining*/ * _potion.Fluid.Size;
+			int   numOfPoints = (int) (1 /*_potion.Remaining*/ * 10f);
 
 			for (int i = 0; i < numOfPoints; i++) {
 				Vector2 point = Random.insideUnitCircle * radius;
