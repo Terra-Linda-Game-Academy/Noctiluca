@@ -21,6 +21,8 @@ namespace Enemies.Walking {
 
 			_healthController = GetComponent<EnemyHealthController>();
 
+			_healthController.OnZero += () => Destroy(gameObject);
+
 			_provider = (WalkingEnemyInputProvider) providerTemplate.Clone(_perceptron);
 		}
 
