@@ -24,15 +24,15 @@ namespace UI {
 
 		private BetterPlayerController _player;
 
-		private void Start() {
+		private void Awake() {
 			_player = (BetterPlayerController) player.Value;
 
 			_player.inventory.OnPotionChange += () => {
-				                                       SetPotion(
-					                                       !_player.inventory.IsEmpty
-						                                       ? _player.inventory.Current
-						                                       : null);
-			                                       };
+				                                    SetPotion(
+					                                    !_player.inventory.IsEmpty
+						                                    ? _player.inventory.Current
+						                                    : null);
+			                                    };
 		}
 
 		public void Test() => SetPotion(new Potion(testFluidAsset.GetFluid(), 1f, 1f));
