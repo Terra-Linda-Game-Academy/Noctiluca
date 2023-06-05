@@ -41,7 +41,6 @@ namespace Enemies.Walking {
 		}
 
 		private void Attack() {
-			Debug.Log("ant attack");
 			player.Value.GetComponent<PlayerHealthController>().Damage(1);
 		}
 	}

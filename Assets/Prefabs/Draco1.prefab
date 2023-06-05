@@ -1416,7 +1416,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   providerTemplate: {fileID: 11400000, guid: 42cade871ebf54aa4bf6b7a33223fb00, type: 2}
-  speed: 0.1
+  speed: 0.03
   projectilePrefab: {fileID: 9102964983298940347, guid: 02425cc6fbcf542ccbd7acd3495a77c6,
     type: 3}
 --- !u!1 &6875547318664124545
