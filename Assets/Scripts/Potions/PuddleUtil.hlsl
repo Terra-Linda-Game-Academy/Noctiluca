@@ -59,7 +59,9 @@ void GetPointColor_float(in float2 UV, out float4 Out) {
         }
     }
     const float normDist = sqrt(minDist2) / closest.size;
-    Out = float4(lerp(closest.Color1(), closest.Color2(), normDist), normDist <= 1);
+    //Out = float4(frac(UV), 0, 1);
+    clip(normDist <= 1);
+    Out = float4(lerp(closest.Color1(), closest.Color2(), normDist), 1);
     #else
     Out = float4(UV, 0, 1);
     #endif

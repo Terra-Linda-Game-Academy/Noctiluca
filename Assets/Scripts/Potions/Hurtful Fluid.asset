@@ -71,7 +71,7 @@ MonoBehaviour:
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
   cooldown: 1.5
-  size: 10
+  size: 0.5
   sizeRandom: 0.2
   lifetime: 5
   lifetimeRandom: 1.2

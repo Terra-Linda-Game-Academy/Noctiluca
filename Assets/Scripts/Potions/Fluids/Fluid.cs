@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 
 namespace Potions.Fluids {
@@ -29,8 +31,10 @@ namespace Potions.Fluids {
             this.exponent = exponent;
         }
 
-        public float InitialSize => Random.Range(size - sizeRandom, size + sizeRandom);
-        public float InitialLifetime => Random.Range(lifetime - lifetimeRandom, lifetime + lifetimeRandom);
+        public float InitialSize => 
+            Mathf.Max(Random.Range(size - sizeRandom, size + sizeRandom), 0.1f);
+        public float InitialLifetime => 
+            Mathf.Max(Random.Range(lifetime - lifetimeRandom, lifetime + lifetimeRandom), 0.1f);
         
         public float LifeProgress(float trueLifetime, float secondsActive) => 
             Mathf.Clamp01(Mathf.Pow(secondsActive / trueLifetime, exponent));
