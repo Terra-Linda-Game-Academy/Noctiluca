@@ -123,11 +123,14 @@ namespace Player {
 		}
 
 		private void ThrowPotion() {
+			Debug.Log("Tried to throw potion");
 			if (inventory.IsEmpty) return;
 			
 			Potion potion = inventory.Current;
 
 			if (potion.IsEmpty) return;
+			
+			Debug.Log("Threw Potion!!!");
 
 			Vector3 potionSpawnPos = _perceptron.eyes.position + transform.up + _attack.attackDir;
 

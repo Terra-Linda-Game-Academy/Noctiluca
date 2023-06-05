@@ -8,7 +8,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace Potions {
     [RequireComponent(typeof(BoxCollider), typeof(DecalProjector))]
-    [ExecuteInEditMode]
+    //[ExecuteInEditMode]
     public class Puddle : MonoBehaviour {
         private class PointMetadata {
             public readonly float Lifetime;
@@ -95,10 +95,10 @@ namespace Potions {
 
         private Mesh cubeMesh;
         private Material puddleMaterial;
+        private DecalProjector projector;
+        private ComputeBuffer pointsBuffer;
         private BoxCollider boxCollider;
-
         private Fluid fluid;
-
         public Fluid Fluid {
             get => fluid;
             set {
@@ -115,7 +115,6 @@ namespace Potions {
         private float maxY;
 
         private Dictionary<GameObject, float> cooldowns;
-        [SerializeField] private FluidAsset fluidAsset;
 
         private Vector3 Scale =>
             new Vector3(xPoints.Max - xPoints.Min, Mathf.Max(maxY - minY, 1), zPoints.Max - zPoints.Min);
@@ -134,6 +133,9 @@ namespace Potions {
             puddleMaterial = CoreUtils.CreateEngineMaterial("Hidden/FixedPuddle");
             boxCollider = GetComponent<BoxCollider>();
             boxCollider.isTrigger = true;
+            projector = GetComponent<DecalProjector>();
+            projector.material = puddleMaterial;
+            transform.rotation = Quaternion.Euler(90, 0, 0);
             ResetFluid();
         }
 
@@ -158,13 +160,16 @@ namespace Potions {
             }
         }*/
 
-        private void LateUpdate() {
+        private void Update() {
             UpdatePoints();
-            if (points.Count > 0) RenderPuddle();
+            boxCollider.size = Scale;
+            boxCollider.center = Center;
+            /*if (points is not null && points.Count > 0) */RenderPuddle();
             //Debug.Log("Rendering Puddle!!!!");
         }
 
-        private void OnDrawGizmos() {
+        /*private void OnDrawGizmos() {
+            if (points is null) return;
             foreach (PointMetadata metadata in points) {
                 Vector3 pos = new Vector3(metadata.Point.Pos.x, 0f, metadata.Point.Pos.y);
                 pos += transform.position;
@@ -172,7 +177,7 @@ namespace Potions {
                 Gizmos.color = metadata.Point.PrimaryColor;
                 Gizmos.DrawSphere(pos, metadata.Point.Size / 2f);
             }
-        }
+        }*/
 
         private void OnTriggerStay(Collider other) {
             if (other.gameObject.layer == LayerMask.GetMask("Room")) return;
@@ -212,7 +217,7 @@ namespace Potions {
         }
 
         private void UpdatePoints() {
-            if (points.Count <= 0) return;
+            if (points is null || points.Count <= 0) return;
             for (int i = points.Count - 1; i >= 0; i--) {
                 points[i].Update(Fluid);
                 if (!points[i].IsActive) {
@@ -234,28 +239,29 @@ namespace Potions {
             minY = Mathf.Min(minY, pos.y);
             maxY = Mathf.Max(maxY, pos.y);
             boxCollider.size = Scale;
-            boxCollider.center = Center;
         }
 
         private void RenderPuddle() {
+            pointsBuffer?.Release();
+            if (points.Count <= 0) return;
             var pointsArray = points.Select(metaData => metaData.Point).ToArray();
-            var pointsBuffer = new ComputeBuffer(
+            pointsBuffer = new ComputeBuffer(
                 pointsArray.Length, Marshal.SizeOf<Point>(),
                 ComputeBufferType.Structured
             );
+            
             pointsBuffer.SetData(pointsArray);
-
+            
+            //Debug.Log(pointsBuffer.IsValid());
             var min = Min;
             var scale = Scale;
-            var localToWorld = Matrix4x4.TRS(min, Quaternion.identity, scale);
 
+            projector.uvScale = new Vector2(scale.x, scale.z);
+            projector.uvBias = new Vector2(min.x, min.z);
+
+            puddleMaterial.SetInteger("PointCount", pointsArray.Length);
             puddleMaterial.SetBuffer("Points", pointsBuffer);
-            puddleMaterial.SetInteger("PointCount", points.Count);
-            puddleMaterial.SetVector("ScaleOffset", new Vector4(scale.x, scale.z, min.x, min.z));
-
-            Graphics.DrawMesh(cubeMesh, localToWorld, puddleMaterial, 0);
-
-            pointsBuffer.Release();
+            //Graphics.DrawMesh(cubeMesh, localToWorld, puddleMaterial, 0);
         }
 
         private void OnDestroy() {
