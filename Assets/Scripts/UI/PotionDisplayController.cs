@@ -24,7 +24,7 @@ namespace UI {
 
 		private BetterPlayerController _player;
 
-		private void Awake() {
+		private void OnEnable() {
 			_player = (BetterPlayerController) player.Value;
 
 			_player.inventory.OnPotionChange += () => {

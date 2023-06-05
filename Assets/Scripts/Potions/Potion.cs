@@ -1,5 +1,4 @@
 using Potions.Fluids;
-using UnityEditor;
 
 namespace Potions {
     public class Potion {
@@ -16,15 +15,9 @@ namespace Potions {
             
             string fluidTypeName = Fluid.GetType().Name;
 
-            string[] words = ObjectNames.NicifyVariableName(fluidTypeName).Split(" ");
+            string name = fluidTypeName[..^5];
 
-            string name = "";
-
-            for (int i = 0; i < words.Length - 1; i++) {
-                name += words[i] + " ";
-            }
-
-            name += "Potion";
+            name += " Potion";
             
             return name;
         }
