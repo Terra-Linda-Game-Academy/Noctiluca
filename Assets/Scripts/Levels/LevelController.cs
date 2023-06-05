@@ -25,7 +25,7 @@ namespace Levels {
 
 		private List<GameObject> _hallways;
 
-		private void Start() => Generate();
+		//private void Start() => Generate();
 
 		public void Generate() {
 			DateTime start = DateTime.Now;

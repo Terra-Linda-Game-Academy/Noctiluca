@@ -23,7 +23,7 @@ MonoBehaviour:
       data:
         perceptron: {fileID: 0}
         MaxViewDistance: 20
-        MaxViewAngle: 60
+        MaxViewAngle: 90
         Player:
           useConstant: 0
           variable: {fileID: 11400000, guid: 771557aef5fdc44c9988a4d5e27e3180, type: 2}
