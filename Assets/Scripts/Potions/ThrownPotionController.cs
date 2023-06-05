@@ -1,4 +1,5 @@
 using System;
+using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -30,18 +31,26 @@ namespace Potions {
 		private void OnCollisionEnter(Collision other) {
 			if (other.gameObject.layer != LayerMask.NameToLayer("Room")) return;
 
-			GameObject puddleObj = new GameObject {transform = {position = transform.position}, name = "Puddle"};
+			var pos = transform.position;
+			GameObject puddleObj = new GameObject {transform = {position = pos}, name = "Puddle"};
 
 			Puddle puddle = puddleObj.AddComponent<Puddle>();
 			puddle.Fluid = _potion.Fluid;
 
-			float radius      = 1/*_potion.Remaining*/ * _potion.Fluid.Size;
-			int   numOfPoints = (int) (1/*_potion.Remaining*/ * 10f);
+			float radius      = _potion.Fluid.Size * 4;
+			int numOfPoints = 25;
 
 			for (int i = 0; i < numOfPoints; i++) {
-				Vector2 point = Random.insideUnitCircle * radius;
+				Vector2 point = new Vector2(pos.x, pos.z) + Random.insideUnitCircle * radius;
 
-				puddle.AddPoint(new Vector3(point.x, transform.position.y, point.y));
+				Vector3 pt3d = new Vector3(point.x, pos.y + 0.1f, point.y);
+
+				if (Physics.Raycast(
+					new Ray(pt3d, Vector3.down),
+					out var hit, 2, ~LayerMask.NameToLayer("Room")
+				)) {
+					puddle.AddPoint(pt3d);
+				}
 			}
 
 			Destroy(gameObject);

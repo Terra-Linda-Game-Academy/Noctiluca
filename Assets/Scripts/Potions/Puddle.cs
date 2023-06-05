@@ -7,7 +7,7 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
 namespace Potions {
-    [RequireComponent(typeof(BoxCollider), typeof(DecalProjector))]
+    [RequireComponent(typeof(BoxCollider))]
     //[ExecuteInEditMode]
     public class Puddle : MonoBehaviour {
         private class PointMetadata {
@@ -20,7 +20,7 @@ namespace Potions {
             public bool IsActive { get; private set; }
 
 
-            public PointMetadata(Fluid fluid, Vector2 position) {
+            public PointMetadata(Fluid fluid, Vector3 position) {
                 Lifetime = fluid.InitialLifetime;
                 initialSize = fluid.InitialSize;
                 Point = new Point(
@@ -52,8 +52,9 @@ namespace Potions {
             public float Size => size;
 
             private readonly ushort x;
+            private readonly ushort y;
             private readonly ushort z;
-            public Vector2 Pos => new Vector2(Mathf.HalfToFloat(x), Mathf.HalfToFloat(z));
+            public Vector3 Pos => new Vector3(Mathf.HalfToFloat(x), Mathf.HalfToFloat(y), Mathf.HalfToFloat(z));
 
             private ushort r1;
             private ushort g1;
@@ -80,9 +81,10 @@ namespace Potions {
                 }
             }
 
-            public Point(Color primary, Color secondary, Vector2 position, float size) {
+            public Point(Color primary, Color secondary, Vector3 position, float size) {
                 x = Mathf.FloatToHalf(position.x);
-                z = Mathf.FloatToHalf(position.y);
+                y = Mathf.FloatToHalf(position.y);
+                z = Mathf.FloatToHalf(position.z);
                 this.size = size;
 
                 r1 = g1 = b1 = 0;
@@ -93,10 +95,8 @@ namespace Potions {
             }
         }
 
-        private Mesh cubeMesh;
+        private Mesh cylinderMesh;
         private Material puddleMaterial;
-        private DecalProjector projector;
-        private ComputeBuffer pointsBuffer;
         private BoxCollider boxCollider;
         private Fluid fluid;
         public Fluid Fluid {
@@ -129,12 +129,11 @@ namespace Potions {
             );
 
         private void Awake() {
-            cubeMesh = CoreUtils.CreateCubeMesh(Vector3.zero, Vector3.one);
-            puddleMaterial = CoreUtils.CreateEngineMaterial("Hidden/FixedPuddle");
+            cylinderMesh = Resources.GetBuiltinResource<Mesh>("New-Cylinder.fbx");
+            puddleMaterial = Resources.Load<Material>("PuddleMaterial");
+            puddleMaterial.enableInstancing = true;
             boxCollider = GetComponent<BoxCollider>();
             boxCollider.isTrigger = true;
-            projector = GetComponent<DecalProjector>();
-            projector.material = puddleMaterial;
             transform.rotation = Quaternion.Euler(90, 0, 0);
             ResetFluid();
         }
@@ -162,22 +161,24 @@ namespace Potions {
 
         private void Update() {
             UpdatePoints();
-            boxCollider.size = Scale;
-            boxCollider.center = Center;
+            var scale = Scale;
+            boxCollider.size = new Vector3(scale.x, scale.z, scale.y);
+            //boxCollider.center = Center;
             /*if (points is not null && points.Count > 0) */RenderPuddle();
             //Debug.Log("Rendering Puddle!!!!");
         }
 
-        /*private void OnDrawGizmos() {
+        private void OnDrawGizmos() {
             if (points is null) return;
+            Gizmos.matrix = Matrix4x4.identity;
             foreach (PointMetadata metadata in points) {
                 Vector3 pos = new Vector3(metadata.Point.Pos.x, 0f, metadata.Point.Pos.y);
-                pos += transform.position;
-
+                //pos += transform.position;
+                
                 Gizmos.color = metadata.Point.PrimaryColor;
-                Gizmos.DrawSphere(pos, metadata.Point.Size / 2f);
+                Gizmos.DrawSphere(pos, metadata.Point.Size);
             }
-        }*/
+        }
 
         private void OnTriggerStay(Collider other) {
             if (other.gameObject.layer == LayerMask.GetMask("Room")) return;
@@ -185,14 +186,16 @@ namespace Potions {
             cooldowns.TryAdd(other.gameObject, Fluid.Cooldown);
 
             if (!(
-                Physics.Raycast(new Ray(other.transform.position, Vector3.down), out var hit)
+                Physics.Raycast(
+                    new Ray(other.transform.position, Vector3.down), 
+                    out var hit, 0.1f, ~LayerMask.NameToLayer("Room"))
                 && cooldowns[other.gameObject] <= 0
             )) return;
 
-            Vector2 pos = hit.point;
+            Vector2 pos = new Vector2(hit.point.x, hit.point.z);
             foreach (var ptMetadata in points) {
                 var pt = ptMetadata.Point;
-                Vector2 dist = pt.Pos - pos;
+                Vector2 dist = new Vector2(pt.Pos.x, pt.Pos.z) - pos;
                 if (dist.sqrMagnitude <= pt.Size * pt.Size) {
                     fluid.ApplyEffect(
                         other.gameObject,
@@ -232,7 +235,7 @@ namespace Potions {
         }
 
         public void AddPoint(Vector3 pos) {
-            var pointMetadata = new PointMetadata(Fluid, new Vector2(pos.x, pos.z));
+            var pointMetadata = new PointMetadata(Fluid, pos);
             points.Add(pointMetadata);
             xPoints.Add(pos.x);
             zPoints.Add(pos.z);
@@ -242,7 +245,34 @@ namespace Potions {
         }
 
         private void RenderPuddle() {
-            pointsBuffer?.Release();
+            if (points.Count <= 0) return;
+            MaterialPropertyBlock properties = new MaterialPropertyBlock();
+
+            Matrix4x4[] matrices = new Matrix4x4[points.Count];
+            Vector4[] colors = new Vector4[points.Count];
+            var pos = transform.position;
+
+            for (int i = 0; i < points.Count; i++) {
+                var pt = points[i].Point;
+                matrices[i] = Matrix4x4.TRS(
+                    pt.Pos, 
+                    Quaternion.identity,
+                    new Vector3(pt.Size, 0.1f, pt.Size)
+                );
+                var color = pt.PrimaryColor;
+                colors[i] = new Vector4(color.r, color.g, color.b, 1);
+            }
+
+            properties.SetVectorArray("_BaseColor", colors);
+            
+            Graphics.DrawMeshInstanced(
+                cylinderMesh, 0, puddleMaterial, 
+                matrices, points.Count, properties, ShadowCastingMode.Off
+            );
+
+
+            //Graphics.DrawMeshInstanced(cylinderMesh, 0, puddleMaterial, );
+            /*pointsBuffer?.Release();
             if (points.Count <= 0) return;
             var pointsArray = points.Select(metaData => metaData.Point).ToArray();
             pointsBuffer = new ComputeBuffer(
@@ -251,22 +281,22 @@ namespace Potions {
             );
             
             pointsBuffer.SetData(pointsArray);
+
+            transform.position = Center;
             
             //Debug.Log(pointsBuffer.IsValid());
             var min = Min;
             var scale = Scale;
 
+            projector.size = new Vector3(scale.x, scale.z, scale.y);
             projector.uvScale = new Vector2(scale.x, scale.z);
             projector.uvBias = new Vector2(min.x, min.z);
 
             puddleMaterial.SetInteger("PointCount", pointsArray.Length);
             puddleMaterial.SetBuffer("Points", pointsBuffer);
-            //Graphics.DrawMesh(cubeMesh, localToWorld, puddleMaterial, 0);
-        }
-
-        private void OnDestroy() {
-            CoreUtils.Destroy(cubeMesh);
-            CoreUtils.Destroy(puddleMaterial);
+            
+            
+            //Graphics.DrawMesh(cubeMesh, localToWorld, puddleMaterial, 0);*/
         }
     }
 }
