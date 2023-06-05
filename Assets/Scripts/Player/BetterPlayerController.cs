@@ -1,12 +1,11 @@
-using System.Collections;
+using System.Collections.Generic;
 using AI;
 using Input.ConcreteInputProviders;
 using Input.Data;
+using Potions;
+using Potions.Fluids;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
-using UnityEngine.UI;
 using Util;
-using System.Collections;
 using UnityEngine.Serialization;
 
 namespace Player {
@@ -16,14 +15,17 @@ namespace Player {
 		[SerializeField] private PlayerInputProvider       inputProvider;
 		[SerializeField] private RuntimeVar<MonoBehaviour> playerVar;
 
+		private Perceptron _perceptron;
+
+		public Inventory inventory;
+
+		[SerializeField] private GameObject thrownPotionPrefab;
+
 		[SerializeField] private Transform stepCheck;
 		[SerializeField] private Transform headCheck;
 
 		[SerializeField, Range(0f, 100f)] //How fast the player can change direction, how snappy the control is.
-		float maxAcceleration = 10f, maxAirAcceleration = 1f; //acceleration should be more sluggish in the air.
-
-		[SerializeField] float jumpheight;
-		[SerializeField] float stepheight;
+		float maxAcceleration = 10f, maxAirAcceleration = 1f;
 
 		[SerializeField, Range(0f, 100f)]          float    maxSpeed = 10f;
 		[FormerlySerializedAs("_animator")] public Animator animator;
@@ -42,7 +44,7 @@ namespace Player {
 		private bool      OnGround => _groundContactCount > 0;
 		private bool      _desiredJump;
 		private float     _minGroundDotProduct;
-		Animator          m_Animator;
+		private Animator  _animator;
 
 		private SwordAttack _attack;
 
@@ -50,6 +52,8 @@ namespace Player {
 		private static readonly int Idle     = Animator.StringToHash("Idle");
 		private static readonly int Attack   = Animator.StringToHash("Attack");
 		private static readonly int Throwing = Animator.StringToHash("Throwing");
+
+		[SerializeField] private List<FluidAsset> startingPotions;
 
 		private void OnEnable() { playerVar.Value = this; }
 
@@ -62,12 +66,25 @@ namespace Player {
 
 			_attack = GetComponent<SwordAttack>();
 
-			inputProvider.RequireInit(GetComponent<Perceptron>());
+			_perceptron = GetComponent<Perceptron>();
+			inputProvider.RequireInit(_perceptron);
 			inputProvider.Events.Interact += () => { Debug.Log("interact"); };
-			//inputProvider.Events.Attack   += _attack.Attack;
-			inputProvider.Events.Attack += () => { animator.SetTrigger(Attack); };
+			inputProvider.Events.Attack += () => {
+				                               _attack.Attack();
+				                               animator.SetTrigger(Attack);
+			                               };
 
-			inputProvider.Events.Throw += () => { animator.SetTrigger(Throwing); };
+			inputProvider.Events.Throw += ThrowPotion;
+
+			inputProvider.Events.PotionSwap += inventory.SelectNext;
+
+			foreach (FluidAsset fluidAsset in startingPotions) {
+				Potion pot = new Potion(fluidAsset.GetFluid(), 1f, 1f);
+
+				inventory.Add(pot);
+			}
+
+			inventory.OnPotionChange?.Invoke();
 		}
 
 
@@ -81,12 +98,19 @@ namespace Player {
 		}
 
 		private void FixedUpdate() {
-			if (Physics.Raycast(stepCheck.position, stepCheck.TransformDirection(Vector3.forward), .6f)
-			 && !Physics.Raycast(headCheck.position, headCheck.TransformDirection(Vector3.forward), .6f)) {
-				Debug.Log("blame jackson for the jank, not me");
-				transform.position = new Vector3(transform.position.x + transform.forward.x * 1.005f,
-				                                 transform.position.y + .1f,
-				                                 transform.position.z + transform.forward.z * 1.005f);
+			if (Physics.Raycast(stepCheck.position, stepCheck.forward, out var hit, .6f)
+			 && !Physics.Raycast(headCheck.position, headCheck.forward, .6f)
+			 && !hit.collider.isTrigger) {
+				float headCheckHeight = headCheck.localPosition.y - stepCheck.localPosition.y;
+
+				float forward = hit.distance;
+
+				Vector3 downRayOrigin = headCheck.position + headCheck.forward * forward;
+
+				Physics.Raycast(downRayOrigin, -headCheck.up, out var downHit, 1f);
+				float up = headCheckHeight - downHit.distance;
+
+				transform.position += transform.forward * forward + transform.up * up;
 			}
 
 			PlayerInput input = inputProvider.GetInput();
@@ -97,20 +121,37 @@ namespace Player {
 			UpdateState();
 			AdjustVelocity();
 			RotatePlayer(_desiredVelocity);
-			/*if(_desiredVelocity.magnitude > 0)
-			{
-				//start moving anim
-				m_Animator.SetTrigger("JogStart");
-			} else {
-				//stop moving anim
-			}
-			*/
 			_body.velocity = _velocity;
 			UpdateAnimation();
 			ClearState();
 		}
 
-		void UpdateAnimation() {
+		private void ThrowPotion() {
+			if (inventory.IsEmpty) return;
+
+			Potion potion = inventory.Current;
+
+			if (potion.IsEmpty) return;
+
+			Vector3 potionSpawnPos = _perceptron.eyes.position + transform.up + _attack.attackDir;
+
+			GameObject potionObj = Instantiate(thrownPotionPrefab, potionSpawnPos, Quaternion.identity);
+
+			Vector3 throwVec = transform.up + _attack.attackDir * 3;
+			potionObj.GetComponent<Rigidbody>().AddForce(throwVec, ForceMode.Impulse);
+
+			ThrownPotionController thrownPotion = potionObj.GetComponent<ThrownPotionController>();
+
+			thrownPotion.Init(potion);
+
+			animator.SetTrigger(Throwing);
+
+			potion.Remaining -= 0.05f;
+			if (potion.IsEmpty) potion.Remaining = 0;
+			inventory.OnPotionChange?.Invoke();
+		}
+
+		private void UpdateAnimation() {
 			if (_body.velocity != Vector3.zero
 			 && !animator.GetCurrentAnimatorStateInfo(0).IsName("Throwing")
 			 && !animator.GetCurrentAnimatorStateInfo(0).IsName("Attack")) {
@@ -128,7 +169,7 @@ namespace Player {
 			//
 		}
 
-		void UpdateState() {
+		private void UpdateState() {
 			_velocity = _body.velocity;
 			if (OnGround) {
 				if (_groundContactCount > 1) { _contactNormal.Normalize(); }
@@ -136,7 +177,7 @@ namespace Player {
 		}
 
 		// This method adjusts the velocity of the character based on input and the current state.
-		void AdjustVelocity() {
+		private void AdjustVelocity() {
 			//Projects the x and z axis to line up with the ground contact plane so that movement follows the slope of the ground.
 			Vector3 xAxis = ProjectOnContactPlane(Vector3.right).normalized;
 			Vector3 zAxis = ProjectOnContactPlane(Vector3.forward).normalized;
@@ -158,12 +199,12 @@ namespace Player {
 			_velocity += xAxis * (newX - currentX) + zAxis * (newZ - currentZ);
 		}
 
-		void ClearState() {
+		private void ClearState() {
 			_groundContactCount = 0;
 			_contactNormal      = Vector3.zero;
 		}
 
-		Vector3 ProjectOnContactPlane(Vector3 vector) {
+		private Vector3 ProjectOnContactPlane(Vector3 vector) {
 			return vector - _contactNormal * Vector3.Dot(vector, _contactNormal);
 			/* Project planes along contact normal. E. g. player movement x axis is projected along contact normal so
 		 * that movement follows the slope of the ground instead of clipping into it.
@@ -172,7 +213,7 @@ namespace Player {
 
 		//TODO: Change this method because its so bad
 		// it is pretty funny tho - jackson r
-		void RotatePlayer(Vector3 vector) {
+		private void RotatePlayer(Vector3 vector) {
 			if (!(vector.magnitude > minVelocityThreshold)) return;
 			Quaternion targetRotation = Quaternion.LookRotation(vector.normalized, Vector3.up);
 			targetRotation.x = 0f;
@@ -183,11 +224,11 @@ namespace Player {
 		}
 
 
-		void OnCollisionEnter(Collision collision) { EvaluateCollision(collision); }
+		private void OnCollisionEnter(Collision collision) { EvaluateCollision(collision); }
 
-		void OnCollisionStay(Collision collision) { EvaluateCollision(collision); }
+		private void OnCollisionStay(Collision collision) { EvaluateCollision(collision); }
 
-		void EvaluateCollision(Collision collision) {
+		private void EvaluateCollision(Collision collision) {
 			/* I forgot what this method does. Looks like it might be a traversal to add up the contact point normals
 		 * that are not overly steep to create the contactNormal but your guess is probably better than mine.
 		 */

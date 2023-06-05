@@ -39,9 +39,18 @@ namespace Input
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""Aim"",
+                    ""name"": ""MouseAim"",
                     ""type"": ""Value"",
                     ""id"": ""6645ce86-5f04-49dc-8862-8c04af563f7e"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""GamepadAim"",
+                    ""type"": ""Value"",
+                    ""id"": ""4ed7df5d-498f-4f2c-a782-f9567d830481"",
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -202,18 +211,7 @@ namespace Input
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard & Mouse"",
-                    ""action"": ""Aim"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""db3560d3-bb8d-4a42-af4c-209edad4c0fd"",
-                    ""path"": ""<Gamepad>/rightStick"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Gamepad"",
-                    ""action"": ""Aim"",
+                    ""action"": ""MouseAim"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -302,6 +300,17 @@ namespace Input
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Throw"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""db3560d3-bb8d-4a42-af4c-209edad4c0fd"",
+                    ""path"": ""<Gamepad>/rightStick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""GamepadAim"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -583,7 +592,8 @@ namespace Input
             // In Game
             m_InGame = asset.FindActionMap("In Game", throwIfNotFound: true);
             m_InGame_Movement = m_InGame.FindAction("Movement", throwIfNotFound: true);
-            m_InGame_Aim = m_InGame.FindAction("Aim", throwIfNotFound: true);
+            m_InGame_MouseAim = m_InGame.FindAction("MouseAim", throwIfNotFound: true);
+            m_InGame_GamepadAim = m_InGame.FindAction("GamepadAim", throwIfNotFound: true);
             m_InGame_PotionSwap = m_InGame.FindAction("Potion Swap", throwIfNotFound: true);
             m_InGame_Interact = m_InGame.FindAction("Interact", throwIfNotFound: true);
             m_InGame_Attack = m_InGame.FindAction("Attack", throwIfNotFound: true);
@@ -654,7 +664,8 @@ namespace Input
         private readonly InputActionMap m_InGame;
         private IInGameActions m_InGameActionsCallbackInterface;
         private readonly InputAction m_InGame_Movement;
-        private readonly InputAction m_InGame_Aim;
+        private readonly InputAction m_InGame_MouseAim;
+        private readonly InputAction m_InGame_GamepadAim;
         private readonly InputAction m_InGame_PotionSwap;
         private readonly InputAction m_InGame_Interact;
         private readonly InputAction m_InGame_Attack;
@@ -664,7 +675,8 @@ namespace Input
             private @InputActions m_Wrapper;
             public InGameActions(@InputActions wrapper) { m_Wrapper = wrapper; }
             public InputAction @Movement => m_Wrapper.m_InGame_Movement;
-            public InputAction @Aim => m_Wrapper.m_InGame_Aim;
+            public InputAction @MouseAim => m_Wrapper.m_InGame_MouseAim;
+            public InputAction @GamepadAim => m_Wrapper.m_InGame_GamepadAim;
             public InputAction @PotionSwap => m_Wrapper.m_InGame_PotionSwap;
             public InputAction @Interact => m_Wrapper.m_InGame_Interact;
             public InputAction @Attack => m_Wrapper.m_InGame_Attack;
@@ -681,9 +693,12 @@ namespace Input
                     @Movement.started -= m_Wrapper.m_InGameActionsCallbackInterface.OnMovement;
                     @Movement.performed -= m_Wrapper.m_InGameActionsCallbackInterface.OnMovement;
                     @Movement.canceled -= m_Wrapper.m_InGameActionsCallbackInterface.OnMovement;
-                    @Aim.started -= m_Wrapper.m_InGameActionsCallbackInterface.OnAim;
-                    @Aim.performed -= m_Wrapper.m_InGameActionsCallbackInterface.OnAim;
-                    @Aim.canceled -= m_Wrapper.m_InGameActionsCallbackInterface.OnAim;
+                    @MouseAim.started -= m_Wrapper.m_InGameActionsCallbackInterface.OnMouseAim;
+                    @MouseAim.performed -= m_Wrapper.m_InGameActionsCallbackInterface.OnMouseAim;
+                    @MouseAim.canceled -= m_Wrapper.m_InGameActionsCallbackInterface.OnMouseAim;
+                    @GamepadAim.started -= m_Wrapper.m_InGameActionsCallbackInterface.OnGamepadAim;
+                    @GamepadAim.performed -= m_Wrapper.m_InGameActionsCallbackInterface.OnGamepadAim;
+                    @GamepadAim.canceled -= m_Wrapper.m_InGameActionsCallbackInterface.OnGamepadAim;
                     @PotionSwap.started -= m_Wrapper.m_InGameActionsCallbackInterface.OnPotionSwap;
                     @PotionSwap.performed -= m_Wrapper.m_InGameActionsCallbackInterface.OnPotionSwap;
                     @PotionSwap.canceled -= m_Wrapper.m_InGameActionsCallbackInterface.OnPotionSwap;
@@ -703,9 +718,12 @@ namespace Input
                     @Movement.started += instance.OnMovement;
                     @Movement.performed += instance.OnMovement;
                     @Movement.canceled += instance.OnMovement;
-                    @Aim.started += instance.OnAim;
-                    @Aim.performed += instance.OnAim;
-                    @Aim.canceled += instance.OnAim;
+                    @MouseAim.started += instance.OnMouseAim;
+                    @MouseAim.performed += instance.OnMouseAim;
+                    @MouseAim.canceled += instance.OnMouseAim;
+                    @GamepadAim.started += instance.OnGamepadAim;
+                    @GamepadAim.performed += instance.OnGamepadAim;
+                    @GamepadAim.canceled += instance.OnGamepadAim;
                     @PotionSwap.started += instance.OnPotionSwap;
                     @PotionSwap.performed += instance.OnPotionSwap;
                     @PotionSwap.canceled += instance.OnPotionSwap;
@@ -800,7 +818,8 @@ namespace Input
         public interface IInGameActions
         {
             void OnMovement(InputAction.CallbackContext context);
-            void OnAim(InputAction.CallbackContext context);
+            void OnMouseAim(InputAction.CallbackContext context);
+            void OnGamepadAim(InputAction.CallbackContext context);
             void OnPotionSwap(InputAction.CallbackContext context);
             void OnInteract(InputAction.CallbackContext context);
             void OnAttack(InputAction.CallbackContext context);

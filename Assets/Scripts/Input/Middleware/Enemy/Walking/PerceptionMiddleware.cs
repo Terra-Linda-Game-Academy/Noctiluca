@@ -14,7 +14,7 @@ namespace Input.Middleware.Enemy.Walking {
 
 		public override void TransformInput(ref WalkingEnemyInput inputData) {
 			if (perceptron.VisionCone(Player.Value.gameObject, MaxViewDistance, MaxViewAngle / 2,
-			                          ~LayerMask.GetMask("Player"))) {
+			                          ~LayerMask.GetMask("Player", "Ignore Raycast"))) {
 				inputData.PlayerPos = Player.Value.transform.position;
 				inputData.State     = WalkingEnemyState.Chase;
 			} else { inputData.State = WalkingEnemyState.Idle; }

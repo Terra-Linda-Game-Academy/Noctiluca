@@ -10,7 +10,7 @@ namespace Enemies {
 			set {
 				_health = value;
 
-				if (value == 0) { OnZero?.Invoke(); } else { OnChange?.Invoke(value); }
+				if (value <= 0) { OnZero?.Invoke(); } else { OnChange?.Invoke(value); }
 			}
 		}
 

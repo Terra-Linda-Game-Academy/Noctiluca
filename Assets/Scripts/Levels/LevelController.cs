@@ -25,7 +25,7 @@ namespace Levels {
 
 		private List<GameObject> _hallways;
 
-		private void Start() => Generate();
+		//private void Start() => Generate();
 
 		public void Generate() {
 			DateTime start = DateTime.Now;
@@ -315,6 +315,7 @@ namespace Levels {
 			RoomController controller = obj.GetComponent<RoomController>();
 			controller.Room = room;
 			controller.Init();
+			obj.layer = LayerMask.NameToLayer("Room");
 
 			if (objName == "") { obj.name = room.name + $" {controller.RoomId.ToString()}"; } else {
 				obj.name = objName;

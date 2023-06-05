@@ -1,5 +1,4 @@
 using System;
-using AI;
 using Input.Data;
 
 namespace Input.Events {
@@ -7,13 +6,16 @@ namespace Input.Events {
 		public event Action Interact;
 		public event Action Attack;
 		public event Action Throw;
+		public event Action PotionSwap;
 
-		private void InvokeInteract() => Interact?.Invoke();
-		private void InvokeAttack()   => Attack?.Invoke();
-		private void InvokeThrow()    => Throw?.Invoke();
+		private void InvokeInteract()   => Interact?.Invoke();
+		private void InvokeAttack()     => Attack?.Invoke();
+		private void InvokeThrow()      => Throw?.Invoke();
+		private void InvokePotionSwap() => PotionSwap?.Invoke();
 
 		public Dispatcher GetDispatcher(Func<PlayerInput> inputFunc) {
-			Dispatcher dispatcher = new Dispatcher(inputFunc, InvokeInteract, InvokeAttack, InvokeThrow);
+			Dispatcher dispatcher =
+				new Dispatcher(inputFunc, InvokeInteract, InvokeAttack, InvokeThrow, InvokePotionSwap);
 			return dispatcher;
 		}
 
@@ -21,15 +23,18 @@ namespace Input.Events {
 			private readonly Action _invokeInteract;
 			private readonly Action _invokeAttack;
 			private readonly Action _invokeThrow;
+			private readonly Action _invokePotionSwap;
 
 			public Dispatcher(Func<PlayerInput> inputFunc,
 			                  Action            invokeInteract,
 			                  Action            invokeAttack,
-			                  Action            invokeThrow) :
+			                  Action            invokeThrow,
+			                  Action            invokePotionSwap) :
 				base(inputFunc) {
-				_invokeInteract = invokeInteract;
-				_invokeAttack   = invokeAttack;
-				_invokeThrow    = invokeThrow;
+				_invokeInteract   = invokeInteract;
+				_invokeAttack     = invokeAttack;
+				_invokeThrow      = invokeThrow;
+				_invokePotionSwap = invokePotionSwap;
 			}
 
 			public void Interact() {
@@ -38,9 +43,11 @@ namespace Input.Events {
 				if (input.Movement.magnitude < .2) _invokeInteract?.Invoke();
 			}
 
-			public void Attack() { _invokeAttack?.Invoke(); }
+			public void Attack() => _invokeAttack?.Invoke();
 
-			public void Throw() { _invokeThrow?.Invoke(); }
+			public void Throw() => _invokeThrow?.Invoke();
+
+			public void PotionSwap() => _invokePotionSwap?.Invoke();
 		}
 	}
 }

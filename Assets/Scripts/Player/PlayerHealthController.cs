@@ -58,7 +58,12 @@ namespace Player {
 
         public void Damage(int d)
         {
-			if (Health - d < 0) {Health = 0; return;}
+	        if (Health - d < 0) {
+		        Health = 0;
+		        Debug.Log("die");
+		        Application.Quit();
+		        return;
+	        }
 			Health -= d; //damage the player by d
 			UpdateHealthBar();
 		}
