@@ -1119,7 +1119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76d706ca62bd4ae438434f09de7157cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  text: Please stop
+  text: '"inspirational quote"'
   timeBetween: 0.1
   gameUIController: {fileID: 2001893403}
 --- !u!4 &1318582524
@@ -1784,6 +1784,38 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 475505641, guid: 48ca9a3aa2d80504c897560988e85476, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 475505642, guid: 48ca9a3aa2d80504c897560988e85476, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 475505642, guid: 48ca9a3aa2d80504c897560988e85476, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 475505642, guid: 48ca9a3aa2d80504c897560988e85476, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 47.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 743818177, guid: 48ca9a3aa2d80504c897560988e85476, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 743818180, guid: 48ca9a3aa2d80504c897560988e85476, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 743818180, guid: 48ca9a3aa2d80504c897560988e85476, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 743818180, guid: 48ca9a3aa2d80504c897560988e85476, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 73
+      objectReference: {fileID: 0}
     - target: {fileID: 2918379187393967390, guid: 48ca9a3aa2d80504c897560988e85476,
         type: 3}
       propertyPath: playerTransform
@@ -1848,6 +1880,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6955082918663548550, guid: 48ca9a3aa2d80504c897560988e85476,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6955082918663548551, guid: 48ca9a3aa2d80504c897560988e85476,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 6955082918663548551, guid: 48ca9a3aa2d80504c897560988e85476,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 6955082918663548551, guid: 48ca9a3aa2d80504c897560988e85476,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 98.1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 48ca9a3aa2d80504c897560988e85476, type: 3}
