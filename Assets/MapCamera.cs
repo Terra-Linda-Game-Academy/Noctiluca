@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class MapCamera : MonoBehaviour
 {
-
+    public float height = 25f;
     public struct MapItemInfo {
         public GameObject gameObject;
         public Vector2 position;
@@ -33,6 +33,8 @@ public class MapCamera : MonoBehaviour
 
     void Start()
     {
+        transform.position = new Vector3(playerTransform.position.x, playerTransform.position.y+ height, playerTransform.position.z);
+        transform.rotation = Quaternion.Euler(90, 0, 0);
         offset = transform.position - playerTransform.position;
     }
 

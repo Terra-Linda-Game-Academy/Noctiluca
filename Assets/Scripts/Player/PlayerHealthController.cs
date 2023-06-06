@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Util;
+using UnityEngine.SceneManagement;
 
 namespace Player {
 	public class PlayerHealthController : MonoBehaviour {
@@ -61,7 +62,9 @@ namespace Player {
 	        if (Health - d < 0) {
 		        Health = 0;
 		        Debug.Log("die");
-		        Application.Quit();
+		        Health = maxHealth;
+				transform.position = new Vector3(2, 2, 2);
+
 		        return;
 	        }
 			Health -= d; //damage the player by d
