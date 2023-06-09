@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
 using TMPro;
+using UnityEngine.UI;
 
 public class TalkingPopup : MonoBehaviour
 {
@@ -10,6 +11,8 @@ public class TalkingPopup : MonoBehaviour
     public TextMeshProUGUI dialogText;
 
     int currentDialogIdentifier = 0;
+
+    public Image characterImage;
 
 
     bool open = false;
@@ -39,11 +42,14 @@ public class TalkingPopup : MonoBehaviour
     }
 
     
-    IEnumerator DialogPopup(string text, float timeBetween) {
+    IEnumerator DialogPopup(string text, float timeBetween, Sprite characterSprite) {
+        characterImage.sprite = characterSprite;
         int identifier = currentDialogIdentifier;
         dialogText.text = "";
-        Open();
-        yield return new WaitForSeconds(1f);
+        if(!open) {
+            Open();
+            yield return new WaitForSeconds(1f);
+        }
         foreach (var letter in text)
         {
             //Makes sure same dialog
@@ -65,10 +71,10 @@ public class TalkingPopup : MonoBehaviour
 
     }
 
-    public void StartDialog(string text, float timeBetween)
+    public void StartDialog(string text, float timeBetween, Sprite characterSprite)
     {
         currentDialogIdentifier++;
-        StartCoroutine(DialogPopup(text, timeBetween));
+        StartCoroutine(DialogPopup(text, timeBetween, characterSprite));
     }
 
 }

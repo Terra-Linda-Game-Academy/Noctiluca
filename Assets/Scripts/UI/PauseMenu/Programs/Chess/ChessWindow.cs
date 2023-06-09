@@ -2291,6 +2291,7 @@ public class ChessWindow : MonoBehaviour
     }
 
     public void NormalMode() {
+        Debug.Log("Normal Mode");
         screenSaverMode = false;
         rainbow = false;
         pieceScale = 0.9f;

@@ -24,8 +24,8 @@ public class GameUIController : MonoBehaviour
         TimerText.text = minutes + ":" + seconds;
     }
 
-    public void ShowPopup(string text, float timeBetween) {
-        talkingPopup.StartDialog(text, timeBetween);
+    public void ShowPopup(string text, float timeBetween, Sprite characterImage) {
+        talkingPopup.StartDialog(text, timeBetween, characterImage);
     }
 
 

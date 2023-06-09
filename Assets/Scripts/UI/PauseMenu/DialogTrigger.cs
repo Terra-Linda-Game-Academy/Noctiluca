@@ -10,11 +10,13 @@ public class DialogTrigger : MonoBehaviour
 
     public GameUIController gameUIController;
 
+    public Sprite characterImage;
+
     void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Player")
         {
-            gameUIController.ShowPopup(text, timeBetween);
+            gameUIController.ShowPopup(text, timeBetween, characterImage);
         }
     }
 }
